@@ -29,7 +29,7 @@ app.on('ready', init);
 function www(path = '') {
     let __root = './';
     
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.ENV === 'development') {
         __root = 'http://localhost:8080/';
     }
     

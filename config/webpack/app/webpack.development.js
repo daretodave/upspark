@@ -17,7 +17,7 @@ let config = {};
 (function(plugins) {
 
     let env = (function(config) {
-        config['process.env.NODE_ENV'] = JSON.stringify('development');
+        config['process.env.ENV'] = JSON.stringify('development');
         return new DefinePlugin(config);
     })({});
 

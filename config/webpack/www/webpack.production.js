@@ -9,7 +9,7 @@ let config = {};
 (function(plugins) {
 
     let env = (function(config) {
-        config['process.env.NODE_ENV'] = JSON.stringify('production');
+        config['process.env.ENV'] = JSON.stringify('production');
         return new DefinePlugin(config);
     })({});
 
