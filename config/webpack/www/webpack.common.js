@@ -32,9 +32,9 @@ let config = {};
     // Chunks required only for www module
     let www = [];
 
-    www.push('app/app');
-    www.push('app/include/vendors');
-    www.push('app/include/polyfills');
+    www.push('bundle');
+    www.push('include/vendors');
+    www.push('include/polyfills');
 
     // Make sure shared dependencies don't double up
     let common = (function(config) {
@@ -46,7 +46,7 @@ let config = {};
     // Inject app dependencies into the html
     let html = (function(config) {
         config.template = Helpers.path('src', 'www', 'index.html');
-        config.filename = 'app/app.html';
+        config.filename = 'index.html';
         config.chunks   = www;
 
         return new HtmlPlugin(config);
@@ -61,9 +61,9 @@ let config = {};
 
 (function(entry) {
 
-    entry['app/app'] = Helpers.path('src', 'www', 'index.ts');
-    entry['app/include/vendors'] = Helpers.path('src', 'www', 'lib', 'vendors.ts');
-    entry['app/include/polyfills'] = Helpers.path('src', 'www', 'lib', 'polyfills.ts');
+    entry['bundle'] = Helpers.path('src', 'www', 'index.ts');
+    entry['include/vendors'] = Helpers.path('src', 'www', 'lib', 'vendors.ts');
+    entry['include/polyfills'] = Helpers.path('src', 'www', 'lib', 'polyfills.ts');
 
 })(config.entry = {});
 

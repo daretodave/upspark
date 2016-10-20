@@ -1,15 +1,37 @@
 /// <reference path="../typings/index.d.ts" />
 const {app, BrowserWindow} = require('electron');
 
-let win:any;
-
+let settings:any;
 
 let init = () => {
-    win = new BrowserWindow({width: 600, height: 800});
-    win.loadURL(`http://localhost:8080/app/app.html`);
-    win.on('closed', () => {
-        win = null;
+    openSettingsWindow();
+};
+
+let openSettingsWindow = () => {
+    let options: any = {};
+    
+    options.width  = 600;
+    options.height = 900;
+    options.icon = www('static/icon/bulb.ico');
+    
+    settings = new BrowserWindow(options);
+    settings.loadURL(www('index.html'));
+
+    settings.on('closed', () => {
+        settings = null;
     });
+    
 };
 
 app.on('ready', init);
+
+
+function www(path = '') {
+    let __root = './';
+    
+    if (process.env.NODE_ENV === 'development') {
+        __root = 'http://localhost:8080/';
+    }
+    
+    return `${__root}${path}`
+}

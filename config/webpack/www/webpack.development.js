@@ -1,8 +1,11 @@
 import merge from 'webpack-merge';
 import electron from 'webpack-target-electron-renderer';
+import Webpack from 'webpack';
 
 import Helpers from '../../helpers';
 import common from './webpack.common';
+
+let {DefinePlugin} = Webpack;
 
 let config = {};
 
@@ -14,6 +17,19 @@ let config = {};
     output.chunkFilename = '[id].chunk.js';
 
 })(config.output = {});
+
+(function(plugins) {
+
+    let env = (function(config) {
+        config['process.env.NODE_ENV'] = JSON.stringify('development');
+        return new DefinePlugin(config);
+    })({});
+    
+    plugins.push(
+      env 
+    );
+
+})(config.plugins = []);
 
 (function(server) {
 
