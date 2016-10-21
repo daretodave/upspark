@@ -14,14 +14,13 @@ import {RunnerSplitComponent} from "./runner-split.component";
                     {
                         path: '',
                         redirectTo: 'basic',
-                        pathMatch: 'full'
                     },
                     {
                         path: 'basic',
                         component: RunnerBasicComponent,
                     },
                     {
-                        path: 'basic',
+                        path: 'split',
                         component: RunnerSplitComponent,
                     }
                 ]

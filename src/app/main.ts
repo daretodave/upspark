@@ -58,7 +58,7 @@ let initTray = () => {
 
     tray.on('click', () => {
         runner.isVisible() ? runner.hide() : runner.show()
-    })
+    });
     
     tray.setContextMenu(Menu.buildFromTemplate(options));
     tray.setToolTip('Upspark');
@@ -67,13 +67,17 @@ let initTray = () => {
 let initSettings = () => {
     let options: any = {};
 
-    options.width  = 600;
-    options.height = 900;
+    options.width  = 800;
+    options.height = 500;
     options.show = false;
+    options.title = 'Upspark - Settings';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
     settings = new BrowserWindow(options);
-    settings.loadURL(www('index.html'));
+    settings.loadURL(www('settings'));
+    settings.setMenu(null);
+
+    settings.on('close', () => settings.hide());
 
 };
 
@@ -83,12 +87,20 @@ let initRunner = () => {
     options.width  = 500;
     options.height = 100;
     options.frame = false;
+    options.resizable = false;
+    options.movable = false;
+    options.maximizable = false;
+    options.minimizable = false;
+    options.closable = false;
     options.transparent = true;
+    options.alwaysOnTop = true;
+    options.skipTaskbar = true;
+    options.title = 'Upspark - Runner';
     options.show = false;
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
     runner = new BrowserWindow(options);
-    runner.loadURL(www('index.html/runner'));
+    runner.loadURL(www('runner'));
 
     runner.on('show', () => {
         tray.setHighlightMode('always')
@@ -102,10 +114,10 @@ let initRunner = () => {
 app.on('ready', init);
 
 function www(path = '') {
-    let __root = './';
+    let __root = './index.html/#/';
     
     if (process.env.ENV === 'development') {
-        __root = 'http://localhost:8080/';
+        __root = 'http://localhost:8080/#/';
     }
     
     return `${__root}${path}`
