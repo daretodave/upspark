@@ -61,7 +61,7 @@ export const relaunch = (callback) => {
 export const redeploy = series(webpackAppForDev, relaunch);
 
 export const observeChanges = () => {
-    watch('./src/app/**/*', redeploy);
+    watch('./src/app/**/*.ts', redeploy);
     watch('./src/static/**/*', cleanCopyStaticFiles);
 };
 

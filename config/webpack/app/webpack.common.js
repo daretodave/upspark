@@ -2,6 +2,8 @@ import Helpers from '../../helpers';
 
 let config = {};
 
+config.target = 'node';
+
 (function(module, loaders) {
 
     let typescript = {};
@@ -22,6 +24,14 @@ let config = {};
     entry.main = Helpers.path('src', 'app', 'main.ts');
 
 })(config.entry = {});
+
+(function(node) {
+    
+    node.__dirname = false;
+    node.__filename = false;
+    
+})(config.node = {});
+    
 
 (function(externals) {
 
