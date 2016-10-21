@@ -5,6 +5,7 @@ const path = require('path');
 let settings: any;
 let runner: any;
 let tray: any;
+let quit:boolean = false;
 
 let init = () => {
     initSettings();
@@ -77,7 +78,14 @@ let initSettings = () => {
     settings.loadURL(www('settings'));
     settings.setMenu(null);
 
-    settings.on('close', () => settings.hide());
+    settings.on('close', (e:any) => {
+        if(quit) {
+            settings = null;
+        } else {
+            e.preventDefault();
+            settings.hide();
+        }
+    });
 
 };
 
@@ -91,7 +99,6 @@ let initRunner = () => {
     options.movable = false;
     options.maximizable = false;
     options.minimizable = false;
-    options.closable = false;
     options.transparent = true;
     options.alwaysOnTop = true;
     options.skipTaskbar = true;
@@ -109,9 +116,20 @@ let initRunner = () => {
         tray.setHighlightMode('never')
     });
 
+    runner.on('close', (e:any) => {
+        if(quit) {
+            runner = null;
+        } else {
+            e.preventDefault();
+            runner.hide();
+        }
+    });
+    
 };
 
 app.on('ready', init);
+app.on('activate', () => runner.show());
+app.on('before-quit', () => quit = true);
 
 function www(path = '') {
     let __root = './index.html/#/';
