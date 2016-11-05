@@ -1,5 +1,7 @@
 /// <reference path="../typings/index.d.ts" />
-import {Resources} from "./system/resources";
+import {Resource} from './system/resource';
+import {Settings} from "./system/settings";
+
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const path = require('path');
 
@@ -7,15 +9,23 @@ let settings: any;
 let runner: any;
 let tray: any;
 let quit:boolean = false;
-let resources:Resources;
+let resources:Resource;
 
 let init = () => {
 
-    resources
+    resources = new Resource(path.join(app.getPath('home'), '.horizon'));
+    resources.attach('settings.json', Settings);
 
-    initSettings();
-    initRunner();
-    initTray();
+    resources.load('settings')
+    .then(() => {
+      initSettings();
+      initRunner();
+      initTray();
+    }).catch(() => {
+        console.log("what the fuck...");
+    });
+
+
 };
 
 let initTray = () => {
