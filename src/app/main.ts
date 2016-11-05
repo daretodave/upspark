@@ -1,6 +1,7 @@
 /// <reference path="../typings/index.d.ts" />
 import {Resource} from './system/resource';
 import {Settings} from "./system/settings";
+import {ResourceModel} from "./system/resource/resource-model";
 
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const path = require('path');

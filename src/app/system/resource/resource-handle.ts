@@ -7,13 +7,13 @@ import {Resource} from "./resource";
 
 const fs = require('fs');
 
-export class ResourceHandle<T extends ResourceModel<T>> {
+export class ResourceHandle<T extends ResourceModel> {
 
     private promise:ResourcePromise<T>;
 
     constructor(
         private path: string,
-        private type: T,
+        private type: { new(...args: any[]): T },
         private onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_DEFAULT,
         private format: string = 'utf8',
         private translator: ResourceTranslator = new JSONTranslator(),

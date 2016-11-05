@@ -34,7 +34,7 @@ export class Resource {
     init(resolve: () => void, reject: (reason? : any) => void) {
         fs.mkdir(this.root, 777, (error: NodeJS.ErrnoException) => {
 
-            if(error != null && error.code !== 'EEXIST') {
+            if(error != null || error.code !== 'EEXIST') {
                 reject(error);
                 return;
             }
@@ -44,7 +44,7 @@ export class Resource {
         });
     }
 
-    attach<T extends ResourceModel<T>>(path: string, type:T, key:string = null, translator: ResourceTranslator = new JSONTranslator(), onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_BLANK): ResourceHandle<T> {
+    attach<T extends ResourceModel>(path: string, type: { new(...args: any[]): T }, key:string = null, translator: ResourceTranslator = new JSONTranslator(), onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_BLANK): ResourceHandle<T> {
         let handle: ResourceHandle<T> = new ResourceHandle(_path.join(this.root, path), type, onMissingPolicy, 'utf8', translator, this);
 
         if(key === null) {
@@ -64,7 +64,7 @@ export class Resource {
         return handle;
     }
 
-    load<T extends ResourceModel<T>>(key: string): ResourcePromise<T> {
+    load<T extends ResourceModel>(key: string): ResourcePromise<T> {
         this.validateProvidedKey(key, true);
 
         return this.resources.get(key).load();

@@ -1,9 +1,11 @@
 import {ResourceModel} from "./resource/resource-model";
-import {Resource} from "./resource/resource";
-export class Settings implements ResourceModel<Settings> {
+export class Settings implements ResourceModel {
 
     private width:number;
     private height:number;
+
+    constructor() {
+    }
 
     toDefaultState() {
         this.width = 100;

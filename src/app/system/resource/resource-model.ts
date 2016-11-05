@@ -1,7 +1,4 @@
-import {Resource} from './resource';
-export interface ResourceModel<T> {
-
-    new(): ResourceModel<T>;
+export interface ResourceModel {
 
     toDefaultState(): void;
 
