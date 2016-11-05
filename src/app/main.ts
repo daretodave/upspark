@@ -1,4 +1,5 @@
 /// <reference path="../typings/index.d.ts" />
+import {Resources} from "./system/resources";
 const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const path = require('path');
 
@@ -6,8 +7,12 @@ let settings: any;
 let runner: any;
 let tray: any;
 let quit:boolean = false;
+let resources:Resources;
 
 let init = () => {
+
+    resources
+
     initSettings();
     initRunner();
     initTray();
