@@ -3,8 +3,10 @@ import {ResourceTranslator} from "./resource-translator";
 import {JSONTranslator} from "./translators/translate-json";
 import {ResourcePromise} from "./resource-promise";
 import {ResourceMissingPolicy} from "./resource-missing-policy";
+import {ResourceModel} from "./resource-model";
 
 const _path = require('path');
+const fs = require('fs');
 
 export class Resource {
 
@@ -29,8 +31,21 @@ export class Resource {
         }
     }
 
-    attach<T>(path: string, type:T, key:string = null, translator: ResourceTranslator = new JSONTranslator(), onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_BLANK): ResourceHandle<T> {
-        let handle: ResourceHandle<T> = new ResourceHandle(_path.join(this.root, path), type, onMissingPolicy, translator);
+    init(resolve: () => void, reject: (reason? : any) => void) {
+        fs.mkdir(this.root, 777, (error: NodeJS.ErrnoException) => {
+
+            if(error != null && error.code !== 'EEXIST') {
+                reject(error);
+                return;
+            }
+
+            resolve();
+
+        });
+    }
+
+    attach<T extends ResourceModel<T>>(path: string, type:T, key:string = null, translator: ResourceTranslator = new JSONTranslator(), onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_BLANK): ResourceHandle<T> {
+        let handle: ResourceHandle<T> = new ResourceHandle(_path.join(this.root, path), type, onMissingPolicy, 'utf8', translator, this);
 
         if(key === null) {
             let ext: string = _path.extname(path);
@@ -49,7 +64,7 @@ export class Resource {
         return handle;
     }
 
-    load<T>(key: string): ResourcePromise<T> {
+    load<T extends ResourceModel<T>>(key: string): ResourcePromise<T> {
         this.validateProvidedKey(key, true);
 
         return this.resources.get(key).load();
