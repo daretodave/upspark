@@ -1,11 +1,11 @@
 import {Component, ViewEncapsulation} from '@angular/core';
 
+require("./app.component.scss");
 
 @Component({
     selector: 'app',
     template: '<router-outlet></router-outlet>',
     encapsulation: ViewEncapsulation.None,
-    styleUrls: ['app.component.scss']
 })
 export class AppComponent {
 

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
+require('./runner-split.component.scss');
 
 @Component({
     selector: 'up-runner-split',
     templateUrl: 'runner-split.component.html',
-    styleUrls: [ 'runner-split.component.scss' ]
 })
 export class RunnerSplitComponent {
 

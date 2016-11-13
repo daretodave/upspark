@@ -2,10 +2,11 @@ import {Component, AfterViewInit, OnInit} from '@angular/core';
 
 const {ipcRenderer} = require('electron');
 
+require('./runner.component.scss');
+
 @Component({
     selector: 'up-runner',
     templateUrl: 'runner.component.html',
-    styleUrls: ['runner.component.scss']
 })
 export class RunnerComponent implements AfterViewInit {
     ngAfterViewInit(): void {

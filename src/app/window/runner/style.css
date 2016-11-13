@@ -8,3 +8,17 @@
     font-family: 'Roboto', sans-serif;
 }
 
+/*
+ * The debug text in the bottom left hand corner
+ */
+#runner-debug {
+    color: white;
+}
+
+/*
+ * The runner's current path when directory searching
+ */
+#runner-path {
+    color: white;
+    font-size: 1em;
+}

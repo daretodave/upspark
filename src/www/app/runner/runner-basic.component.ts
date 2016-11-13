@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 
+require('./runner-basic.component.scss');
 
 @Component({
     selector: 'up-runner-basic',
     templateUrl: 'runner-basic.component.html',
-    styleUrls: [ 'runner-basic.component.scss' ]
 })
 export class RunnerBasicComponent {
 
