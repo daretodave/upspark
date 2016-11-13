@@ -55,7 +55,7 @@ let adhereSettings = () => {
             offsetX: 0,
             offsetY: .5,
             screen: 0
-        }).then(function(location:Location) {
+        }).then((location:Location) => {
             let displays:any[] = electron.screen.getAllDisplays();
             let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
 
@@ -69,16 +69,24 @@ let adhereSettings = () => {
                 }).then(function(size:Size) {
                     let width:number = size.width * display.bounds.width;
                     let height:number = size.height * display.bounds.height;
-1
+
                     x += width * location.offsetX;
                     y += height * location.offsetY;
+
+                    x = Math.floor(x);
+                    y = Math.floor(y);
+                    width = Math.ceil(width);
+                    height = Math.ceil(height);
 
                     console.log(x, y, width, height);
 
                     runner.setPosition(x, y);
                     runner.setSize(width, height);
-                });
-        });
+
+            }).catch((error) => {
+                console.log(error);
+            });
+        })
 
 
 };
