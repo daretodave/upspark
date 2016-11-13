@@ -2,11 +2,11 @@ import merge from 'webpack-merge';
 import electron from 'webpack-target-electron-renderer';
 import Webpack from 'webpack';
 
+
 import Helpers from '../../helpers';
 import common from './webpack.common';
 
 let {DefinePlugin} = Webpack;
-
 let config = {};
 
 (function(output) {
@@ -24,9 +24,10 @@ let config = {};
         config['process.env.ENV'] = JSON.stringify('development');
         return new DefinePlugin(config);
     })({});
-    
+
+
     plugins.push(
-      env 
+        env
     );
 
 })(config.plugins = []);

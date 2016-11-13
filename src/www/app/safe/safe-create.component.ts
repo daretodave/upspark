@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+require('./safe-create.component');
 
 @Component({
     selector: 'up-safe-create',

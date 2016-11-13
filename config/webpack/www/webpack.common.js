@@ -2,6 +2,7 @@ import Helpers from '../../helpers';
 
 import Webpack from 'webpack';
 import HtmlPlugin from 'html-webpack-plugin';
+import ProvidePlugin from 'webpack/lib/ProvidePlugin';
 
 let {CommonsChunkPlugin} = Webpack.optimize;
 
@@ -10,6 +11,7 @@ let config = {};
 (function(module, loaders) {
 
     let typescript = {},
+        bootstrap = {},
         html = {},
         scss = {};
 
@@ -17,6 +19,9 @@ let config = {};
     typescript.loaders = [];
     typescript.loaders.push('awesome-typescript-loader');
     typescript.loaders.push('angular2-template-loader');
+
+    bootstrap.test = /bootstrap[\/\\]dist[\/\\]js[\/\\]umd[\/\\]/;
+    bootstrap.loader = 'imports?jQuery=jquery';
 
     html.test = /\.html$/;
     html.loader = 'html';
@@ -31,7 +36,8 @@ let config = {};
     loaders.push(
         typescript,
         html,
-        scss
+        scss,
+        bootstrap
     );
 
 })(config.module = {}, config.module.loaders = []);
@@ -61,9 +67,20 @@ let config = {};
         return new HtmlPlugin(config);
     })({});
 
+    let provide = (function(mappings) {
+        mappings.jQuery = 'jquery';
+        mappings.$ = 'jquery';
+        mappings.jquery = 'jquery';
+        mappings.Tether = 'tether';
+        mappings["window.Tether"] = 'tether';
+        return new ProvidePlugin(mappings);
+    })({});
+
+
     plugins.push(
         common,
-        html
+        html,
+        provide
     );
 
 })(config.plugins = []);
