@@ -6,7 +6,7 @@ export class JSONTranslator implements ResourceTranslator {
     }
 
     serialize<T>(model: T): string {
-        return JSON.stringify(model);
+        return JSON.stringify(model, null, 4);
     }
 
 }

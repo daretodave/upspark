@@ -43,7 +43,7 @@ export class Resource {
         });
     }
 
-    attach<T extends ResourceModel>(path: string, type: { new(...args: any[]): T }, key:string = null, translator: ResourceTranslator = new JSONTranslator(), onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_BLANK): ResourceHandle<T> {
+    attach<T extends ResourceModel>(path: string, type: { new(...args: any[]): T }, key:string = null, translator: ResourceTranslator = new JSONTranslator(), onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_DEFAULT): ResourceHandle<T> {
         let handle: ResourceHandle<T> = new ResourceHandle(_path.join(this.root, path), type, onMissingPolicy, 'utf8', translator, this);
 
         if(key === null) {
