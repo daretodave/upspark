@@ -3,7 +3,7 @@ import {Resource} from './system/resource';
 import {Settings} from "./system/settings";
 import {Size} from "./model/size";
 import {Location} from "./model/location";
-import {Style} from "./window/style";
+import {Style} from "./window/runner/style";
 import {TextTranslator} from "./system/resource/translators/translate-text";
 
 const path = require('path');
