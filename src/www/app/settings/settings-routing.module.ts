@@ -9,7 +9,7 @@ import {SettingsAppearanceComponent} from "./settings-appearance.component";
         RouterModule.forChild([
             {
                 path: '',
-                redirectTo: 'settings',
+                redirectTo: 'safe',
                 pathMatch: 'full'
             },
             {

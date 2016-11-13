@@ -1,6 +1,6 @@
-import {ResourceModel} from "./resource/resource-model";
-import {Location} from "../model/location";
-import {Size} from "../model/size";
+import {ResourceModel} from "../../system/resource/resource-model";
+import {Location} from "../../model/location";
+import {Size} from "../../model/size";
 export class Settings implements ResourceModel {
 
     public location:Location;
@@ -21,7 +21,7 @@ export class Settings implements ResourceModel {
 
         this.size = new Size();
         this.size.width = 1;
-        this.size.height = .33;
+        this.size.height = .5;
 
         this.hotkey = 'Control+`';
 

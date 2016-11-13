@@ -1,24 +1,29 @@
 /// <reference path="../typings/index.d.ts" />
 import {Resource} from './system/resource';
-import {Settings} from "./system/settings";
+import {Settings} from "./window/runner/settings";
 import {Size} from "./model/size";
 import {Location} from "./model/location";
 import {Style} from "./window/runner/style";
 import {TextTranslator} from "./system/resource/translators/translate-text";
+import {Safe} from "./system/safe";
 
 const path = require('path');
 const electron = require('electron');
 const {app, BrowserWindow, Tray, Menu, globalShortcut, shell} = electron;
 
-let settings: any;
-let runner: any;
-let safe: any;
+let settingsWindow: any;
+let runnerWindow: any;
+let safeWindow: any;
+
 let tray: any;
 let quit:boolean = false;
+
 let resources:Resource;
+let safe: Safe;
 
 let init = () => {
 
+    safe = new Safe(path.join(app.getPath('appData'), 'upspark'));
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
 
     resources.attach('settings.json', Settings);
@@ -26,7 +31,8 @@ let init = () => {
 
     Promise.all([
         resources.load('settings'),
-        resources.load('style')
+        resources.load('style'),
+        safe.init()
     ])
     .then(() => {
         initSettings();
@@ -34,7 +40,7 @@ let init = () => {
         initSafe();
         initTray();
 
-        runner.webContents.on('did-finish-load', adhereSettings);
+        runnerWindow.webContents.on('did-finish-load', adhereSettings);
     }).catch((e) => {
         console.log(e);
         //TODO: Error window
@@ -96,9 +102,12 @@ let adhereSettings = () => {
         width = Math.ceil(width);
         height = Math.ceil(height);
 
-        runner.setPosition(x, y);
-        runner.setSize(width, height);
-        runner.webContents.send('style', style);
+        console.log(display.bounds.width, display.bounds.height, size.width, size.height);
+        console.log(x, y, width, height);
+
+        runnerWindow.setPosition(x, y);
+        runnerWindow.setSize(width, height);
+        runnerWindow.webContents.send('style', style);
 
         globalShortcut.register(hotkey, toggleRunner);
     }).catch((error) => {
@@ -107,7 +116,7 @@ let adhereSettings = () => {
     });
 };
 let toggleRunner = () => {
-    runner.isVisible() ? runner.hide() : runner.show()
+    runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
 };
 let initTray = () => {
     tray = new Tray(path.join(__dirname, 'static', 'icon', '512.png'));
@@ -116,11 +125,11 @@ let initTray = () => {
 
     options.push({
         'label': 'Settings',
-        click: () => settings.show()
+        click: () => settingsWindow.show()
     });
     options.push({
         'label': 'Safe',
-        click: () => safe.show()
+        click: () => safeWindow.show()
     });
     
     options.push({
@@ -128,7 +137,7 @@ let initTray = () => {
     });
     options.push({
        'label': 'Runner',
-        click: () => runner.show()
+        click: () => runnerWindow.show()
     });
     options.push({
         'label': 'Resources',
@@ -176,16 +185,25 @@ let initSafe = () => {
     options.title = 'Upspark - Safe';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
-    safe = new BrowserWindow(options);
-    safe.loadURL(www('safe'));
-    safe.setMenu(null);
+    safeWindow = new BrowserWindow(options);
+    if(safe.created) {
+        safeWindow.loadURL(www('safe/auth'));
+    } else {
+        safeWindow.loadURL(www('safe/create'));
+    }
 
-    safe.on('close', (e:any) => {
+
+
+    if (process.env.ENV !== 'development') {
+        safeWindow.setMenu(null);
+    }
+
+    safeWindow.on('close', (e:any) => {
         if(quit) {
-            safe = null;
+            safeWindow = null;
         } else {
             e.preventDefault();
-            safe.hide();
+            safeWindow.hide();
         }
     });
 };
@@ -198,16 +216,19 @@ let initSettings = () => {
     options.title = 'Upspark - Settings';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
-    settings = new BrowserWindow(options);
-    settings.loadURL(www('settings'));
-    settings.setMenu(null);
+    settingsWindow = new BrowserWindow(options);
+    settingsWindow.loadURL(www('settings'));
 
-    settings.on('close', (e:any) => {
+    if (process.env.ENV !== 'development') {
+        settingsWindow.setMenu(null);
+    }
+
+    settingsWindow.on('close', (e:any) => {
         if(quit) {
-            settings = null;
+            settingsWindow = null;
         } else {
             e.preventDefault();
-            settings.hide();
+            settingsWindow.hide();
         }
     });
 
@@ -230,26 +251,22 @@ let initRunner = () => {
     options.show = false;
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
-    if (process.env.ENV === 'development') {
-        //options.frame = true;
-    }
+    runnerWindow = new BrowserWindow(options);
+    runnerWindow.loadURL(www('runner'));
 
-    runner = new BrowserWindow(options);
-    runner.loadURL(www('runner'));
-
-    runner.on('show', () => {
+    runnerWindow.on('show', () => {
         tray.setHighlightMode('always')
     });
-    runner.on('hide', () => {
+    runnerWindow.on('hide', () => {
         tray.setHighlightMode('never')
     });
 
-    runner.on('close', (e:any) => {
+    runnerWindow.on('close', (e:any) => {
         if(quit) {
-            runner = null;
+            runnerWindow = null;
         } else {
             e.preventDefault();
-            runner.hide();
+            runnerWindow.hide();
         }
     });
 
@@ -258,7 +275,7 @@ let initRunner = () => {
 };
 
 app.on('ready', init);
-app.on('activate', () => runner.show());
+app.on('activate', () => runnerWindow.show());
 app.on('before-quit', () => quit = true);
 
 function www(path = '') {

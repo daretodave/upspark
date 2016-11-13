@@ -11,7 +11,7 @@ export class RunnerComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         ipcRenderer.on('style', (event:any, arg:string) => {
 
-            let style = document.getElementById('runner-style');
+            let style = document.getElementById('runnerWindow-style');
             if (style === null) {
                 style = document.createElement('style');
                 document.head.appendChild(style);
