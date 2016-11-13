@@ -3,6 +3,8 @@ import {Resource} from './system/resource';
 import {Settings} from "./system/settings";
 import {Size} from "./model/size";
 import {Location} from "./model/location";
+import {Style} from "./window/style";
+import {TextTranslator} from "./system/resource/translators/translate-text";
 
 const path = require('path');
 const electron = require('electron');
@@ -18,16 +20,18 @@ let init = () => {
 
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
     resources.attach('settings.json', Settings);
+    resources.attach('style.css', Style, new TextTranslator());
 
-    resources.load('settings')
+    Promise.all([
+        resources.load('settings'),
+        resources.load('style')
+    ])
     .then(() => {
+        initSettings();
+        initRunner();
+        initTray();
 
-
-          initSettings();
-          initRunner();
-          initTray();
-
-          adhereSettings();
+        runner.webContents.on('did-finish-load', adhereSettings);
     }).catch((e) => {
         console.log(e);
         //TODO: Error window
@@ -37,58 +41,68 @@ let init = () => {
 };
 
 let reload = () => {
-    resources.reload('settings').then(() => adhereSettings());
-
+    Promise.all([
+        resources.reload('settings'),
+        resources.reload('style')
+    ])
+    .then(() => adhereSettings())
+    .catch((e) => {
+        console.log(e);
+        //TODO: Error window
+    });
 };
 
 let adhereSettings = () => {
     globalShortcut.unregisterAll();
 
-    resources
-        .get('settings', 'hotkey', 'Control+`')
-        .then((hotkey:string) => globalShortcut.register(hotkey, toggleRunner));
-
-    resources
-        .get('settings', 'location', {
+    Promise.all([
+        resources.get('settings', 'hotkey', 'Control+`'),
+        resources.get('settings', 'location', {
             x: 0,
             y: 0,
             offsetX: 0,
             offsetY: .5,
             screen: 0
-        }).then((location:Location) => {
-            let displays:any[] = electron.screen.getAllDisplays();
-            let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
+        }),
+        resources.get('settings', 'size', {
+            width: 1,
+            height: .33
+        }),
+        resources.get('style', 'content', '')
+    ]).then((values) => {
 
-            let x:number = display.bounds.x + (display.bounds.width * location.x);
-            let y:number = display.bounds.y + (display.bounds.width * location.y);
+        let hotkey:string = values[0];
+        let location:Location = values[1];
+        let size:Size = values[2];
+        let style:string = values[3];
 
-            resources
-                .get('settings', 'size', {
-                    width: 1,
-                    height: .33
-                }).then(function(size:Size) {
-                    let width:number = size.width * display.bounds.width;
-                    let height:number = size.height * display.bounds.height;
+        let displays:any[] = electron.screen.getAllDisplays();
+        let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
 
-                    x += width * location.offsetX;
-                    y += height * location.offsetY;
+        let x:number = display.bounds.x + (display.bounds.width * location.x);
+        let y:number = display.bounds.y + (display.bounds.width * location.y);
 
-                    x = Math.floor(x);
-                    y = Math.floor(y);
-                    width = Math.ceil(width);
-                    height = Math.ceil(height);
+        let width:number = size.width * display.bounds.width;
+        let height:number = size.height * display.bounds.height;
 
-                    console.log(x, y, width, height);
+        x += width * location.offsetX;
+        y += height * location.offsetY;
 
-                    runner.setPosition(x, y);
-                    runner.setSize(width, height);
+        x = Math.floor(x);
+        y = Math.floor(y);
 
-            }).catch((error) => {
-                console.log(error);
-            });
-        })
+        width = Math.ceil(width);
+        height = Math.ceil(height);
 
+        runner.setPosition(x, y);
+        runner.setSize(width, height);
+        runner.webContents.send('style', style);
 
+        globalShortcut.register(hotkey, toggleRunner);
+    }).catch((error) => {
+        console.log(error);
+        //TODO: Error window
+    });
 };
 let toggleRunner = () => {
     runner.isVisible() ? runner.hide() : runner.show()
@@ -187,6 +201,10 @@ let initRunner = () => {
     options.title = 'Upspark - Runner';
     options.show = false;
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
+
+    if (process.env.ENV === 'development') {
+        options.frame = true;
+    }
 
     runner = new BrowserWindow(options);
     runner.loadURL(www('runner'));

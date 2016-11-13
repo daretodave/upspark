@@ -12,9 +12,14 @@ config.target = 'node';
     typescript.loaders = [];
     typescript.loaders.push('ts-loader');
 
+    let css = {};
+    css.test = /\.css$/;
+    css.loaders = [];
+    css.loaders.push('css-loader');
 
     loaders.push(
-        typescript
+        typescript,
+        css
     );
 
 })(config.module = {}, config.module.loaders = []);
