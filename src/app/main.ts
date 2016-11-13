@@ -1,9 +1,12 @@
 /// <reference path="../typings/index.d.ts" />
 import {Resource} from './system/resource';
 import {Settings} from "./system/settings";
+import {Size} from "./model/size";
+import {Location} from "./model/location";
 
-const {app, BrowserWindow, Tray, Menu, shell} = require('electron');
 const path = require('path');
+const electron = require('electron');
+const {app, BrowserWindow, Tray, Menu, globalShortcut, shell} = electron;
 
 let settings: any;
 let runner: any;
@@ -18,9 +21,13 @@ let init = () => {
 
     resources.load('settings')
     .then(() => {
-      initSettings();
-      initRunner();
-      initTray();
+
+
+          initSettings();
+          initRunner();
+          initTray();
+
+          adhereSettings();
     }).catch((e) => {
         console.log(e);
         //TODO: Error window
@@ -29,6 +36,55 @@ let init = () => {
 
 };
 
+let reload = () => {
+    resources.reload('settings').then(() => adhereSettings());
+
+};
+
+let adhereSettings = () => {
+    globalShortcut.unregisterAll();
+
+    resources
+        .get('settings', 'hotkey', 'Control+`')
+        .then((hotkey:string) => globalShortcut.register(hotkey, toggleRunner));
+
+    resources
+        .get('settings', 'location', {
+            x: 0,
+            y: 0,
+            offsetX: 0,
+            offsetY: .5,
+            screen: 0
+        }).then(function(location:Location) {
+            let displays:any[] = electron.screen.getAllDisplays();
+            let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
+
+            let x:number = display.bounds.x + (display.bounds.width * location.x);
+            let y:number = display.bounds.y + (display.bounds.width * location.y);
+
+            resources
+                .get('settings', 'size', {
+                    width: 1,
+                    height: .33
+                }).then(function(size:Size) {
+                    let width:number = size.width * display.bounds.width;
+                    let height:number = size.height * display.bounds.height;
+1
+                    x += width * location.offsetX;
+                    y += height * location.offsetY;
+
+                    console.log(x, y, width, height);
+
+                    runner.setPosition(x, y);
+                    runner.setSize(width, height);
+                });
+        });
+
+
+};
+let toggleRunner = () => {
+    runner.isVisible() ? runner.hide() : runner.show()
+};
 let initTray = () => {
     tray = new Tray(path.join(__dirname, 'static', 'icon', '512.png'));
     
@@ -49,8 +105,12 @@ let initTray = () => {
     options.push({
         'label': 'Resources',
         click() {
-            shell.openItem(resources.root);
+            electron.shell.openItem(resources.root);
         }
+    });
+    options.push({
+        'label': 'Reload',
+        click: () => reload()
     });
     
     options.push({
@@ -73,9 +133,7 @@ let initTray = () => {
         click: () => app.quit()
     });
 
-    tray.on('click', () => {
-        runner.isVisible() ? runner.hide() : runner.show()
-    });
+    tray.on('click', toggleRunner);
     
     tray.setContextMenu(Menu.buildFromTemplate(options));
     tray.setToolTip('Upspark');
@@ -111,7 +169,7 @@ let initRunner = () => {
     options.width  = 500;
     options.height = 100;
     options.frame = false;
-    options.resizable = false;
+    options.resizable = true;
     options.movable = false;
     options.maximizable = false;
     options.minimizable = false;
@@ -140,7 +198,9 @@ let initRunner = () => {
             runner.hide();
         }
     });
-    
+
+
+
 };
 
 app.on('ready', init);

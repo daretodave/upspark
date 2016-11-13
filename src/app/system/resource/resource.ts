@@ -65,10 +65,26 @@ export class Resource {
         return handle;
     }
 
+    reload<T extends ResourceModel>(key: string): Promise<T> {
+        this.validateProvidedKey(key, true);
+
+        return this.resources.get(key).reload();
+    }
+
     load<T extends ResourceModel>(key: string): Promise<T> {
         this.validateProvidedKey(key, true);
 
         return this.resources.get(key).load();
+    }
+
+    get<T>(key: string, property: string, _default:T = null): Promise<T> {
+        return this.load(key).then(function(resource:any) {
+            let value:T = resource[property];
+            if(value === null) {
+                return _default;
+            }
+            return value;
+        });
     }
 
 }

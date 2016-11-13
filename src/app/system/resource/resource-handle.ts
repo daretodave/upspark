@@ -73,6 +73,11 @@ export class ResourceHandle<T extends ResourceModel> {
         });
     }
 
+    reload(onMissingPolicy: ResourceMissingPolicy = this.onMissingPolicy): Promise<T> {
+        this.promise = null;
+        return this.load(onMissingPolicy);
+    };
+
     load(onMissingPolicy: ResourceMissingPolicy = this.onMissingPolicy): Promise<T> {
 
         if(this.promise != null) {
