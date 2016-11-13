@@ -2,7 +2,6 @@ import Helpers from '../../helpers';
 
 import Webpack from 'webpack';
 import HtmlPlugin from 'html-webpack-plugin';
-import ProvidePlugin from 'webpack/lib/ProvidePlugin';
 
 let {CommonsChunkPlugin} = Webpack.optimize;
 
@@ -67,20 +66,10 @@ let config = {};
         return new HtmlPlugin(config);
     })({});
 
-    let provide = (function(mappings) {
-        mappings.jQuery = 'jquery';
-        mappings.$ = 'jquery';
-        mappings.jquery = 'jquery';
-        mappings.Tether = 'tether';
-        mappings["window.Tether"] = 'tether';
-        return new ProvidePlugin(mappings);
-    })({});
-
 
     plugins.push(
         common,
-        html,
-        provide
+        html
     );
 
 })(config.plugins = []);

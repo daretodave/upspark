@@ -179,7 +179,7 @@ let initTray = () => {
 let initSafe = () => {
     let options: any = {};
 
-    options.width  = 800;
+    options.width  = 400;
     options.height = 500;
     options.show = false;
     options.title = 'Upspark - Safe';
@@ -191,8 +191,6 @@ let initSafe = () => {
     } else {
         safeWindow.loadURL(www('safe/create'));
     }
-
-
 
     if (process.env.ENV !== 'development') {
         safeWindow.setMenu(null);
