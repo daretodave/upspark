@@ -12,6 +12,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell} = electron;
 
 let settings: any;
 let runner: any;
+let safe: any;
 let tray: any;
 let quit:boolean = false;
 let resources:Resource;
@@ -19,6 +20,7 @@ let resources:Resource;
 let init = () => {
 
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
+
     resources.attach('settings.json', Settings);
     resources.attach('style.css', Style, new TextTranslator());
 
@@ -29,6 +31,7 @@ let init = () => {
     .then(() => {
         initSettings();
         initRunner();
+        initSafe();
         initTray();
 
         runner.webContents.on('did-finish-load', adhereSettings);
@@ -36,7 +39,6 @@ let init = () => {
         console.log(e);
         //TODO: Error window
     });
-
 
 };
 
@@ -116,6 +118,10 @@ let initTray = () => {
         'label': 'Settings',
         click: () => settings.show()
     });
+    options.push({
+        'label': 'Safe',
+        click: () => safe.show()
+    });
     
     options.push({
         'type': 'separator',
@@ -161,6 +167,28 @@ let initTray = () => {
     tray.setToolTip('Upspark');
 };
 
+let initSafe = () => {
+    let options: any = {};
+
+    options.width  = 800;
+    options.height = 500;
+    options.show = false;
+    options.title = 'Upspark - Safe';
+    options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
+
+    safe = new BrowserWindow(options);
+    safe.loadURL(www('safe'));
+    safe.setMenu(null);
+
+    safe.on('close', (e:any) => {
+        if(quit) {
+            safe = null;
+        } else {
+            e.preventDefault();
+            safe.hide();
+        }
+    });
+};
 let initSettings = () => {
     let options: any = {};
 
