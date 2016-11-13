@@ -1,4 +1,3 @@
-import {ResourcePromise} from "./resource-promise";
 import {ResourceTranslator} from "./resource-translator";
 import {JSONTranslator} from "./translators/translate-json";
 import {ResourceMissingPolicy} from "./resource-missing-policy";
@@ -9,7 +8,7 @@ const fs = require('fs');
 
 export class ResourceHandle<T extends ResourceModel> {
 
-    private promise:ResourcePromise<T>;
+    private promise:Promise<T>;
 
     constructor(
         private path: string,
@@ -74,7 +73,7 @@ export class ResourceHandle<T extends ResourceModel> {
         });
     }
 
-    load(onMissingPolicy: ResourceMissingPolicy = this.onMissingPolicy): ResourcePromise<T> {
+    load(onMissingPolicy: ResourceMissingPolicy = this.onMissingPolicy): Promise<T> {
 
         if(this.promise != null) {
             return this.promise;
@@ -94,7 +93,7 @@ export class ResourceHandle<T extends ResourceModel> {
 
         };
 
-        this.promise = new ResourcePromise<T>(executor);
+        this.promise = new Promise<T>(executor);
 
         return this.promise;
     }

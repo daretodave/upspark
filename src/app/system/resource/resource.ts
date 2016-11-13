@@ -1,7 +1,6 @@
 import {ResourceHandle} from "./resource-handle";
 import {ResourceTranslator} from "./resource-translator";
 import {JSONTranslator} from "./translators/translate-json";
-import {ResourcePromise} from "./resource-promise";
 import {ResourceMissingPolicy} from "./resource-missing-policy";
 import {ResourceModel} from "./resource-model";
 
@@ -34,7 +33,7 @@ export class Resource {
     init(resolve: () => void, reject: (reason? : any) => void) {
         fs.mkdir(this.root, 777, (error: NodeJS.ErrnoException) => {
 
-            if(error != null || error.code !== 'EEXIST') {
+            if(error != null && error.code !== 'EEXIST') {
                 reject(error);
                 return;
             }
@@ -50,12 +49,14 @@ export class Resource {
         if(key === null) {
             let ext: string = _path.extname(path);
 
-            if(ext.length !== 0) {
-                key = _path.basename(path, '.' + ext);
+            if (ext.length !== 0) {
+                key = _path.basename(path, ext);
             } else {
                 key = _path.basename(path);
             }
+
         }
+
 
         this.validateProvidedKey(key);
 
@@ -64,7 +65,7 @@ export class Resource {
         return handle;
     }
 
-    load<T extends ResourceModel>(key: string): ResourcePromise<T> {
+    load<T extends ResourceModel>(key: string): Promise<T> {
         this.validateProvidedKey(key, true);
 
         return this.resources.get(key).load();

@@ -13,7 +13,7 @@ let resources:Resource;
 
 let init = () => {
 
-    resources = new Resource(path.join(app.getPath('home'), '.horizon'));
+    resources = new Resource(path.join(app.getPath('home'), '.upspark'));
     resources.attach('settings.json', Settings);
 
     resources.load('settings')
@@ -21,7 +21,8 @@ let init = () => {
       initSettings();
       initRunner();
       initTray();
-    }).catch(() => {
+    }).catch((e) => {
+        console.log(e);
         //TODO: Error window
     });
 
@@ -48,7 +49,7 @@ let initTray = () => {
     options.push({
         'label': 'Resources',
         click() {
-            console.log('..');
+            shell.openItem(resources.root);
         }
     });
     
