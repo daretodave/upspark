@@ -24,8 +24,9 @@ let config = {};
     scss.test = /\.scss$/;
     scss.exclude = /node_modules/;
     scss.loaders = [];
-    scss.loaders.push('raw-loader');
-    scss.loaders.push('sass-loader');
+    scss.loaders.push('style');
+    scss.loaders.push('css');
+    scss.loaders.push('sass');
 
     loaders.push(
         typescript,
