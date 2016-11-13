@@ -66,7 +66,7 @@ let adhereSettings = () => {
         }),
         resources.get('settings', 'size', {
             width: 1,
-            height: .33
+            height: .5
         }),
         resources.get('style', 'content', '')
     ]).then((values) => {
@@ -203,7 +203,7 @@ let initRunner = () => {
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
     if (process.env.ENV === 'development') {
-        options.frame = true;
+        //options.frame = true;
     }
 
     runner = new BrowserWindow(options);

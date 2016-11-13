@@ -10,7 +10,8 @@ let config = {};
 (function(module, loaders) {
 
     let typescript = {},
-        html = {};
+        html = {},
+        scss = {};
 
     typescript.test = /\.ts$/;
     typescript.loaders = [];
@@ -20,9 +21,16 @@ let config = {};
     html.test = /\.html$/;
     html.loader = 'html';
 
+    scss.test = /\.scss$/;
+    scss.exclude = /node_modules/;
+    scss.loaders = [];
+    scss.loaders.push('raw-loader');
+    scss.loaders.push('sass-loader');
+
     loaders.push(
         typescript,
-        html
+        html,
+        scss
     );
 
 })(config.module = {}, config.module.loaders = []);

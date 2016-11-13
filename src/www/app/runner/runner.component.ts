@@ -4,13 +4,20 @@ const {ipcRenderer} = require('electron');
 
 @Component({
     selector: 'up-runner',
-    templateUrl: 'runner.component.html'
+    templateUrl: 'runner.component.html',
+    styleUrls: ['runner.component.scss']
 })
-export class RunnerComponent implements OnInit {
-
-    ngOnInit(): void {
+export class RunnerComponent implements AfterViewInit {
+    ngAfterViewInit(): void {
         ipcRenderer.on('style', (event:any, arg:string) => {
-            console.log(arg);
+
+            let style = document.getElementById('runner-style');
+            if (style === null) {
+                style = document.createElement('style');
+                document.head.appendChild(style);
+            }
+
+            style.innerHTML = arg;
         });
     }
 
