@@ -1,4 +1,16 @@
 #runner {
     width: 100%;
     height: 100%;
+    display: flex;
+}
+#runner__path {
+    display: flex;
+    flex-direction: column;
+}
+#runner-image {
+    margin: 20px;
+    width: 30px;
+    height: 30px;
+    background-image: url('/dist/static/icon/512.png');
+    background-size: 30px 30px;
 }
