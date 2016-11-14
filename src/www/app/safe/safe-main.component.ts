@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import {Component, AfterViewInit} from "@angular/core";
+import {Router} from "@angular/router";
+
+const {ipcRenderer} = require('electron');
 
 require('./safe-main.component.scss');
 
@@ -6,9 +9,16 @@ require('./safe-main.component.scss');
     selector: 'up-safe-main',
     templateUrl: 'safe-main.component.html'
 })
-export class SafeMainComponent {
+export class SafeMainComponent implements AfterViewInit {
 
-    constructor() {
+    constructor(private router:Router) {
+    }
+
+    ngAfterViewInit(): void {
+    }
+
+    lock() {
+        ipcRenderer.send('safe-lock');
     }
 
 }

@@ -29,6 +29,9 @@ export class SafeComponent  implements AfterViewInit {
         ipcRenderer.on('safe-create', () => {
             this.router.navigate(['/safe/create']);
         });
+        ipcRenderer.on('safe-auth', () => {
+            this.router.navigate(['/safe/auth']);
+        });
     }
 
 }

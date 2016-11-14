@@ -240,6 +240,52 @@ let initSafe = () => {
             });
         }, 2000);
     });
+
+    ipcMain.on('safe-auth', (event:any, password:string) => {
+        if(!safe.created) {
+            return;
+        }
+        console.log('Safe:auth');
+        event.sender.send('safe-loader', 'on');
+        setTimeout(() => {
+            safe.unlock(password).then((mappings) => {
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-auth-success', mappings);
+            }).catch((e:any) => {
+                console.log(e);
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-auth-error', e);
+            });
+        }, 2000);
+    });
+
+    ipcMain.on('safe-update', (event:any, password:string) => {
+        if(!safe.created || !safe.auth) {
+            event.sender.send('safe-auth');
+            return;
+        }
+        console.log('Safe:update');
+        event.sender.send('safe-loader', 'on');
+        setTimeout(() => {
+            safe.build(password).then(() => {
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-main');
+            }).catch((e:any) => {
+                console.log(e);
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-auth');
+            });
+        }, 2000);
+    });
+
+    ipcMain.on('safe-lock', (event:any) => {
+        if(!safe.created) {
+            return;
+        }
+        console.log('Safe:lock');
+        safe.lock();
+        event.sender.send('safe-auth');
+    });
 };
 let initSettings = () => {
     let options: any = {};

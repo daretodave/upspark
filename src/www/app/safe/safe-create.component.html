@@ -1,38 +1,41 @@
-<p>
-    With the safe you can use sensitive information in your command logic.
-</p>
-<p>
-    Data in the safe is protected with <strong>AES-256 bit</strong> encryption.
-</p>
-<p>
-    Secure your safe with a strong password below.
-</p>
-<form (ngSubmit)="onSubmit()" novalidate [formGroup]="createSafeForm">
+<div class="create-container">
+    <p class="lead">
+        With the safe you can use sensitive information in your command logic.
+    </p>
+    <p class="lead">
+        Data in the safe is protected with <strong>AES-256 bit</strong> encryption.
+    </p>
+    <p class="lead">
+        Secure your safe with a strong password below.
+    </p>
+    <form (ngSubmit)="onSubmit()" novalidate [formGroup]="createSafeForm">
 
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password"
-               class="form-control"
-               placeholder="Password"
-               id="password"
-               name="password"
-               formControlName="password">
-        <div *ngIf="formErrors.password" class="alert alert-danger">
-            {{ formErrors.password }}
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password"
+                   id="password"
+                   name="password"
+                   formControlName="password">
+            <div *ngIf="formErrors.password" class="alert alert-danger">
+                {{ formErrors.password }}
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label for="password-confirm">Password Confirm</label>
-        <input type="password"
-                class="form-control"
-                placeholder="Password Confirm"
-                id="password-confirm"
-                name="password-confirm"
-                formControlName="passwordConfirm">
-        <div *ngIf="formErrors.passwordConfirm" class="alert alert-danger">
-            {{ formErrors.passwordConfirm }}
+        <div class="form-group">
+            <label for="password-confirm">Password Confirm</label>
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password Confirm"
+                   id="password-confirm"
+                   name="password-confirm"
+                   formControlName="passwordConfirm">
+            <div *ngIf="formErrors.passwordConfirm" class="alert alert-danger">
+                {{ formErrors.passwordConfirm }}
+            </div>
         </div>
-    </div>
-    <button type="submit" class="btn btn-primary submit-button" [disabled]="!createSafeForm.valid">Create</button>
+        <button type="submit" class="btn btn-primary submit-button" [disabled]="!createSafeForm.valid">Create</button>
 
-</form>
+    </form>
+
+</div>

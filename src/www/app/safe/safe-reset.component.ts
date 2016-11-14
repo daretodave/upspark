@@ -16,10 +16,6 @@ export class SafeResetComponent {
     constructor(private router:Router) {
     }
 
-    back() {
-        this.router.navigate(['/safe/auth']);
-    }
-
     reset() {
         if(this.submitted) {
             return;

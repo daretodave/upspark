@@ -50,6 +50,52 @@ export class Safe {
         return new Promise<boolean>(executor);
     }
 
+    unlock(password:string): Promise<any> {
+        let self:Safe = this;
+        let executor = (resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) => {
+            fs.readFile(this.file, 'utf8', (err: NodeJS.ErrnoException, data: string) => {
+                if(err != null) {
+                    reject(err);
+                    return;
+                }
+                try {
+                    let decipher = crypto.createDecipher(self.algorithm, password);
+                    let dec:string = decipher.update(data, 'hex', 'utf8');
+                    dec += decipher.final('utf8');
+
+                    if(!dec.startsWith('upspark:')) {
+                        reject();
+                        return;
+                    }
+
+                    self.vault = new Map<string, string>();
+                    self.auth = true;
+                    self.password = password;
+
+                    let blocks: string[] = dec.split(":");
+                    let mappings: any = {};
+
+                    if(blocks.length > 2) {
+                        for(let i = 1, length = blocks.length; i < length; i += 2) {
+                            let key   = blocks[i];
+                            let value = blocks[i+1];
+
+                            self.vault.set(key, value);
+
+                            mappings[key] = value;
+                        }
+                    }
+
+                    resolve(mappings);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+
+        };
+        return new Promise<boolean>(executor);
+    }
+
     private save(): Promise<boolean> {
         let self:Safe = this;
         let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
@@ -84,5 +130,11 @@ export class Safe {
         this.password = password;
 
         return this.save();
+    }
+
+    lock() {
+        this.password = '';
+        this.auth = false;
+        this.vault = new Map<string, string>();
     }
 }
