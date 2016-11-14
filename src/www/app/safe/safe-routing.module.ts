@@ -1,12 +1,15 @@
 import {NgModule} from "@angular/core";
 import {RouterModule} from "@angular/router";
 import {SafeComponent} from "./safe.component";
-import {SafeMainComponent} from "./sefe-main.component";
+import {SafeMainComponent} from "./safe-main.component";
 import {SafeExportComponent} from "./safe-export.component";
 import {SafeImportComponent} from "./safe-import.component";
 import {SafeAuthComponent} from "./safe-auth.component";
 import {SafeCreateComponent} from "./safe-create.component";
 import {SafeResetComponent} from "./safe-reset.component";
+import {SafeEditComponent} from "./safe-edit.component";
+import {SafeUpdateComponent} from "./safe-update.component";
+import {SafeNewComponent} from "./safe-new.component";
 
 @NgModule({
     imports: [
@@ -17,7 +20,7 @@ import {SafeResetComponent} from "./safe-reset.component";
                 children: [
                     {
                         path: '',
-                        redirectTo: 'main',
+                        redirectTo: 'auth',
                         pathMatch: 'full'
                     },
                     {
@@ -43,6 +46,18 @@ import {SafeResetComponent} from "./safe-reset.component";
                     {
                         path: 'import',
                         component: SafeImportComponent
+                    },
+                    {
+                        path: 'edit',
+                        component: SafeEditComponent
+                    },
+                    {
+                        path: 'update',
+                        component: SafeUpdateComponent
+                    },
+                    {
+                        path: 'new',
+                        component: SafeNewComponent
                     }
                 ]
             },
