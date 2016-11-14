@@ -11,14 +11,18 @@
 </nav>
 
 <div class="safe-content">
-
 </div>
 
 <nav class="sticky-bottom navbar navbar-dark bg-inverse">
-
     <ul class="nav navbar-nav">
         <li class="nav-item">
             <a class="nav-link" (click)="lock()">Lock</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-success" (click)="exp()">Export</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-success" routerLink="/safe/import">Import</a>
         </li>
     </ul>
     <ul class="nav navbar-nav float-xs-right">

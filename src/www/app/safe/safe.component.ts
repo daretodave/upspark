@@ -1,5 +1,7 @@
 import {Component, AfterViewInit} from '@angular/core';
 import {Router} from "@angular/router";
+import {KeyValue} from "../shared/key-value";
+import {KeyValueService} from "../shared/key-value.service";
 
 const {ipcRenderer} = require('electron');
 
@@ -7,11 +9,12 @@ require('./safe.component.scss');
 
 @Component({
     selector: 'up-safe',
-    templateUrl: 'safe.component.html'
+    templateUrl: 'safe.component.html',
+    providers: [KeyValueService]
 })
 export class SafeComponent  implements AfterViewInit {
 
-    constructor(private router: Router) {
+    constructor(private router: Router, private keyValueService:KeyValueService) {
     }
 
     ngAfterViewInit(): void {
@@ -24,7 +27,18 @@ export class SafeComponent  implements AfterViewInit {
             }
         });
         ipcRenderer.on('safe-main', (event:any, mappings:any) => {
-            console.log(mappings);
+            let data:KeyValue[] = [];
+            for (let key in mappings) {
+                if (mappings.hasOwnProperty(key)) {
+                    let keyValue = new KeyValue();
+                    keyValue.key = key;
+                    keyValue.value = mappings[key];
+
+                    data.push(keyValue);
+                }
+            }
+
+            this.keyValueService.data = data;
             this.router.navigate(['/safe/main']);
         });
         ipcRenderer.on('safe-create', () => {
