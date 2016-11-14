@@ -9,7 +9,7 @@ import {Safe} from "./system/safe";
 
 const path = require('path');
 const electron = require('electron');
-const {app, BrowserWindow, Tray, Menu, globalShortcut, shell} = electron;
+const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain} = electron;
 
 let settingsWindow: any;
 let runnerWindow: any;
@@ -23,7 +23,7 @@ let safe: Safe;
 
 let init = () => {
 
-    safe = new Safe(path.join(app.getPath('appData'), 'upspark'));
+    safe = new Safe(path.join(app.getPath('appData'), 'upspark'), 'aes-256-ctr');
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
 
     resources.attach('settings.json', Settings);
@@ -179,8 +179,8 @@ let initTray = () => {
 let initSafe = () => {
     let options: any = {};
 
-    options.width  = 400;
-    options.height = 500;
+    options.width  = 405;
+    options.height = 640;
     options.show = false;
     options.title = 'Upspark - Safe';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
@@ -204,6 +204,15 @@ let initSafe = () => {
             safeWindow.hide();
         }
     });
+
+    ipcMain.on('safe-create', (event:any, password:string) => {
+        if(safe.created) {
+            return;
+        }
+        safe.build(event.sender, password, safe).then(() => {
+            event.sender.send('safe-main');
+        });
+    })
 };
 let initSettings = () => {
     let options: any = {};

@@ -1,19 +1,19 @@
 <p>
-    Avoid putting sensitive information in plain text with <strong>safe</strong>.
+    With the safe you can use sensitive information in your command logic.
 </p>
 <p>
-    Information in the safe is stored in key-value pairs and protected with <strong>AES-256</strong> encryption with a master password.
+    Data in the safe is protected with <strong>AES-256 bit</strong> encryption.
 </p>
 <p>
-    To start using safe, provide a master password below. If this password is lost or forgotten, the safe can never be opened again and a new one will have to be created.
+    Secure your safe with a strong password below.
 </p>
 <form (ngSubmit)="onSubmit()" novalidate [formGroup]="createSafeForm">
 
     <div class="form-group">
-        <label for="password">Master Password</label>
+        <label for="password">Password</label>
         <input type="password"
                class="form-control"
-               placeholder="Master Password"
+               placeholder="Password"
                id="password"
                name="password"
                formControlName="password">
@@ -22,10 +22,10 @@
         </div>
     </div>
     <div class="form-group">
-        <label for="password-confirm">Master Password Confirm</label>
+        <label for="password-confirm">Password Confirm</label>
         <input type="password"
                 class="form-control"
-                placeholder="Master Password Confirm"
+                placeholder="Password Confirm"
                 id="password-confirm"
                 name="password-confirm"
                 formControlName="passwordConfirm">
@@ -33,6 +33,6 @@
             {{ formErrors.passwordConfirm }}
         </div>
     </div>
-    <button type="submit" class="btn btn-primary" [disabled]="!createSafeForm.valid || submitted">Create</button>
+    <button type="submit" class="btn btn-primary submit-button" [disabled]="!createSafeForm.valid || submitted">Create</button>
 
 </form>

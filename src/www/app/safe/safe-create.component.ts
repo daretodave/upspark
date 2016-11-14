@@ -3,7 +3,9 @@ import {CreateSafe} from "../shared/create-safe";
 import {FormGroup, FormBuilder, Validators} from "@angular/forms";
 import {matchesValidator} from "../shared/validation";
 
-require('./safe-create.component');
+const {ipcRenderer} = require('electron');
+
+require('./safe-create.component.scss');
 
 @Component({
     selector: 'up-safe-create',
@@ -84,7 +86,7 @@ export class SafeCreateComponent implements OnInit {
         this.model = this.createSafeForm.value;
         this.submitted = true;
 
-        console.log(this.model);
+        ipcRenderer.send('safe-create', this.model.password);
     }
 
 }
