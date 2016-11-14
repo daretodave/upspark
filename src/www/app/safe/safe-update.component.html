@@ -1,5 +1,7 @@
 <div class="update-container">
-    <p class="lead">Update the safe's password</p>
+    <button type="button" class="btn btn-success btn-lg btn-block" (click)="main()">Back</button>
+<hr>
+    <p class="lead">Update the safe's password.</p>
 
     <form (ngSubmit)="onSubmit()" novalidate [formGroup]="updateSafeForm">
 

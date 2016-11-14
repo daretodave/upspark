@@ -27,6 +27,8 @@ export class SafeCreateComponent implements OnInit {
         this.model.passwordConfirm = '';
 
         this.buildForm();
+
+
     }
 
     buildForm() {
@@ -41,7 +43,6 @@ export class SafeCreateComponent implements OnInit {
                 matchesValidator(() => this.createSafeForm, 'password')
             ]]
         });
-
         this.createSafeForm.valueChanges.subscribe(data => this.onValueChanged(data));
 
         this.onValueChanged();

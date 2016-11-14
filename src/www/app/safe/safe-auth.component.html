@@ -3,7 +3,7 @@
     <div class="auth-image"></div>
 
     <div class="auth-form form-group">
-        <input [class.ng-invalid]="error" type="password" class="form-control" id="password" [(ngModel)]="password" placeholder="Password">
+        <input [class.ng-invalid]="error" (keyup.enter)="auth()" type="password" class="form-control" id="password" [(ngModel)]="password" placeholder="Password">
     </div>
 
     <button type="button" [disabled]="submitted" class="btn btn-primary btn-lg btn-block" (click)="auth()">UNLOCK</button>

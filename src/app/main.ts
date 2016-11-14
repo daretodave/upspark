@@ -214,7 +214,7 @@ let initSafe = () => {
         setTimeout(() => {
             safe.build(password).then(() => {
                 event.sender.send('safe-loader', 'off');
-                event.sender.send('safe-main');
+                event.sender.send('safe-main', {});
             }).catch((e:any) => {
                 console.log(e);
                 event.sender.send('safe-loader', 'off');
@@ -250,13 +250,17 @@ let initSafe = () => {
         setTimeout(() => {
             safe.unlock(password).then((mappings) => {
                 event.sender.send('safe-loader', 'off');
-                event.sender.send('safe-auth-success', mappings);
+                event.sender.send('safe-main', mappings);
             }).catch((e:any) => {
                 console.log(e);
                 event.sender.send('safe-loader', 'off');
                 event.sender.send('safe-auth-error', e);
             });
         }, 2000);
+    });
+
+    ipcMain.on('safe-main', (event:any) => {
+        event.sender.send('safe-main', safe.getMappings());
     });
 
     ipcMain.on('safe-update', (event:any, password:string) => {
@@ -269,7 +273,7 @@ let initSafe = () => {
         setTimeout(() => {
             safe.build(password).then(() => {
                 event.sender.send('safe-loader', 'off');
-                event.sender.send('safe-main');
+                event.sender.send('safe-main', safe.getMappings());
             }).catch((e:any) => {
                 console.log(e);
                 event.sender.send('safe-loader', 'off');
@@ -285,6 +289,29 @@ let initSafe = () => {
         console.log('Safe:lock');
         safe.lock();
         event.sender.send('safe-auth');
+    });
+
+    ipcMain.on('safe-new', (event:any, key:string, value:string) => {
+        if(!safe.created) {
+            return;
+        }
+        console.log('Safe:new');
+
+        if(safe.has(key)) {
+            event.sender.send('safe-new-error', 'key', `'${key}' is already in use`);
+            return;
+        }
+
+        safe.set(key, value)
+            .save()
+            .then(() => {
+                event.sender.send('safe-main', safe.getMappings());
+            }).catch((e:any) => {
+                console.log(e);
+
+                safe.lock();
+                event.sender.send('safe-auth');
+            });
     });
 };
 let initSettings = () => {

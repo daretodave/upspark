@@ -96,7 +96,7 @@ export class Safe {
         return new Promise<boolean>(executor);
     }
 
-    private save(): Promise<boolean> {
+    save(): Promise<boolean> {
         let self:Safe = this;
         let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
             let contents = 'upspark:';
@@ -104,7 +104,12 @@ export class Safe {
                 contents += key;
                 contents += ':';
                 contents += value;
+                contents += ':';
             });
+            if(this.vault.size > 0) {
+                contents = contents.substring(0, contents.length-1);
+            }
+
             let cipher  = crypto.createCipher(this.algorithm, this.password);
             let crypted = cipher.update(contents, 'utf8','hex');
 
@@ -125,6 +130,11 @@ export class Safe {
         return new Promise<boolean>(executor);
     }
 
+    set(key: string, value: string): Safe {
+        this.vault.set(key, value);
+        return this;
+    }
+
     build(password: string): Promise<boolean> {
 
         this.password = password;
@@ -136,5 +146,19 @@ export class Safe {
         this.password = '';
         this.auth = false;
         this.vault = new Map<string, string>();
+    }
+
+    getMappings(): any {
+        let mappings: any = {};
+        if(this.auth) {
+            this.vault.forEach((value:string, key:string) => {
+                mappings[key] = value;
+            });
+        }
+        return mappings;
+    }
+
+    has(key: string): boolean {
+        return this.vault.has(key);
     }
 }

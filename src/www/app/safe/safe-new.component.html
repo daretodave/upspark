@@ -1,1 +1,36 @@
-<p>new</p>
+<div class="new-container">
+    <button type="button" class="btn btn-success btn-lg btn-block" (click)="main()">Back</button>
+    <hr>
+    <p class="lead">
+        Provide a key pair value to add to the safe.
+    </p>
+    <form (ngSubmit)="onSubmit()" novalidate [formGroup]="createValueForm">
+
+        <div class="form-group">
+            <label for="key">Key</label>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Key"
+                   id="key"
+                   name="key"
+                   formControlName="key">
+            <div *ngIf="formErrors.key" class="alert alert-danger">
+                {{ formErrors.key }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="value">Value</label>
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password Confirm"
+                   id="value"
+                   name="value"
+                   formControlName="value">
+            <div *ngIf="formErrors.value" class="alert alert-danger">
+                {{ formErrors.value }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary submit-button" [disabled]="!createValueForm.valid">Create</button>
+
+    </form>
+</div>

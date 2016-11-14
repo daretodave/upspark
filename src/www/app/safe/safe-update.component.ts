@@ -78,6 +78,10 @@ export class SafeUpdateComponent implements OnInit {
         }
     };
 
+    main() {
+        ipcRenderer.send('safe-main');
+    }
+
     onSubmit() {
         if(!this.updateSafeForm.valid && !this.submitted) {
             return;

@@ -23,7 +23,8 @@ export class SafeComponent  implements AfterViewInit {
                 element.style.display = 'none';
             }
         });
-        ipcRenderer.on('safe-main', () => {
+        ipcRenderer.on('safe-main', (event:any, mappings:any) => {
+            console.log(mappings);
             this.router.navigate(['/safe/main']);
         });
         ipcRenderer.on('safe-create', () => {

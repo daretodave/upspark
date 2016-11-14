@@ -31,3 +31,13 @@ export function matchesValidator(formGroup: () => FormGroup, field:string, rever
         return {'validateMatches': false};
     };
 }
+
+export function restrictValidator(restriction:string): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} => {
+        if(control.value.indexOf(restriction) >= 0) {
+            return {'validateRestricted': false}
+        }
+
+        return null;
+    };
+}

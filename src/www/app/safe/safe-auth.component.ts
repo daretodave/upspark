@@ -1,4 +1,4 @@
-import {Component, AfterViewInit} from '@angular/core';
+import {Component, AfterViewInit, NgZone} from '@angular/core';
 import {Router} from "@angular/router";
 
 const {ipcRenderer} = require('electron');
@@ -15,18 +15,17 @@ export class SafeAuthComponent implements AfterViewInit {
     private submitted:boolean;
     private error:boolean;
 
-    constructor(private router:Router) {
+    constructor(private router:Router, private zone: NgZone) {
     }
 
     ngAfterViewInit(): void {
+        let self:SafeAuthComponent = this;
         ipcRenderer.on('safe-auth-error', () => {
-            this.submitted = false;
-            this.error = true;
-            this.password = '';
-        });
-        ipcRenderer.on('safe-auth-success', (sender:any, mappings:any) => {
-            console.log(mappings);
-            this.router.navigate(['/safe/main']);
+            this.zone.run(() => {
+                self.submitted = false;
+                self.error = true;
+                self.password = '';
+            });
         });
     }
 
