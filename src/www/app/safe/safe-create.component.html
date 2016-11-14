@@ -7,16 +7,32 @@
 <p>
     To start using safe, provide a master password below. If this password is lost or forgotten, the safe can never be opened again and a new one will have to be created.
 </p>
-<form>
+<form (ngSubmit)="onSubmit()" novalidate [formGroup]="createSafeForm">
 
     <div class="form-group">
         <label for="password">Master Password</label>
-        <input type="password" class="form-control" placeholder="Master Password" id="password">
+        <input type="password"
+               class="form-control"
+               placeholder="Master Password"
+               id="password"
+               name="password"
+               formControlName="password">
+        <div *ngIf="formErrors.password" class="alert alert-danger">
+            {{ formErrors.password }}
+        </div>
     </div>
     <div class="form-group">
         <label for="password-confirm">Master Password Confirm</label>
-        <input type="password" class="form-control" placeholder="Master Password Confirm" id="password-confirm">
+        <input type="password"
+                class="form-control"
+                placeholder="Master Password Confirm"
+                id="password-confirm"
+                name="password-confirm"
+                formControlName="passwordConfirm">
+        <div *ngIf="formErrors.passwordConfirm" class="alert alert-danger">
+            {{ formErrors.passwordConfirm }}
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary" [disabled]="!createSafeForm.valid || submitted">Create</button>
 
 </form>

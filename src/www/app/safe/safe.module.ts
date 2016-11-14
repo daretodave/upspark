@@ -1,5 +1,5 @@
-import {SettingsRoutingModule} from './safe-routing.module';
-import {FormsModule} from "@angular/forms";
+import {SafeRoutingModule} from './safe-routing.module';
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 import {SafeComponent} from "./safe.component";
 import {NgModule} from "@angular/core";
@@ -13,7 +13,8 @@ import {SafeCreateComponent} from "./safe-create.component";
     imports: [
         CommonModule,
         FormsModule,
-        SettingsRoutingModule
+        ReactiveFormsModule,
+        SafeRoutingModule
     ],
     declarations: [
         SafeComponent,

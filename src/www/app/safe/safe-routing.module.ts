@@ -47,4 +47,4 @@ import {SafeCreateComponent} from "./safe-create.component";
         RouterModule
     ]
 })
-export class SettingsRoutingModule { }
+export class SafeRoutingModule { }
