@@ -1,6 +1,6 @@
 .sticky-bottom {
 
-  position: absolute;
+  position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
@@ -9,7 +9,7 @@
 
 .sticky-top {
 
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -17,8 +17,15 @@
 }
 
 .safe-content {
+  margin-bottom: 54px;
+  padding-top:54px;
 }
 
 .nav-link:hover {
   cursor: pointer;
+}
+
+.safe-key-value {
+  padding: 20px;
+  border-bottom: 1px dotted rgba(0,0,0, .5);
 }

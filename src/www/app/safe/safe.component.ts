@@ -2,6 +2,7 @@ import {Component, AfterViewInit} from '@angular/core';
 import {Router} from "@angular/router";
 import {KeyValue} from "../shared/key-value";
 import {KeyValueService} from "../shared/key-value.service";
+import {KeyValueFilterPipe} from "../shared/key-value-filter.pipe";
 
 const {ipcRenderer} = require('electron');
 
@@ -37,7 +38,6 @@ export class SafeComponent  implements AfterViewInit {
                     data.push(keyValue);
                 }
             }
-
             this.keyValueService.data = data;
             this.router.navigate(['/safe/main']);
         });

@@ -1,4 +1,4 @@
-import {Component, AfterViewInit} from "@angular/core";
+import {Component, AfterViewInit, OnInit} from "@angular/core";
 import {Router} from "@angular/router";
 import {KeyValueService} from "../shared/key-value.service";
 import {KeyValue} from "../shared/key-value";
@@ -9,18 +9,20 @@ require('./safe-main.component.scss');
 
 @Component({
     selector: 'up-safe-main',
-    templateUrl: 'safe-main.component.html'
+    templateUrl: 'safe-main.component.html',
 })
-export class SafeMainComponent implements AfterViewInit {
+export class SafeMainComponent implements OnInit {
 
     private values:KeyValue[];
+    private filter:string;
 
     constructor(private router:Router, private service:KeyValueService) {
     }
 
-    ngAfterViewInit(): void {
+    ngOnInit(): void {
+        this.filter = '';
         this.values = this.service.data;
-        console.log(this.values);
+
     }
 
     lock() {

@@ -12,6 +12,7 @@ import {SafeResetComponent} from "./safe-reset.component";
 import {SafeEditComponent} from "./safe-edit.component";
 import {SafeNewComponent} from "./safe-new.component";
 import {SafeUpdateComponent} from "./safe-update.component";
+import {KeyValueFilterPipe} from "../shared/key-value-filter.pipe";
 
 @NgModule({
     imports: [
@@ -30,9 +31,12 @@ import {SafeUpdateComponent} from "./safe-update.component";
         SafeResetComponent,
         SafeEditComponent,
         SafeNewComponent,
-        SafeUpdateComponent
+        SafeUpdateComponent,
+        KeyValueFilterPipe
     ],
     providers: [
     ]
 })
-export class SafeModule {}
+export class SafeModule {
+
+}

@@ -260,6 +260,7 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-main', (event:any) => {
+        console.log('Safe:main');
         event.sender.send('safe-main', safe.getMappings());
     });
 
