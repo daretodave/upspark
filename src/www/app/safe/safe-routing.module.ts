@@ -6,6 +6,7 @@ import {SafeExportComponent} from "./safe-export.component";
 import {SafeImportComponent} from "./safe-import.component";
 import {SafeAuthComponent} from "./safe-auth.component";
 import {SafeCreateComponent} from "./safe-create.component";
+import {SafeResetComponent} from "./safe-reset.component";
 
 @NgModule({
     imports: [
@@ -34,6 +35,10 @@ import {SafeCreateComponent} from "./safe-create.component";
                     {
                         path: 'export',
                         component: SafeExportComponent
+                    },
+                    {
+                        path: 'reset',
+                        component: SafeResetComponent
                     },
                     {
                         path: 'import',

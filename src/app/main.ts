@@ -209,10 +209,37 @@ let initSafe = () => {
         if(safe.created) {
             return;
         }
-        safe.build(event.sender, password, safe).then(() => {
-            event.sender.send('safe-main');
-        });
-    })
+        console.log('Safe:creating');
+        event.sender.send('safe-loader', 'on');
+        setTimeout(() => {
+            safe.build(password).then(() => {
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-main');
+            }).catch((e:any) => {
+                console.log(e);
+                event.sender.send('safe-loader', 'off');
+                safeWindow.loadURL(www('safe/create'));
+            });
+        }, 2000);
+    });
+
+    ipcMain.on('safe-reset', (event:any) => {
+        if(!safe.created) {
+            return;
+        }
+        event.sender.send('safe-loader', 'on');
+        console.log('Safe:resetting');
+        setTimeout(() => {
+            safe.reset().then(() => {
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-create');
+            }).catch((e:any) => {
+                console.log(e);
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-auth');
+            });
+        }, 2000);
+    });
 };
 let initSettings = () => {
     let options: any = {};

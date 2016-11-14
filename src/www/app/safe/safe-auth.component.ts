@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import {Router} from "@angular/router";
 
+require('./safe-auth.component.scss');
 
 @Component({
     selector: 'up-safe-auth',
@@ -7,7 +9,14 @@ import { Component } from '@angular/core';
 })
 export class SafeAuthComponent {
 
-    constructor() {
+    private password:string;
+
+    constructor(private router:Router) {
+        this.password = '';
+    }
+
+    reset() {
+        this.router.navigate(['/safe/reset']);
     }
 
 }

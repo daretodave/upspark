@@ -1,0 +1,21 @@
+<p class="lead">
+    There is no way to recover a safe if the master password has been lost.
+</p>
+
+<p class="lead">
+    This action will delete the current safe so that it can be recreated.
+</p>
+
+<p class="lead">
+    If this is not what you wanted to do, go back now.
+</p>
+
+<button type="button" class="btn btn-success btn-lg btn-block" (click)="back()">BACK</button>
+
+<p class="lead push-down">
+
+    By clicking <span class="text-danger">reset</span> you acknowledge the current safe data <strong>will be obliterated</strong>. You can then recreate a safe with a new password.
+</p>
+
+
+<button [disabled]="submitted" type="button" class="btn btn-danger btn-lg btn-block reset-button" (click)="reset()">RESET</button>
