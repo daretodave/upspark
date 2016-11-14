@@ -38,7 +38,9 @@ export class SafeComponent  implements AfterViewInit {
                     data.push(keyValue);
                 }
             }
+            this.keyValueService.init = true;
             this.keyValueService.data = data;
+
             this.router.navigate(['/safe/main']);
         });
         ipcRenderer.on('safe-create', () => {

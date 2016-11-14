@@ -23,14 +23,26 @@ export class SafeMainComponent implements OnInit {
         this.filter = '';
         this.values = this.service.data;
 
+        if(!this.service.init) {
+            ipcRenderer.send('safe-main');
+        }
     }
 
     lock() {
         ipcRenderer.send('safe-lock');
     }
 
-    exp() {
-        ipcRenderer.send('safe-lock');
+    edit(keyValue:KeyValue) {
+        this.service.edit = keyValue;
+
+        this.router.navigate(['/safe/edit']);
+    }
+
+    del(keyValue:KeyValue) {
+        let idx:number = this.values.indexOf(keyValue);
+        this.values.splice(idx, 1);
+
+        ipcRenderer.send('safe-delete', keyValue.key);
     }
 
 }

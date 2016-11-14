@@ -19,6 +19,7 @@
 .safe-content {
   margin-bottom: 54px;
   padding-top:54px;
+
 }
 
 .nav-link:hover {
@@ -28,4 +29,16 @@
 .safe-key-value {
   padding: 20px;
   border-bottom: 1px dotted rgba(0,0,0, .5);
+  display:flex;
+  a:hover {
+    cursor: pointer;
+  }
+}
+
+.safe-key-value__title {
+  flex-grow: 1;
+}
+
+.safe-key-value__edit {
+  padding: 0 20px;
 }

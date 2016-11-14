@@ -245,7 +245,6 @@ let initSafe = () => {
         if(!safe.created) {
             return;
         }
-        console.log('Safe:auth');
         event.sender.send('safe-loader', 'on');
         setTimeout(() => {
             safe.unlock(password).then((mappings) => {
@@ -290,6 +289,21 @@ let initSafe = () => {
         console.log('Safe:lock');
         safe.lock();
         event.sender.send('safe-auth');
+    });
+
+    ipcMain.on('safe-delete', (event:any, key:string) => {
+        if(!safe.created) {
+            return;
+        }
+        console.log('Safe:delete');
+
+        safe.remove(key)
+            .save()
+            .catch((e:any) => {
+                console.log(e);
+                safe.lock();
+                event.sender.send('safe-auth');
+            });
     });
 
     ipcMain.on('safe-new', (event:any, key:string, value:string) => {

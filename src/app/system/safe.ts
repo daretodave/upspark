@@ -135,6 +135,11 @@ export class Safe {
         return this;
     }
 
+    remove(key: string): Safe {
+        this.vault.delete(key);
+        return this;
+    }
+
     build(password: string): Promise<boolean> {
 
         this.password = password;

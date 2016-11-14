@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {KeyValue} from "../shared/key-value";
 
 require('./safe-edit.component.scss');
 
@@ -6,7 +7,13 @@ require('./safe-edit.component.scss');
     selector: 'up-safe-edit',
     templateUrl: 'safe-edit.component.html'
 })
-export class SafeEditComponent {
+export class SafeEditComponent implements OnInit {
+
+    private model:KeyValue;
+
+    ngOnInit() {
+
+    }
 
     constructor() {
     }

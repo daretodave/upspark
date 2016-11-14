@@ -16,6 +16,12 @@
             <div class="safe-key-value__title">
                 {{keyValue.key}}
             </div>
+            <div class="safe-key-value__edit">
+                <a (click)="edit(keyValue)">Edit</a>
+            </div>
+            <div class="safe-key-value__delete">
+                <a (click)="del(keyValue)" class="text-danger">Delete</a>
+            </div>
         </div>
     </div>
 </div>
