@@ -1,4 +1,5 @@
 import {ValidatorFn, AbstractControl, FormGroup} from "@angular/forms";
+import {KeyValue} from "./key-value";
 
 export function matchesValidator(formGroup: () => FormGroup, field:string, reverse:boolean = false): ValidatorFn {
 
@@ -36,6 +37,23 @@ export function restrictValidator(restriction:string): ValidatorFn {
     return (control: AbstractControl): {[key: string]: any} => {
         if(control.value.indexOf(restriction) >= 0) {
             return {'validateRestricted': false}
+        }
+
+        return null;
+    };
+}
+
+export function keyValueValidator(values: KeyValue[]): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} => {
+
+        let unique:boolean = true;
+        values.forEach((value) => {
+           if(value.key === control.value) {
+               unique = false;
+           }
+        });
+        if(!unique) {
+            return {'validateKeyValue': false}
         }
 
         return null;

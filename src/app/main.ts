@@ -292,7 +292,7 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-delete', (event:any, key:string) => {
-        if(!safe.created) {
+        if(!safe.auth) {
             return;
         }
         console.log('Safe:delete');
@@ -327,6 +327,27 @@ let initSafe = () => {
                 safe.lock();
                 event.sender.send('safe-auth');
             });
+    });
+
+    ipcMain.on('safe-edit', (event:any, key:string, previousKey:string, value: string) => {
+        if(!safe.auth) {
+            return;
+        }
+        console.log('Safe:edit');
+
+        if(previousKey !== key) {
+            safe.remove(previousKey);
+        }
+        safe.set(key, value)
+            .save()
+            .then(() => {
+                event.sender.send('safe-main', safe.getMappings());
+            }).catch((e:any) => {
+            console.log(e);
+
+            safe.lock();
+            event.sender.send('safe-auth');
+        });
     });
 };
 let initSettings = () => {

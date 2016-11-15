@@ -1,1 +1,36 @@
-<p>edit</p>
+<div class="edit-container">
+    <button type="button" class="btn btn-success btn-lg btn-block" (click)="main()">Back</button>
+    <hr>
+    <p class="lead">
+        Edit the key or value for <strong>{{current.key}}</strong>
+    </p>
+    <form (ngSubmit)="onSubmit()" novalidate [formGroup]="editValueForm">
+
+        <div class="form-group">
+            <label for="key">Key</label>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Key"
+                   id="key"
+                   name="key"
+                   formControlName="key">
+            <div *ngIf="formErrors.key" class="alert alert-danger">
+                {{ formErrors.key }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="value">Value</label>
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password Confirm"
+                   id="value"
+                   name="value"
+                   formControlName="value">
+            <div *ngIf="formErrors.value" class="alert alert-danger">
+                {{ formErrors.value }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary submit-button" [disabled]="!editValueForm.valid">Save</button>
+
+    </form>
+</div>
