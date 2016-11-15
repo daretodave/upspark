@@ -83,7 +83,7 @@ export class SafeUpdateComponent implements OnInit {
     }
 
     onSubmit() {
-        if(!this.updateSafeForm.valid && !this.submitted) {
+        if(!this.updateSafeForm.valid || this.submitted) {
             return;
         }
         this.model = this.updateSafeForm.value;

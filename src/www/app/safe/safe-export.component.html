@@ -1,1 +1,53 @@
-<p>export</p>
+<div class="export-container">
+    <button type="button" class="btn btn-success btn-lg btn-block" (click)="main()">Back</button>
+    <hr>
+    <p class="lead"><strong>{{exportCount}}</strong> keys selected</p>
+    <div class="keys">
+        <div class="key" [class.selected]="key.selected" *ngFor="let key of values" (click)="toggle(key)">
+            {{key.key}}
+        </div>
+    </div>
+    <div class="keys-control-group btn-group" role="group">
+        <button type="button" class="btn btn-secondary" (click)="selectAll(true)">All</button>
+        <button type="button" class="btn btn-secondary" (click)="selectAll(false)">None</button>
+    </div>
+    <hr>
+    <div class="input-group">
+        <input disabled readonly type="text" class="form-control" name="export-loc" [(ngModel)]="exportLocation" placeholder="Export Location">
+        <span class="input-group-btn">
+        <button class="btn btn-secondary" type="button" (click)="selectFileLocation()">Select</button>
+      </span>
+    </div>
+    <hr>
+
+    <form (ngSubmit)="onSubmit()" novalidate [formGroup]="passwordForm">
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password"
+                   id="password"
+                   name="password"
+                   formControlName="password">
+            <div *ngIf="formErrors.password" class="alert alert-danger">
+                {{ formErrors.password }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="password-confirm">Password Confirm</label>
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password Confirm"
+                   id="password-confirm"
+                   name="password-confirm"
+                   formControlName="passwordConfirm">
+            <div *ngIf="formErrors.passwordConfirm" class="alert alert-danger">
+                {{ formErrors.passwordConfirm }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary submit-button" [disabled]="!passwordForm.valid">Export</button>
+
+    </form>
+
+</div>

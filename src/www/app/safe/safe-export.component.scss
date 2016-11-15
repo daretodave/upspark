@@ -1,0 +1,32 @@
+.export-container {
+  padding: 20px;
+}
+.keys {
+  height: 200px;
+  width: 100%;
+  overflow-y: scroll;
+}
+.key {
+  padding: 10px;
+  border-bottom: 1px dotted rgba(0, 0, 0, .5);
+  &:hover {
+    cursor: pointer;
+  }
+  &.selected {
+    background: teal;
+    color: white;
+    &:hover {
+      background: orangered;
+      color: white;
+    }
+  }
+  &:hover:not(.selected) {
+    background:forestgreen;
+    color: white;
+  }
+
+}
+
+.keys-control-group {
+  width: 100%;
+}

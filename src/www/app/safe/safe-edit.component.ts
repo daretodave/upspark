@@ -29,7 +29,6 @@ export class SafeEditComponent implements OnInit {
             return;
         }
 
-        console.log(this.values);
         let idx = -1;
         this.values.forEach((value, delIdx) => {
             if(value.key === this.current.key) {
@@ -37,7 +36,6 @@ export class SafeEditComponent implements OnInit {
             }
         });
         delete this.values[idx];
-        console.log(this.values, idx);
 
         this.model = new KeyValue();
         this.model.key = this.current.key;

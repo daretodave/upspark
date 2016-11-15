@@ -166,4 +166,36 @@ export class Safe {
     has(key: string): boolean {
         return this.vault.has(key);
     }
+
+    export(password: string, exportLocation: string, options: string[]): Promise<boolean> {
+        let self:Safe = this;
+        let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
+            let contents = 'upspark:';
+            options.forEach((option:string) => {
+                let value = self.vault.get(option);
+                contents += option;
+                contents += ':';
+                contents += value;
+                contents += ':';
+            });
+
+            let cipher  = crypto.createCipher(this.algorithm, password);
+            let crypted = cipher.update(contents, 'utf8','hex');
+
+            crypted += cipher.final('hex');
+
+            fs.writeFile(exportLocation, crypted, (err: NodeJS.ErrnoException) => {
+                if(err !== null) {
+                    reject(err);
+                    return;
+                }
+
+                self.auth = true;
+                self.created = true;
+
+                resolve(true);
+            });
+        };
+        return new Promise<boolean>(executor);
+    }
 }

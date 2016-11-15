@@ -9,7 +9,7 @@ import {Safe} from "./system/safe";
 
 const path = require('path');
 const electron = require('electron');
-const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain} = electron;
+const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} = electron;
 
 let settingsWindow: any;
 let runnerWindow: any;
@@ -179,7 +179,7 @@ let initTray = () => {
 let initSafe = () => {
     let options: any = {};
 
-    options.width  = 405;
+    options.width  = 650;
     options.height = 640;
     options.show = false;
     options.title = 'Upspark - Safe';
@@ -245,6 +245,7 @@ let initSafe = () => {
         if(!safe.created) {
             return;
         }
+        console.log('Safe:auth');
         event.sender.send('safe-loader', 'on');
         setTimeout(() => {
             safe.unlock(password).then((mappings) => {
@@ -256,6 +257,32 @@ let initSafe = () => {
                 event.sender.send('safe-auth-error', e);
             });
         }, 2000);
+    });
+
+    ipcMain.on('safe-export', (event:any, password:string, exportLocation:string, options:string[]) => {
+        if(!safe.auth || !password || !exportLocation || !options.length) {
+            return;
+        }
+        console.log('Safe:export', exportLocation, options);
+        event.sender.send('safe-loader', 'on');
+        safe.export(password, exportLocation, options).then(() => {
+            dialog.showMessageBox(safeWindow, {
+                type: "info",
+                message: `Exported ${options.length} keys successfully`,
+                buttons: []
+            });
+            event.sender.send('safe-loader', 'off');
+            event.sender.send('safe-main', safe.getMappings());
+        }).catch((error) => {
+            console.log(error);
+
+            dialog.showMessageBox(safeWindow, {
+                type: "error",
+                message: "Could not complete the export",
+                buttons: []
+            });
+            event.sender.send('safe-loader', 'off');
+        });
     });
 
     ipcMain.on('safe-main', (event:any) => {
@@ -327,6 +354,20 @@ let initSafe = () => {
                 safe.lock();
                 event.sender.send('safe-auth');
             });
+    });
+
+    ipcMain.on('safe-export-select', (event:any) => {
+        dialog.showSaveDialog(safeWindow, {
+            title: 'Select Export File',
+            filters: [
+                {
+                    name: 'Safe Entries',
+                    extensions: ['safe']
+                }
+            ]
+        }, (location:string) => {
+            event.sender.send('safe-export-select', location);
+        });
     });
 
     ipcMain.on('safe-edit', (event:any, key:string, previousKey:string, value: string) => {
