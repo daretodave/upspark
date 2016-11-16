@@ -51,49 +51,13 @@ export class Safe {
     }
 
     unlock(password:string): Promise<any> {
-        let self:Safe = this;
-        let executor = (resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) => {
-            fs.readFile(this.file, 'utf8', (err: NodeJS.ErrnoException, data: string) => {
-                if(err != null) {
-                    reject(err);
-                    return;
-                }
-                try {
-                    let decipher = crypto.createDecipher(self.algorithm, password);
-                    let dec:string = decipher.update(data, 'hex', 'utf8');
-                    dec += decipher.final('utf8');
-
-                    if(!dec.startsWith('upspark:')) {
-                        reject();
-                        return;
-                    }
-
-                    self.vault = new Map<string, string>();
-                    self.auth = true;
-                    self.password = password;
-
-                    let blocks: string[] = dec.split(":");
-                    let mappings: any = {};
-
-                    if(blocks.length > 2) {
-                        for(let i = 1, length = blocks.length; i < length; i += 2) {
-                            let key   = blocks[i];
-                            let value = blocks[i+1];
-
-                            self.vault.set(key, value);
-
-                            mappings[key] = value;
-                        }
-                    }
-
-                    resolve(mappings);
-                } catch (error) {
-                    reject(error);
-                }
-            });
-
-        };
-        return new Promise<boolean>(executor);
+        return this.crack(this.file, password, () => {
+            this.vault = new Map<string, string>();
+            this.auth = true;
+            this.password = password;
+        }, (key:string, value:string) => {
+            this.vault.set(key, value);
+        });
     }
 
     save(): Promise<boolean> {
@@ -178,23 +142,64 @@ export class Safe {
                 contents += value;
                 contents += ':';
             });
-
             let cipher  = crypto.createCipher(this.algorithm, password);
             let crypted = cipher.update(contents, 'utf8','hex');
-
             crypted += cipher.final('hex');
-
             fs.writeFile(exportLocation, crypted, (err: NodeJS.ErrnoException) => {
                 if(err !== null) {
                     reject(err);
                     return;
                 }
-
-                self.auth = true;
-                self.created = true;
-
                 resolve(true);
             });
+        };
+        return new Promise<boolean>(executor);
+    }
+
+    crack(importLocation: string, password: string, cracked:() => void, collector:(key:string, value:string) => void): Promise<any> {
+        let self:Safe = this;
+        let executor = (resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) => {
+            fs.readFile(importLocation, 'utf8', (err: NodeJS.ErrnoException, data: string) => {
+                if(err != null) {
+                    reject(err);
+                    return;
+                }
+                try {
+                    let decipher = crypto.createDecipher(self.algorithm, password);
+                    let dec:string = decipher.update(data, 'hex', 'utf8');
+                    dec += decipher.final('utf8');
+
+                    if(!dec.startsWith('upspark:')) {
+                        reject();
+                        return;
+                    }
+
+                    if(cracked != null) {
+                        cracked();
+                    }
+
+                    let blocks: string[] = dec.split(":");
+                    let mappings: any = {};
+
+                    if(blocks.length > 2) {
+                        for(let i = 1, length = blocks.length; i < length; i += 2) {
+                            let key   = blocks[i];
+                            let value = blocks[i+1];
+
+                            if(collector != null) {
+                                collector(key, value);
+                            }
+
+                            mappings[key] = value;
+                        }
+                    }
+
+                    resolve(mappings);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+
         };
         return new Promise<boolean>(executor);
     }

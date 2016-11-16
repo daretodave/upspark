@@ -19,6 +19,11 @@ export class SafeComponent  implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        ipcRenderer.removeAllListeners('safe-loader');
+        ipcRenderer.removeAllListeners('safe-main');
+        ipcRenderer.removeAllListeners('safe-auth');
+        ipcRenderer.removeAllListeners('safe-create');
+
         ipcRenderer.on('safe-loader', (event:any, arg:string) => {
             let element = document.getElementById('safe-loader');
             if(arg === 'on') {

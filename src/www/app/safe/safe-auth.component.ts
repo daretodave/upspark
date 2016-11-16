@@ -19,6 +19,8 @@ export class SafeAuthComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        ipcRenderer.removeAllListeners('safe-auth-error');
+
         let self:SafeAuthComponent = this;
         ipcRenderer.on('safe-auth-error', () => {
             this.zone.run(() => {

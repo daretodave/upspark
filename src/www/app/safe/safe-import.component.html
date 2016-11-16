@@ -1,1 +1,19 @@
-<p>import</p>
+<div class="import-container">
+    <button type="button" class="btn btn-success btn-lg btn-block" (click)="main()">Back</button>
+    <hr>
+    <div class="input-group">
+        <input disabled readonly type="text" class="form-control" name="import-loc" [(ngModel)]="importLocation" placeholder="Safe File">
+        <span class="input-group-btn">
+        <button class="btn btn-secondary" type="button" (click)="selectFileLocation()">Select</button>
+      </span>
+    </div>
+    <hr>
+    <p class="lead">
+        Please provide the password used to encrypt the safe file.
+    </p>
+    <input type="password" class="form-control" placeholder="Safe Password" (keyup.enter)="next()" [(ngModel)]="password">
+    <hr>
+
+    <div *ngIf="error" class="alert alert-danger">{{error}}</div>
+    <button type="submit" [disabled]="submitted" class="btn btn-primary submit-button" (click)="next()">Import</button>
+</div>

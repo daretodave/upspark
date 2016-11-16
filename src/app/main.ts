@@ -390,6 +390,43 @@ let initSafe = () => {
             event.sender.send('safe-auth');
         });
     });
+
+    ipcMain.on('safe-import-select', (event:any) => {
+        dialog.showOpenDialog(safeWindow, {
+            title: 'Select Safe File',
+            filters: [
+                {
+                    name: 'Safe Entries',
+                    extensions: ['safe']
+                }
+            ]
+        }, (locations:string[]) => {
+            if(locations == null || !locations[0]) {
+                return;
+            }
+
+            event.sender.send('safe-import-select', locations[0]);
+        });
+    });
+
+    ipcMain.on('safe-import', (event:any, importLocation:string, password:string) => {
+        if(!safe.created || !safe.auth) {
+            event.sender.send('safe-auth');
+            return;
+        }
+        console.log('Safe:import');
+        event.sender.send('safe-loader', 'on');
+        setTimeout(() => {
+            safe.crack(importLocation, password, null, null).then((mappings:any) => {
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-import', mappings);
+            }).catch((e:any) => {
+                console.log(e);
+                event.sender.send('safe-loader', 'off');
+                event.sender.send('safe-import-error', 'Could not crack the safe with the password provided');
+            });
+        }, 2000);
+    });
 };
 let initSettings = () => {
     let options: any = {};

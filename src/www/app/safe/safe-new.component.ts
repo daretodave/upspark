@@ -1,4 +1,4 @@
-import {Component, OnInit, NgZone} from '@angular/core';
+import {Component, OnInit, NgZone, AfterViewInit} from '@angular/core';
 import {KeyValue} from "../shared/key-value";
 import {FormGroup, FormBuilder, Validators} from "@angular/forms";
 import {restrictValidator} from "../shared/validation";
@@ -11,7 +11,21 @@ require('./safe-new.component.scss');
     selector: 'up-safe-new',
     templateUrl: 'safe-new.component.html'
 })
-export class SafeNewComponent implements OnInit {
+export class SafeNewComponent implements OnInit, AfterViewInit {
+
+    ngAfterViewInit() {
+        ipcRenderer.removeAllListeners('safe-new-error');
+
+        let self:SafeNewComponent = this;
+
+        ipcRenderer.on('safe-new-error', (event:any, field:string, error:string) => {
+            self.zone.run(() => {
+                self.formErrors[field] = error;
+                self.submitted = false;
+            });
+
+        });
+    }
 
     private model:KeyValue;
     private createValueForm: FormGroup;
@@ -28,14 +42,7 @@ export class SafeNewComponent implements OnInit {
 
         this.buildForm();
 
-        let self:SafeNewComponent = this;
-        ipcRenderer.on('safe-new-error', (event:any, field:string, error:string) => {
-            self.zone.run(() => {
-                self.formErrors[field] = error;
-                self.submitted = false;
-            });
 
-        });
     }
 
     buildForm() {

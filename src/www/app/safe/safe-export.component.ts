@@ -1,4 +1,4 @@
-import {Component, OnInit, NgZone} from "@angular/core";
+import {Component, OnInit, NgZone, AfterViewInit} from "@angular/core";
 import {KeyValueService} from "../shared/key-value.service";
 import {KeyValueOption} from "../shared/key-value-option";
 import {FormGroup, Validators, FormBuilder} from "@angular/forms";
@@ -13,7 +13,9 @@ require('./safe-export.component.scss');
     selector: 'up-safe-export',
     templateUrl: 'safe-export.component.html'
 })
-export class SafeExportComponent implements OnInit {
+export class SafeExportComponent implements OnInit, AfterViewInit {
+
+
 
     private values: KeyValueOption[];
     private exportCount:number = 0;
@@ -38,14 +40,17 @@ export class SafeExportComponent implements OnInit {
             this.values.push(option);
         });
 
-        ipcRenderer.on('safe-export-select', (event:any, location:string) => {
-            console.log(location);
-           this.zone.run(() => {
-              this.exportLocation = location;
-           });
-        });
-
         this.buildForm();
+    }
+
+    ngAfterViewInit() {
+        ipcRenderer.removeAllListeners('safe-export-select');
+
+        ipcRenderer.on('safe-export-select', (event:any, location:string) => {
+            this.zone.run(() => {
+                this.exportLocation = location;
+            });
+        });
     }
 
     buildForm() {

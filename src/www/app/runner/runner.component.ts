@@ -10,6 +10,8 @@ require('./runner.component.scss');
 })
 export class RunnerComponent implements AfterViewInit {
     ngAfterViewInit(): void {
+        ipcRenderer.removeAllListeners('style');
+
         ipcRenderer.on('style', (event:any, arg:string) => {
 
             let style = document.getElementById('runner-style');

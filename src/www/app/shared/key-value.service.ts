@@ -5,6 +5,7 @@ import {KeyValue} from "./key-value";
 export class KeyValueService {
 
     data:KeyValue[] = [];
+    toImport:KeyValue[] = [];
     edit:KeyValue = null;
     init:boolean = false;
 
