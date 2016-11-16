@@ -1,0 +1,18 @@
+<div class="import-container">
+    <button type="button" class="btn btn-success btn-lg btn-block" (click)="main()">Back</button>
+    <hr>
+    <p class="lead">Select keys to import</p>
+    <p class="lead"><strong>{{importCount}}</strong> keys selected</p>
+    <p class="lead"><strong>{{overwriteCount}}</strong> keys will be overwritten</p>
+    <div class="import-keys">
+        <div class="key" [class.selected]="key.selected" *ngFor="let key of values" (click)="toggle(key)">
+            {{key.key}}
+        </div>
+    </div>
+    <div class="keys-control-group btn-group" role="group">
+        <button type="button" class="btn btn-secondary" (click)="selectAll(true)">All</button>
+        <button type="button" class="btn btn-secondary" (click)="selectAll(false)">None</button>
+    </div>
+
+    <button type="submit" [disabled]="submitted" class="btn btn-primary submit-button" (click)="next()">Import</button>
+</div>

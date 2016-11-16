@@ -1,6 +1,7 @@
 import {Component, OnInit, NgZone, AfterViewInit} from '@angular/core';
 import {KeyValueService} from "../shared/key-value.service";
 import {KeyValue} from "../shared/key-value";
+import {Router} from "@angular/router";
 
 const {ipcRenderer} = require('electron');
 
@@ -39,10 +40,9 @@ export class SafeImportComponent implements OnInit, AfterViewInit {
                     toImport.push(value);
                 }
             }
-
             this.service.toImport = toImport;
 
-            console.log(toImport);
+            this.router.navigate(['/safe/import-select']);
         });
     }
 
@@ -51,7 +51,7 @@ export class SafeImportComponent implements OnInit, AfterViewInit {
     private error:string;
     private submitted:boolean;
 
-    constructor(private zone:NgZone, private service:KeyValueService) {
+    constructor(private zone:NgZone, private service:KeyValueService, private router:Router) {
 
     }
 

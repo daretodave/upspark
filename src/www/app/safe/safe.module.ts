@@ -13,6 +13,7 @@ import {SafeEditComponent} from "./safe-edit.component";
 import {SafeNewComponent} from "./safe-new.component";
 import {SafeUpdateComponent} from "./safe-update.component";
 import {KeyValueFilterPipe} from "../shared/key-value-filter.pipe";
+import {SafeImportSelectComponent} from "./safe-import-select.component";
 
 @NgModule({
     imports: [
@@ -26,6 +27,7 @@ import {KeyValueFilterPipe} from "../shared/key-value-filter.pipe";
         SafeMainComponent,
         SafeExportComponent,
         SafeImportComponent,
+        SafeImportSelectComponent,
         SafeAuthComponent,
         SafeCreateComponent,
         SafeResetComponent,

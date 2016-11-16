@@ -391,6 +391,26 @@ let initSafe = () => {
         });
     });
 
+    ipcMain.on('safe-import-final', (event:any, values:any[]) => {
+        if(!safe.auth) {
+            return;
+        }
+        console.log('Safe:import-final');
+
+        values.forEach((value) => {
+            safe.set(value.key, value.value);
+        });
+        safe
+            .save()
+            .then(() => {
+                event.sender.send('safe-main', safe.getMappings());
+            }).catch((e:any) => {
+
+            safe.lock();
+            event.sender.send('safe-auth');
+        });
+    });
+
     ipcMain.on('safe-import-select', (event:any) => {
         dialog.showOpenDialog(safeWindow, {
             title: 'Select Safe File',

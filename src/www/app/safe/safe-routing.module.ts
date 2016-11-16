@@ -10,6 +10,7 @@ import {SafeResetComponent} from "./safe-reset.component";
 import {SafeEditComponent} from "./safe-edit.component";
 import {SafeUpdateComponent} from "./safe-update.component";
 import {SafeNewComponent} from "./safe-new.component";
+import {SafeImportSelectComponent} from "./safe-import-select.component";
 
 @NgModule({
     imports: [
@@ -50,6 +51,10 @@ import {SafeNewComponent} from "./safe-new.component";
                     {
                         path: 'edit',
                         component: SafeEditComponent
+                    },
+                    {
+                        path: 'import-select',
+                        component: SafeImportSelectComponent
                     },
                     {
                         path: 'update',
