@@ -3,6 +3,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    background: rgba(0, 0, 0, .7);
 }
 #runner__path {
     display: flex;
@@ -27,4 +28,5 @@
 #runner-debug {
     width: 100%;
     margin: 20px;
+    color: white;
 }

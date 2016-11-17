@@ -6,5 +6,15 @@
 </head>
     <body>
         <app></app>
+        <script>
+            document.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            document.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+        </script>
     </body>
 </html>
