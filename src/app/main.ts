@@ -171,6 +171,28 @@ let initTray = () => {
         click: () => app.quit()
     });
 
+    if (process.env.ENV === 'development') {
+        options.push({
+            'type': 'separator',
+        });
+        options.push({
+            'label': 'Load Settings',
+            click: () => settingsWindow.loadURL(www('settings'))
+        });
+        options.push({
+            'label': 'Load Safe Auth',
+            click: () => safeWindow.loadURL(www('safe/auth'))
+        });
+        options.push({
+            'label': 'Load Safe Create',
+            click: () => safeWindow.loadURL(www('safe/create'))
+        });
+        options.push({
+            'label': 'Load Safe',
+            click: () => safeWindow.loadURL(www('safe/main'))
+        });
+    }
+
     tray.on('click', toggleRunner);
     
     tray.setContextMenu(Menu.buildFromTemplate(options));
@@ -475,7 +497,7 @@ let initSettings = () => {
     });
 
     ipcMain.on('open-resources', openResourceDirectory);
-    ipcMain.on('settings-get', (event:any, args:any) => {
+    ipcMain.on('get-setting', (event:any, args:any) => {
         let resolve:any = undefined;
 
         switch(args) {

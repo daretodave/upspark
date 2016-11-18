@@ -3,6 +3,8 @@ import {SettingsService} from "./settings.service";
 
 const {ipcRenderer} = require('electron');
 
+require('./settings-general.component.scss');
+
 @Component({
     selector: 'up-settings-general',
     templateUrl: './settings-general.component.html'

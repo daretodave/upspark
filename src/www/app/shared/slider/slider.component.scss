@@ -1,0 +1,56 @@
+$thickness: 10px;
+
+$line-color: #498dff;
+
+$ball-color: #498dff;
+$ball-color-hover: #294d8f;
+$ball-color-dragging: rgba(41, 77, 143, 0.69);
+
+.slider-container {
+  position: relative;
+  &.slider-vertical {
+    height: 100%;
+    width: $thickness*2;
+    .slider-line {
+
+    }
+    up-slider-ball {
+
+    }
+  }
+  &.slider-horizontal {
+    width: 100%;
+    height: $thickness*2;
+    .slider-line {
+      margin-top: $thickness;
+      border-bottom: 1px dotted $line-color;
+    }
+    up-slider-ball {
+      top: -$thickness;
+      left: 0;
+    }
+  }
+  .slider-line {
+    position: relative;
+  }
+  .slider-ball {
+    width: $thickness*2;
+    height: $thickness*2;
+    border-radius: $thickness*2;
+    background: $ball-color;
+    &:hover {
+      background: $ball-color-hover;
+      cursor: pointer;
+    }
+    &.slider-ball-dragging {
+      background: $ball-color-dragging;
+    }
+  }
+  .slider-label {
+    position: relative;
+    top: $thickness+10px;
+  }
+}
+up-slider-ball {
+  position: absolute;
+}

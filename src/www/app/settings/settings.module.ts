@@ -7,20 +7,23 @@ import {SettingsGeneralComponent} from "./settings-general.component";
 import {SettingsAppearanceComponent} from "./settings-appearance.component";
 import {SettingsAboutComponent} from "./settings-about.component";
 import {SettingsService} from "./settings.service";
+import {SliderModule} from "../shared/slider/slider.module";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
-        SettingsRoutingModule
+        SettingsRoutingModule,
+        SliderModule
     ],
     declarations: [
         SettingsComponent,
         SettingsGeneralComponent,
         SettingsAppearanceComponent,
-        SettingsAboutComponent
+        SettingsAboutComponent,
     ],
     providers: [
+
         SettingsService
     ]
 })
