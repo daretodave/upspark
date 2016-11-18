@@ -4,12 +4,12 @@ import {Component, Input, Output, EventEmitter, ElementRef, Renderer, OnInit, Ho
     selector: 'up-slider-ball',
     templateUrl: 'slider-ball.component.html',
 })
-export class SliderBallComponent implements OnInit {
-
+export class SliderBallComponent {
 
     @Input() vertical: boolean;
-    @Input() position: number;
     @Input() dragging: boolean;
+    @Input() top: number;
+    @Input() left: number;
 
     @Output() onMouseDownEvent:EventEmitter<Event>;
 
@@ -21,16 +21,6 @@ export class SliderBallComponent implements OnInit {
 
     constructor(private el: ElementRef, private renderer: Renderer) {
         this.onMouseDownEvent = new EventEmitter<Event>()
-    }
-
-    update() {
-        let position = Math.max(0, Math.min(1, this.position)) * 100;
-
-        this.renderer.setElementStyle(this.el.nativeElement, this.vertical ? 'top' : 'left', `${position}%`);
-    }
-
-    ngOnInit() {
-        this.update();
     }
 
 }

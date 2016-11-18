@@ -1,7 +1,7 @@
 <div class="slider-container" [class.slider-dragging]="dragging" [class.slider-vertical]="vertical" [class.slider-horizontal]="!vertical">
 
     <div class="slider-line">
-        <up-slider-ball [dragging]="dragging" [position]="position" [vertical]="vertical" (onMouseDownEvent)="onBallInteraction($event)"></up-slider-ball>
+        <up-slider-ball [dragging]="dragging" [left]="left" [top]="top" [vertical]="vertical" (onMouseDownEvent)="onBallInteraction($event)"></up-slider-ball>
     </div>
 
 </div>

@@ -12,10 +12,11 @@ $ball-color-dragging: rgba(41, 77, 143, 0.69);
     height: 100%;
     width: $thickness*2;
     .slider-line {
-
+      margin-left: $thickness;
+      border-right: 1px dotted $line-color;
     }
-    up-slider-ball {
-
+    .slider-ball {
+      transform: translateX(-50%);
     }
   }
   &.slider-horizontal {
@@ -25,11 +26,11 @@ $ball-color-dragging: rgba(41, 77, 143, 0.69);
       margin-top: $thickness;
       border-bottom: 1px dotted $line-color;
     }
-    up-slider-ball {
-      top: -$thickness;
-      left: 0;
+    .slider-ball {
+      transform: translateY(-50%);
     }
   }
+
   .slider-line {
     position: relative;
   }
@@ -38,6 +39,7 @@ $ball-color-dragging: rgba(41, 77, 143, 0.69);
     height: $thickness*2;
     border-radius: $thickness*2;
     background: $ball-color;
+    position: absolute;
     &:hover {
       background: $ball-color-hover;
       cursor: pointer;
@@ -53,4 +55,5 @@ $ball-color-dragging: rgba(41, 77, 143, 0.69);
 }
 up-slider-ball {
   position: absolute;
+  width:100%;
 }
