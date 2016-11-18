@@ -1,1 +1,12 @@
-<p>general</p>
+<div class="form-group">
+
+    <label for="resources">Resources</label>
+    <div class="input-group">
+
+        <input type="text" class="form-control" id="resources" disabled readonly [ngModel]="resourceDir">
+        <span class="input-group-btn">
+        <button class="btn btn-secondary" type="button" (click)="openResourceDirectory()">Open</button>
+      </span>
+    </div>
+
+</div>

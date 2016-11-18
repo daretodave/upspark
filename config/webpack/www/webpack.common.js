@@ -12,7 +12,8 @@ let config = {};
     let typescript = {},
         bootstrap = {},
         html = {},
-        scss = {};
+        scss = {},
+        json = {};
 
     typescript.test = /\.ts$/;
     typescript.loaders = [];
@@ -32,11 +33,15 @@ let config = {};
     scss.loaders.push('css');
     scss.loaders.push('sass');
 
+    json.test = /\.json$/;
+    json.loader = 'json';
+
     loaders.push(
         typescript,
         html,
         scss,
-        bootstrap
+        bootstrap,
+        json
     );
 
 })(config.module = {}, config.module.loaders = []);

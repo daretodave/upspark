@@ -1,13 +1,25 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {SettingsService} from "./settings.service";
 
+const {ipcRenderer} = require('electron');
 
 @Component({
     selector: 'up-settings-general',
     templateUrl: './settings-general.component.html'
 })
-export class SettingsGeneralComponent {
+export class SettingsGeneralComponent implements OnInit{
 
-    constructor() {
+    private resourceDir:string;
+
+    constructor(private settingsService:SettingsService) {
+    }
+
+    ngOnInit() {
+        this.resourceDir = this.settingsService.getSetting('resource-dir');
+    }
+
+    openResourceDirectory() {
+        ipcRenderer.send('open-resources');
     }
 
 }

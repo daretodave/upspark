@@ -1,2 +1,31 @@
-<h1>Settings</h1>
-<router-outlet></router-outlet>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 settings-sidenav">
+            <h4>UPSPARK&nbsp;<small>SETTINGS</small></h4>
+            <hr>
+            <ul class="nav nav-pills nav-stacked settings-pills">
+                <li class="nav-item" >
+                    <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/general']">General</a>
+                </li>
+                <li class="nav-item" >
+                    <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/appearance']">Theme</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/about']">About</a>
+                </li>
+            </ul>
+
+            <div class="copyright hidden-sm-down">
+                <hr>
+                &copy; <span class="copyright-link">upspark</span>
+            </div>
+        </div>
+        <div class="col-md-8 settings-main">
+            <router-outlet></router-outlet>
+        </div>
+        <div class="hidden-md-up copyright text-xs-center">
+            <hr>
+            &copy; <span class="copyright-link">upspark</span>
+        </div>
+    </div>
+</div>

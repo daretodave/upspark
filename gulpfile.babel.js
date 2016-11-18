@@ -48,7 +48,7 @@ export const copyStaticFiles = () =>
         .pipe(dest('./dist/static'));
 export const cleanCopyStaticFiles = () => series(cleanStaticFiles, copyStaticFiles);
 export const relaunch = (callback) => {
-    log(config.tag, `Core module updated.`);
+    log(config.tag, `app`);
     
     if(!config.init) {
         callback();
@@ -76,6 +76,10 @@ export const launch = () => {
         config.init = true;
         src('./').pipe(runElectron(["--dev"]));
         log(config.tag, `Bundling complete. Launching in development mode`);
+    });
+
+    compiler.plugin('compile', () => {
+        log(config.tag, `www`);
     });
 
     let options = {};

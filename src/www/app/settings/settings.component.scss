@@ -1,0 +1,20 @@
+.settings-sidenav {
+  padding: 40px 80px 20px 20px;
+}
+.settings-main {
+  padding: 40px 20px;
+}
+.settings-pills {
+  margin-top: 20px;
+}
+.copyright {
+}
+.copyright-link {
+  color: #1981ff;
+  border-bottom: 1px dotted black;
+  &:hover {
+    border-bottom: 1px dashed black;
+    font-weight: bold;
+    cursor: pointer;
+  }
+}

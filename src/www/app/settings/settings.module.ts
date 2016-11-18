@@ -5,6 +5,8 @@ import {SettingsComponent} from "./settings.component";
 import {NgModule} from "@angular/core";
 import {SettingsGeneralComponent} from "./settings-general.component";
 import {SettingsAppearanceComponent} from "./settings-appearance.component";
+import {SettingsAboutComponent} from "./settings-about.component";
+import {SettingsService} from "./settings.service";
 
 @NgModule({
     imports: [
@@ -15,9 +17,11 @@ import {SettingsAppearanceComponent} from "./settings-appearance.component";
     declarations: [
         SettingsComponent,
         SettingsGeneralComponent,
-        SettingsAppearanceComponent
+        SettingsAppearanceComponent,
+        SettingsAboutComponent
     ],
     providers: [
+        SettingsService
     ]
 })
 export class SettingsModule {}

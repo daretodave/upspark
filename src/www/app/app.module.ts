@@ -7,6 +7,10 @@ import {SettingsModule} from "./settings/settings.module";
 import {RunnerModule} from "./runner/runner.module";
 import {RouterModule} from "@angular/router";
 import {SafeModule} from "./safe/safe.module";
+import { Angulartics2Module, Angulartics2GoogleAnalytics } from 'angulartics2';
+
+// GA
+require('./util/analytics');
 
 @NgModule({
     imports: [
@@ -16,9 +20,12 @@ import {SafeModule} from "./safe/safe.module";
         RunnerModule,
         RouterModule.forRoot([], {
             useHash: true            
-        })
+        }),
+        Angulartics2Module.forRoot()
     ],
-    
+    providers: [
+        Angulartics2GoogleAnalytics
+    ],
     declarations: [
         AppComponent,
     ],

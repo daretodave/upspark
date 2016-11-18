@@ -115,6 +115,9 @@ let adhereSettings = () => {
         //TODO: Error window
     });
 };
+let openResourceDirectory = () => {
+    electron.shell.openItem(resources.root);
+};
 let toggleRunner = () => {
     runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
 };
@@ -141,9 +144,7 @@ let initTray = () => {
     });
     options.push({
         'label': 'Resources',
-        click() {
-            electron.shell.openItem(resources.root);
-        }
+        click: () => openResourceDirectory()
     });
     options.push({
         'label': 'Reload',
@@ -473,6 +474,19 @@ let initSettings = () => {
         }
     });
 
+    ipcMain.on('open-resources', openResourceDirectory);
+    ipcMain.on('settings-get', (event:any, args:any) => {
+        let resolve:any = undefined;
+
+        switch(args) {
+            case 'resource-dir':
+                resolve = resources.root;
+                break;
+
+        }
+
+        event.returnValue = resolve;
+    });
 };
 
 let initRunner = () => {
