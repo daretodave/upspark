@@ -16,29 +16,56 @@
 
 <div class="metrics-container">
     <p class="lead">METRICS</p>
+
     <div class="row">
+        <div class="col-sm-6">
+            <span class="settings-label">Screen X</span>
+            <div class="metrics-slider-horizontal">
+                <div class="metrics-slider-input"><input (input)="onXInput($event.target.value)" [(ngModel)]="mockSettings.x" type="text" class="form-control"></div>
+                <div class="metrics-slider-tool"><up-slider #xSlider [position]="settings.x" (onPositionChange)="onXUpdate($event)" (onPositionFinalChange)="onXUpdateFinal($event)"></up-slider></div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <span class="settings-label">Screen Y</span>
+            <div class="metrics-slider-horizontal">
+                <div class="metrics-slider-input"><input (input)="onYInput($event.target.value)" [(ngModel)]="mockSettings.y" type="text" class="form-control"></div>
+                <div class="metrics-slider-tool"><up-slider #ySlider [position]="settings.y" (onPositionChange)="onYUpdate($event)" (onPositionFinalChange)="onYUpdateFinal($event)"></up-slider></div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="metrics-demo">
+                <div class="metrics-demo-container">
+                    <div class="metrics-demo-runner" #demoRunner></div>
+                </div>
+            </div>
+        </div>
         <div class="col-sm-6">
             <span class="settings-label">Width</span>
             <div class="metrics-slider-horizontal">
                 <div class="metrics-slider-input"><input (input)="onWidthInput($event.target.value)" [(ngModel)]="mockSettings.width" type="text" class="form-control"></div>
                 <div class="metrics-slider-tool"><up-slider #widthSlider [position]="settings.width" (onPositionChange)="onWidthUpdate($event)" (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider></div>
             </div>
+            <span class="settings-label">Height</span>
+            <div class="metrics-slider-horizontal">
+                <div class="metrics-slider-input"><input (input)="onHeightInput($event.target.value)" [(ngModel)]="mockSettings.height" type="text" class="form-control"></div>
+                <div class="metrics-slider-tool"><up-slider #heightSlider [position]="settings.height" (onPositionChange)="onHeightUpdate($event)" (onPositionFinalChange)="onHeightUpdateFinal($event)"></up-slider></div>
+            </div>
+            <span class="settings-label">Offset X</span>
+            <div class="metrics-slider-horizontal">
+                <div class="metrics-slider-input"><input (input)="onOffsetXInput($event.target.value)" [(ngModel)]="mockSettings.offsetX" type="text" class="form-control"></div>
+                <div class="metrics-slider-tool"><up-slider #offsetXSlider [position]="settings.offsetX" (onPositionChange)="onOffsetXUpdate($event)" (onPositionFinalChange)="onOffsetXUpdateFinal($event)"></up-slider></div>
+            </div>
+            <span class="settings-label">Offset Y</span>
+            <div class="metrics-slider-horizontal">
+                <div class="metrics-slider-input"><input (input)="onOffsetYInput($event.target.value)" [(ngModel)]="mockSettings.offsetY" type="text" class="form-control"></div>
+                <div class="metrics-slider-tool"><up-slider #offsetYSlider [position]="settings.offsetY" (onPositionChange)="onOffsetYUpdate($event)" (onPositionFinalChange)="onOffsetYUpdateFinal($event)"></up-slider></div>
+            </div>
         </div>
 
+
     </div>
 
 </div>
 
-
-<div class="form-group">
-
-    <label for="resources">Resources</label>
-    <div class="input-group">
-
-        <input type="text" class="form-control" id="resources" disabled readonly [ngModel]="settings.resourceLocation">
-        <span class="input-group-btn">
-        <button class="btn btn-secondary" type="button" (click)="openResourceDirectory()">Open</button>
-      </span>
-    </div>
-
-</div>

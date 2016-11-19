@@ -484,8 +484,8 @@ let onDisplayChange = () => {
 let initSettings = () => {
     let options: any = {};
 
-    options.width  = 800;
-    options.height = 500;
+    options.width  = 1060;
+    options.height = 700;
     options.show = false;
     options.title = 'Upspark - Settings';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');

@@ -15,11 +15,15 @@
 .screen-select {
   margin-bottom: 20px;
 }
+.metrics-slider-vertical {
+  display: flex;
+  flex-direction: column;
+}
 .metrics-slider-horizontal {
   display: flex;
   margin-bottom: 10px;
   .metrics-slider-input {
-    width: 25%;
+    width: 30%;
   }
   .metrics-slider-tool {
     flex-grow: 1;
@@ -30,4 +34,29 @@
   font-size: 14px;
   text-transform: uppercase;
   margin-left: 2px;
+}
+
+.metrics-demo {
+  margin-top:10px;
+}
+
+.metrics-demo-container {
+  width:100%;
+  padding-bottom: 75%;
+  background: rgba(0, 0, 0, .2);
+  border: 1px dotted dodgerblue;
+  position: relative;
+}
+
+.metrics-demo-runner {
+  top: 0;
+  left: 0;
+  width: 10%;
+  height: 10%;
+  position: absolute;
+  border: 2px solid dodgerblue;
+}
+
+.metrics-container {
+  margin-bottom: 15px;
 }
