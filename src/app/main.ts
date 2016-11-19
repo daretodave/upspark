@@ -88,7 +88,7 @@ let adhereSettings = ():Promise<any> => {
         let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
 
         let x:number = display.bounds.x + (display.bounds.width * location.x);
-        let y:number = display.bounds.y + (display.bounds.width * location.y);
+        let y:number = display.bounds.y + (display.bounds.height * location.y);
 
         let width:number = size.width * display.bounds.width;
         let height:number = size.height * display.bounds.height;
