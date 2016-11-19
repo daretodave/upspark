@@ -1,0 +1,17 @@
+.screen-option {
+  height: 50px;
+  width: 100%;
+  border: 1px solid rgba(0, 0, 0, .5);
+  text-align: center;
+  line-height: 50px;
+  &.active {
+    border: 1px solid dodgerblue;
+  }
+  &:hover {
+    border: 1px dashed dodgerblue;
+    cursor:pointer;
+  }
+}
+.screen-select {
+  margin-bottom: 20px;
+}

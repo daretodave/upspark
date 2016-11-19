@@ -532,6 +532,22 @@ let initSettings = () => {
             case 'style':
                 resolve = resources.syncGet<Style>('style').content;
                 break;
+            case 'screens':
+                let screens:any[] = electron.screen.getAllDisplays().map((display:any) => {
+                    let screen:any = {};
+
+                    screen.rotation = display.rotation;
+                    screen.x = display.bounds.x;
+                    screen.y = display.bounds.y;
+                    screen.width = display.bounds.width;
+                    screen.height = display.bounds.height;
+                    screen.id = display.id;
+
+                    return screen;
+                });
+
+                resolve = screens;
+                break;
             default:
                 console.log('Settings:get', args, 'NOT FOUND');
                 break;
@@ -539,6 +555,7 @@ let initSettings = () => {
 
         event.returnValue = resolve;
     });
+
     ipcMain.on('set-setting', (event: any, setting:string, value:any, save:boolean) => {
         console.log('Settings:set', setting, value, `[save]=${save}`);
         resources.load('settings').then((settings:Settings) => {

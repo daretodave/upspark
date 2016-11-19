@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import {Settings} from "./settings";
+import {SettingsScreen} from "./settings-screen";
 
 const {ipcRenderer} = require('electron');
 
@@ -24,5 +25,21 @@ export class SettingsService {
         settings.screen = this.getSetting<number>('screen');
         settings.hotkey = this.getSetting<string>('hotkey');
         settings.style = this.getSetting<string>('style');
+        settings.resourceLocation = this.getSetting<string>('resource-dir');
+        settings.screens = this.getSetting<any[]>('screens');
+
+        let selection:boolean = false;
+        for(let index = 0, length = settings.screens.length; index < length; index++) {
+            let screen:SettingsScreen = settings.screens[index];
+            screen.index = index;
+            screen.selected = settings.screen === index;
+
+            selection = true;
+        }
+        if(!selection && settings.screens.length > 1) {
+            settings[0].selected = true;
+            settings.screen = 0;
+        }
+
     }
 }

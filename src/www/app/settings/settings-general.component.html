@@ -1,17 +1,40 @@
-<div class="form-group">
 
-    <label for="resources">Resources</label>
-    <div class="input-group">
 
-        <input type="text" class="form-control" id="resources" disabled readonly [ngModel]="resourceDir">
-        <span class="input-group-btn">
-        <button class="btn btn-secondary" type="button" (click)="openResourceDirectory()">Open</button>
-      </span>
+<div class="screen-select" *ngIf="settings.screens">
+    <label for="resources">Display</label>
+    <div class="row">
+        <div *ngFor="let screen of settings.screens" class="col-md-4">
+            <div class="screen-option" [class.active]="screen.selected" (click)="onScreenUpdate(screen.index)">
+                {{screen.index}}
+            </div>
+
+        </div>
     </div>
 
 </div>
 
 <div class="metrics-container">
-    <label>Location and Size</label>
-    <up-slider [position]="settings.width" (onPositionChange)="onWidthUpdate($event)" (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider>
+    <label>Metrics</label>
+    <div class="row">
+        <div class="col-xs-3">
+
+        </div>
+        <div class="col-xs-9">
+            <up-slider [position]="settings.width" (onPositionChange)="onWidthUpdate($event)" (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider>
+        </div>
+    </div>
+</div>
+
+
+<div class="form-group">
+
+    <label for="resources">Resources</label>
+    <div class="input-group">
+
+        <input type="text" class="form-control" id="resources" disabled readonly [ngModel]="settings.resourceLocation">
+        <span class="input-group-btn">
+        <button class="btn btn-secondary" type="button" (click)="openResourceDirectory()">Open</button>
+      </span>
+    </div>
+
 </div>

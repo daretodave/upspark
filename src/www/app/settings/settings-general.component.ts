@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {SettingsService} from "./settings.service";
 import {Settings} from "./settings";
+import {SettingsScreen} from "./settings-screen";
 
 const {ipcRenderer} = require('electron');
 
@@ -24,6 +25,16 @@ export class SettingsGeneralComponent implements OnInit{
 
     openResourceDirectory() {
         ipcRenderer.send('open-resources');
+    }
+
+    onScreenUpdate(screenIdx:number) {
+        this.settings.screens.forEach((screen:SettingsScreen) => {
+           screen.selected = screen.index === screenIdx;
+        });
+        this.settings.screen = screenIdx;
+
+        this.settingsService.setSetting('screen', screenIdx, true);
+
     }
 
     onWidthUpdate(width:number) {
