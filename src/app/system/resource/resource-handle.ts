@@ -9,6 +9,7 @@ const fs = require('fs');
 export class ResourceHandle<T extends ResourceModel> {
 
     private promise:Promise<T>;
+    private model:T;
 
     constructor(
         private path: string,
@@ -34,12 +35,34 @@ export class ResourceHandle<T extends ResourceModel> {
         return this;
     }
 
+    save(): Promise<boolean> {
+        let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
+            this._save(resolve, reject);
+        };
+        return new Promise<boolean>(executor);
+    }
+
+    get(): T {
+        return this.model;
+    }
+
+    private _save(resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) {
+        let contents:string = this.translator.serialize(this.model);
+        fs.writeFile(this.path, contents, (err: NodeJS.ErrnoException) => {
+            if(err !== null) {
+                reject(err);
+                return;
+            }
+            resolve(true);
+        });
+    }
+
     private _load(onMissingPolicy: ResourceMissingPolicy, resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) {
         fs.readFile(this.path, this.format, (err: NodeJS.ErrnoException, data: string) => {
 
             if(err === null) {
-                let resource:T = <T>this.translator.deserialize(data);
-                resolve(resource);
+                this.model  = <T>this.translator.deserialize(data);
+                resolve(this.model);
                 return;
             }
 
@@ -48,26 +71,16 @@ export class ResourceHandle<T extends ResourceModel> {
                 return;
             }
 
-            let resource:T = <T>(new this.type());
+            this.model = <T>(new this.type());
 
             if (onMissingPolicy === ResourceMissingPolicy.DEFAULT || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT) {
-                resource.toDefaultState();
+                this.model.toDefaultState();
             }
 
             if(onMissingPolicy === ResourceMissingPolicy.CREATE_BLANK || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT) {
-
-                let contents = this.translator.serialize(resource);
-
-                fs.writeFile(this.path, contents, (err: NodeJS.ErrnoException) => {
-                    if(err !== null) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(resource);
-                });
-
+                this._save(resolve, reject);
             } else {
-                resolve(resource);
+                resolve(this.model);
             }
 
         });

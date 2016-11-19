@@ -65,6 +65,12 @@ export class Resource {
         return handle;
     }
 
+    save<T extends ResourceModel>(key: string): Promise<boolean> {
+        this.validateProvidedKey(key, true);
+
+        return this.resources.get(key).save();
+    }
+
     reload<T extends ResourceModel>(key: string): Promise<T> {
         this.validateProvidedKey(key, true);
 
@@ -87,4 +93,9 @@ export class Resource {
         });
     }
 
+    syncGet<T>(key: string): T {
+        this.validateProvidedKey(key, true);
+
+        return this.resources.get(key).get();
+    }
 }

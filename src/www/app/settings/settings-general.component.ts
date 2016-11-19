@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {SettingsService} from "./settings.service";
+import {Settings} from "./settings";
 
 const {ipcRenderer} = require('electron');
 
@@ -11,17 +12,27 @@ require('./settings-general.component.scss');
 })
 export class SettingsGeneralComponent implements OnInit{
 
-    private resourceDir:string;
+    private settings:Settings;
 
     constructor(private settingsService:SettingsService) {
+        this.settings = new Settings();
     }
 
     ngOnInit() {
-        this.resourceDir = this.settingsService.getSetting('resource-dir');
+        this.settingsService.setSettings(this.settings);
     }
 
     openResourceDirectory() {
         ipcRenderer.send('open-resources');
+    }
+
+    onWidthUpdate(width:number) {
+        this.settingsService.setSetting('width', width);
+    }
+    onWidthUpdateFinal(width:number) {
+        this.settingsService.setSetting('width', width, true);
+
+        this.settings.width = width;
     }
 
 }

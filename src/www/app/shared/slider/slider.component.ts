@@ -17,6 +17,7 @@ export class SliderComponent implements OnInit {
     private left:number;
     private top:number;
     @Output() onPositionChange:EventEmitter<number>;
+    @Output() onPositionFinalChange:EventEmitter<number>;
 
     @Input('position') position: number;
     @Input('vertical') vertical: boolean;
@@ -32,7 +33,7 @@ export class SliderComponent implements OnInit {
         }
         this.dirty = false;
 
-        this.onPositionChange.emit(this.position);
+        this.onPositionFinalChange.emit(this.position);
     }
     @HostListener('document:mousemove', ['$event'])
     private onDocumentMouseMove(event:MouseEvent) {
@@ -60,11 +61,13 @@ export class SliderComponent implements OnInit {
         this.left = this.vertical ? 0 : position;
         if(isPostInit) {
             this.dirty = true;
+            this.onPositionChange.emit(this.position);
         }
     }
 
     constructor(private el: ElementRef) {
         this.onPositionChange = new EventEmitter<number>();
+        this.onPositionFinalChange = new EventEmitter<number>();
     }
 
     onBallInteraction(event:MouseEvent) {

@@ -13,5 +13,5 @@
 
 <div class="metrics-container">
     <label>Location and Size</label>
-    <up-slider [position]=".5"></up-slider>
+    <up-slider [position]="settings.width" (onPositionChange)="onWidthUpdate($event)" (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider>
 </div>

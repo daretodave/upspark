@@ -60,10 +60,10 @@ let reload = () => {
     });
 };
 
-let adhereSettings = () => {
+let adhereSettings = ():Promise<any> => {
     globalShortcut.unregisterAll();
 
-    Promise.all([
+    return Promise.all([
         resources.get('settings', 'hotkey', 'Control+`'),
         resources.get('settings', 'location', {
             x: 0,
@@ -499,15 +499,99 @@ let initSettings = () => {
     ipcMain.on('open-resources', openResourceDirectory);
     ipcMain.on('get-setting', (event:any, args:any) => {
         let resolve:any = undefined;
+        let settings:Settings = resources.syncGet<Settings>('settings');
 
         switch(args) {
             case 'resource-dir':
                 resolve = resources.root;
                 break;
-
+            case 'width':
+                resolve = settings.size.width;
+                break;
+            case 'height':
+                resolve = settings.size.height;
+                break;
+            case 'x':
+                resolve = settings.location.x;
+                break;
+            case 'y':
+                resolve = settings.location.y;
+                break;
+            case 'offset-x':
+                resolve = settings.location.offsetX;
+                break;
+            case 'offset-y':
+                resolve = settings.location.offsetY;
+                break;
+            case 'screen':
+                resolve = settings.location.screen;
+                break;
+            case 'hotkey':
+                resolve = settings.hotkey;
+                break;
+            case 'style':
+                resolve = resources.syncGet<Style>('style').content;
+                break;
+            default:
+                console.log('Settings:get', args, 'NOT FOUND');
+                break;
         }
 
         event.returnValue = resolve;
+    });
+    ipcMain.on('set-setting', (event: any, setting:string, value:any, save:boolean) => {
+        console.log('Settings:set', setting, value, `[save]=${save}`);
+        resources.load('settings').then((settings:Settings) => {
+            console.log('Settings:set..');
+            switch(setting) {
+                case 'width':
+                    settings.size.width = value;
+                    break;
+                case 'height':
+                    settings.size.height = value;
+                    break;
+                case 'x':
+                    settings.location.x = value;
+                    break;
+                case 'y':
+                    settings.location.y = value;
+                    break;
+                case 'offset-x':
+                    settings.location.offsetX = value;
+                    break;
+                case 'offset-y':
+                    settings.location.offsetY = value;
+                    break;
+                case 'screen':
+                    settings.location.screen = value;
+                    break;
+                case 'hotkey':
+                    settings.hotkey = value;
+                    break;
+                case 'style':
+                    resources.syncGet<Style>('style').content = value;
+                    break;
+                default:
+                    console.log('Settings:set', setting, 'NOT FOUND');
+                    break;
+            }
+        }).then(() => {
+            console.log('Settings:set', 'adhere');
+            adhereSettings().then(() => {
+                if(save) {
+                    console.log('Settings:set', 'save', `[isStyle]=${setting==='style'}`);
+                    resources.save(setting === 'style' ? 'style' : 'settings').then(() => {
+                        console.log('Settings:set saved');
+                    }).catch((reason:any) => {
+                        console.log('Settings:set', 'save-fail', reason);
+                    });
+                }
+            }).catch((reason:any) => {
+                console.log('Settings:set', 'adhere-fail', 'reason');
+            });
+        });
+
+
     });
 };
 
