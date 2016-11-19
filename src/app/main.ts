@@ -471,6 +471,16 @@ let initSafe = () => {
         }, 2000);
     });
 };
+let onDisplayChange = () => {
+    console.log('System:displays', 'updated');
+    adhereSettings().then(() => {
+        console.log('System:displays', 'updating settings');
+        settingsWindow.webContents.send('display-updated');
+    }).catch((e:any) => {
+        console.log('System:displays', 'updating settings failed', e);
+    });
+
+};
 let initSettings = () => {
     let options: any = {};
 
@@ -495,6 +505,10 @@ let initSettings = () => {
             settingsWindow.hide();
         }
     });
+
+    electron.screen.on('display-removed', onDisplayChange);
+    electron.screen.on('display-added', onDisplayChange);
+    electron.screen.on('display-metrics-changed', onDisplayChange);
 
     ipcMain.on('open-resources', openResourceDirectory);
     ipcMain.on('get-setting', (event:any, args:any) => {

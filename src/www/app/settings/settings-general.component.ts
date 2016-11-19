@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, NgZone} from '@angular/core';
 import {SettingsService} from "./settings.service";
 import {Settings} from "./settings";
 import {SettingsScreen} from "./settings-screen";
@@ -15,12 +15,21 @@ export class SettingsGeneralComponent implements OnInit{
 
     private settings:Settings;
 
-    constructor(private settingsService:SettingsService) {
+    constructor(private settingsService:SettingsService, private zone:NgZone) {
         this.settings = new Settings();
     }
 
     ngOnInit() {
         this.settingsService.setSettings(this.settings);
+
+        ipcRenderer.removeAllListeners('display-updated');
+
+        ipcRenderer.on('display-updated', () => {
+            console.log('system.displays updated');
+            this.zone.run(() => {
+                this.settingsService.setScreens(this.settings);
+            });
+        });
     }
 
     openResourceDirectory() {

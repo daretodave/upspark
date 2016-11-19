@@ -26,6 +26,11 @@ export class SettingsService {
         settings.hotkey = this.getSetting<string>('hotkey');
         settings.style = this.getSetting<string>('style');
         settings.resourceLocation = this.getSetting<string>('resource-dir');
+
+        this.setScreens(settings);
+    }
+
+    setScreens(settings:Settings) {
         settings.screens = this.getSetting<any[]>('screens');
 
         let selection:boolean = false;
@@ -40,6 +45,5 @@ export class SettingsService {
             settings[0].selected = true;
             settings.screen = 0;
         }
-
     }
 }
