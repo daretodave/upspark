@@ -546,6 +546,9 @@ let initSettings = () => {
             case 'style':
                 resolve = resources.syncGet<Style>('style').content;
                 break;
+            case 'rotation':
+                resolve = settings.rotation;
+                break;
             case 'screens':
                 let screens:any[] = electron.screen.getAllDisplays().map((display:any) => {
                     let screen:any = {};
@@ -595,6 +598,9 @@ let initSettings = () => {
                     break;
                 case 'screen':
                     settings.location.screen = value;
+                    break;
+                case 'rotation':
+                    settings.rotation = value;
                     break;
                 case 'hotkey':
                     settings.hotkey = value;

@@ -8,19 +8,20 @@ require("./slider.component.scss");
 })
 export class SliderComponent implements OnInit {
 
-
     private dragging:boolean;
     private bounds:ClientRect;
     private size:number;
-    private dirty:boolean;
     private offset:number;
     private left:number;
     private top:number;
+    private position:number;
     @Output() onPositionChange:EventEmitter<number>;
     @Output() onPositionFinalChange:EventEmitter<number>;
 
-    @Input('position') position: number;
+    @Input('value') value: number;
     @Input('vertical') vertical: boolean;
+    @Input('upper') upper: number = 1;
+    @Input('lower') lower: number = 0;
 
     @HostListener('document:mouseup')
     private onDocumentMouseUp() {
@@ -28,12 +29,7 @@ export class SliderComponent implements OnInit {
             return;
         }
         this.dragging = false;
-        if(!this.dirty) {
-            return;
-        }
-        this.dirty = false;
-
-        this.onPositionFinalChange.emit(this.position);
+        this.onPositionFinalChange.emit(this.value);
     }
     @HostListener('document:mousemove', ['$event'])
     private onDocumentMouseMove(event:MouseEvent) {
@@ -45,24 +41,30 @@ export class SliderComponent implements OnInit {
 
         offset += this.offset;
 
-        this.position = Math.max(0, Math.min(1, (location-offset) / this.size));
+        let position:number = Math.max(0, Math.min(1, (location-offset) / this.size));
+        let value:number = (position * (this.upper - this.lower)) + this.lower;
 
-        this.setBallLocation(this.position, true);
+        this.setValue(value);
+
+        this.onPositionChange.emit(value);
     }
 
     ngOnInit() {
-        this.setBallLocation(this.position);
+       this.setValue(this.value);
     }
 
-    public setBallLocation(position:number, isPostInit:boolean = false) {
+    public setValue(value:number) {
+        this.position = (value - this.lower) / (this.upper - this.lower);
+        this.value = value;
+
+        this.updateIndicatorLocation(this.position);
+    }
+
+    private updateIndicatorLocation(position:number) {
         position = position * 100;
 
         this.top = this.vertical ? position : 0;
         this.left = this.vertical ? 0 : position;
-        if(isPostInit) {
-            this.dirty = true;
-            this.onPositionChange.emit(this.position);
-        }
     }
 
     constructor(private el: ElementRef) {

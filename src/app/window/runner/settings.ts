@@ -6,6 +6,7 @@ export class Settings implements ResourceModel {
     public location:Location;
     public size:Size;
     public hotkey:string;
+    public rotation:number;
 
     constructor() {
     }
@@ -22,6 +23,8 @@ export class Settings implements ResourceModel {
         this.size = new Size();
         this.size.width = 1;
         this.size.height = .5;
+
+        this.rotation = 0;
 
         this.hotkey = 'Control+`';
 

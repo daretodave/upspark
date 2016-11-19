@@ -6,7 +6,7 @@ import Webpack from 'webpack';
 import Helpers from '../../helpers';
 import common from './webpack.common';
 
-let {DefinePlugin} = Webpack;
+let {DefinePlugin, HotModuleReplacementPlugin} = Webpack;
 let config = {};
 
 (function(output) {
@@ -25,9 +25,14 @@ let config = {};
         return new DefinePlugin(config);
     })({});
 
+    let hmr = (function() {
+        return new HotModuleReplacementPlugin();
+    })();
+
 
     plugins.push(
-        env
+        env,
+        hmr
     );
 
 })(config.plugins = []);

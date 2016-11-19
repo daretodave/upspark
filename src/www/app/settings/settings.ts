@@ -8,6 +8,7 @@ export class Settings {
     offsetY: number;
     screen:number;
     hotkey:string;
+    rotation:number;
     style:string;
     screens:SettingsScreen[];
     resourceLocation:string;

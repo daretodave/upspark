@@ -59,13 +59,11 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.renderer.setElementStyle(this.demoRunner.nativeElement, 'height', `${this.settings.height * 100}%`);
     }
 
-    getSafeMetric(value:number): number {
-        value = value*1;
+    getSafeMetric(value:any): number {
+        if(typeof value === 'string') {
+            value = +value;
+        }
         return +value.toFixed(2);
-    }
-
-    openResourceDirectory() {
-        ipcRenderer.send('open-resources');
     }
 
     onScreenUpdate(screenIdx:number) {
@@ -78,29 +76,32 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
 
     }
 
-    static getNumber(value:any):number {
+    static getNumber(value:any, lower:number, upper:number):number {
         if(isNaN(value) || !isFinite(value)) {
             return undefined;
         }
 
         let num:number = +value;
-        if(num < 0 || num > 1) {
-            return undefined;
+        if(num < lower || num > upper) {
+            return;
         }
 
         return num;
     }
 
-    onSliderInput(onUpdate:(num:number) => void, slider:SliderComponent) {
+    onSliderInput(onUpdate:(num:number) => void, slider:SliderComponent, lowerRange:number = 0, upperRange:number = 1) {
         let self:SettingsGeneralComponent = this;
+
         return (value:any) => {
-            let num:number = SettingsGeneralComponent.getNumber(value);
+            if(!value) {
+                return;
+            }
+            let num:number = SettingsGeneralComponent.getNumber(value, lowerRange, upperRange);
             if(num === undefined) {
                 return;
             }
-
             onUpdate.call(self, value);
-            slider.setBallLocation(num);
+            slider.setValue(value);
         };
     }
 
@@ -108,9 +109,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         let self:SettingsGeneralComponent = this;
         return (value:number) => {
             self.settingsService.setSetting(setting, value, save);
-            if(self.mockSettings[metric] !== value) {
-                self.mockSettings[metric] = self.getSafeMetric(value);
-            }
+            self.mockSettings[metric] = self.getSafeMetric(value);
             self.settings[metric] = value;
             self.updateDemoRunner.call(self);
         };
@@ -146,25 +145,25 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.onWidthUpdateFinal = this.onMetricUpdate('width', true);
         this.onWidthInput = this.onSliderInput(this.onWidthUpdateFinal, this.widthSlider);
 
-        this.onHeightInput = this.onMetricUpdate('height');
+        this.onHeightUpdate = this.onMetricUpdate('height');
         this.onHeightUpdateFinal = this.onMetricUpdate('height', true);
-        this.onHeightUpdate = this.onSliderInput(this.onHeightUpdateFinal, this.heightSlider);
+        this.onHeightInput = this.onSliderInput(this.onHeightUpdateFinal, this.heightSlider);
 
-        this.onXInput = this.onMetricUpdate('x');
+        this.onXUpdate = this.onMetricUpdate('x');
         this.onXUpdateFinal = this.onMetricUpdate('x', true);
-        this.onXUpdate = this.onSliderInput(this.onXUpdateFinal, this.xSlider);
+        this.onXInput = this.onSliderInput(this.onXUpdateFinal, this.xSlider);
 
-        this.onYInput = this.onMetricUpdate('y');
+        this.onYUpdate = this.onMetricUpdate('y');
         this.onYUpdateFinal = this.onMetricUpdate('y', true);
-        this.onYUpdate = this.onSliderInput(this.onYUpdateFinal, this.ySlider);
+        this.onYInput = this.onSliderInput(this.onYUpdateFinal, this.ySlider);
 
-        this.onOffsetXInput = this.onMetricUpdate('offset-x', false, 'offsetX');
+        this.onOffsetXUpdate = this.onMetricUpdate('offset-x', false, 'offsetX');
         this.onOffsetXUpdateFinal = this.onMetricUpdate('offset-x', true, 'offsetX');
-        this.onOffsetXUpdate = this.onSliderInput(this.onOffsetXUpdateFinal, this.offsetXSlider);
+        this.onOffsetXInput = this.onSliderInput(this.onOffsetXUpdateFinal, this.offsetXSlider, -1, 1);
 
-        this.onOffsetYInput = this.onMetricUpdate('offset-y', false, 'offsetY');
+        this.onOffsetYUpdate = this.onMetricUpdate('offset-y', false, 'offsetY');
         this.onOffsetYUpdateFinal = this.onMetricUpdate('offset-y', true, 'offsetY');
-        this.onOffsetYUpdate = this.onSliderInput(this.onOffsetYUpdateFinal, this.offsetYSlider);
+        this.onOffsetYInput = this.onSliderInput(this.onOffsetYUpdateFinal, this.offsetYSlider, -1, 1);
 
         this.updateDemoRunner();
     }

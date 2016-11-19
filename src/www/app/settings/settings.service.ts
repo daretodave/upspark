@@ -25,6 +25,7 @@ export class SettingsService {
         settings.screen = this.getSetting<number>('screen');
         settings.hotkey = this.getSetting<string>('hotkey');
         settings.style = this.getSetting<string>('style');
+        settings.rotation = this.getSetting<number>('rotation');
         settings.resourceLocation = this.getSetting<string>('resource-dir');
 
         this.setScreens(settings);
