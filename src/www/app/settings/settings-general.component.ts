@@ -99,7 +99,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
                 return;
             }
 
-            onUpdate.call(self, [value]);
+            onUpdate.call(self, value);
             slider.setBallLocation(num);
         };
     }
