@@ -1,7 +1,8 @@
 
 
 <div class="screen-select" *ngIf="settings.screens.length > 1">
-    <label for="resources">Display</label>
+    <p class="lead">DISPLAY</p>
+
     <div class="row">
         <div *ngFor="let screen of settings.screens" class="col-md-4">
             <div class="screen-option" [class.active]="screen.selected" (click)="onScreenUpdate(screen.index)">
@@ -14,15 +15,18 @@
 </div>
 
 <div class="metrics-container">
-    <label>Metrics</label>
+    <p class="lead">METRICS</p>
     <div class="row">
-        <div class="col-xs-3">
-            <input id="width" type="text" class="form-control">
+        <div class="col-sm-6">
+            <span class="settings-label">Width</span>
+            <div class="metrics-slider-horizontal">
+                <div class="metrics-slider-input"><input (input)="onWidthInput($event.target.value)" [(ngModel)]="mockSettings.width" type="text" class="form-control"></div>
+                <div class="metrics-slider-tool"><up-slider #widthSlider [position]="settings.width" (onPositionChange)="onWidthUpdate($event)" (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider></div>
+            </div>
         </div>
-        <div class="col-xs-9">
-            <up-slider [position]="settings.width" (onPositionChange)="onWidthUpdate($event)" (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider>
-        </div>
+
     </div>
+
 </div>
 
 

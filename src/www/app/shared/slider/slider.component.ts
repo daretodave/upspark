@@ -54,7 +54,7 @@ export class SliderComponent implements OnInit {
         this.setBallLocation(this.position);
     }
 
-    private setBallLocation(position:number, isPostInit:boolean = false) {
+    public setBallLocation(position:number, isPostInit:boolean = false) {
         position = position * 100;
 
         this.top = this.vertical ? position : 0;
