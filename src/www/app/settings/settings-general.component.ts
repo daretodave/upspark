@@ -24,6 +24,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
     @ViewChild('ySlider') ySlider: SliderComponent;
     @ViewChild('offsetXSlider') offsetXSlider: SliderComponent;
     @ViewChild('offsetYSlider') offsetYSlider: SliderComponent;
+    @ViewChild('rotationSlider') rotationSlider: SliderComponent;
     @ViewChild('demoRunner') demoRunner: ElementRef;
 
     constructor(private settingsService:SettingsService, private zone:NgZone, private renderer: Renderer) {
@@ -40,6 +41,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.mockSettings.offsetY = this.getSafeMetric(this.settings.offsetY);
         this.mockSettings.x = this.getSafeMetric(this.settings.x);
         this.mockSettings.y = this.getSafeMetric(this.settings.y);
+        this.mockSettings.rotation = this.getSafeMetric(this.settings.rotation);
 
         ipcRenderer.removeAllListeners('display-updated');
         ipcRenderer.on('display-updated', () => {
@@ -54,7 +56,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
     updateDemoRunner() {
         this.renderer.setElementStyle(this.demoRunner.nativeElement, 'left', `${this.settings.x * 100}%`);
         this.renderer.setElementStyle(this.demoRunner.nativeElement, 'top', `${this.settings.y * 100}%`);
-        this.renderer.setElementStyle(this.demoRunner.nativeElement, 'transform', `translateX(${this.settings.offsetX * 100}%) translateY(${this.settings.offsetY * 100}%)`);
+        this.renderer.setElementStyle(this.demoRunner.nativeElement, 'transform', `translateX(${this.settings.offsetX * 100}%) translateY(${this.settings.offsetY * 100}%) rotate(${this.settings.rotation}deg)`);
         this.renderer.setElementStyle(this.demoRunner.nativeElement, 'width', `${this.settings.width * 100}%`);
         this.renderer.setElementStyle(this.demoRunner.nativeElement, 'height', `${this.settings.height * 100}%`);
     }
@@ -139,6 +141,10 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
     private onOffsetYUpdate:(value:number) => void;
     private onOffsetYUpdateFinal:(value:number) => void;
 
+    private onRotationInput:(value:any) => void;
+    private onRotationUpdate:(value:number) => void;
+    private onRotationUpdateFinal:(value:number) => void;
+
     ngAfterViewInit() {
 
         this.onWidthUpdate = this.onMetricUpdate('width');
@@ -156,6 +162,10 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.onYUpdate = this.onMetricUpdate('y');
         this.onYUpdateFinal = this.onMetricUpdate('y', true);
         this.onYInput = this.onSliderInput(this.onYUpdateFinal, this.ySlider);
+
+        this.onRotationUpdate = () => {};
+        this.onRotationUpdateFinal = this.onMetricUpdate('rotation', true);
+        this.onRotationInput = this.onSliderInput(this.onRotationUpdateFinal, this.rotationSlider, 0, 360);
 
         this.onOffsetXUpdate = this.onMetricUpdate('offset-x', false, 'offsetX');
         this.onOffsetXUpdateFinal = this.onMetricUpdate('offset-x', true, 'offsetX');

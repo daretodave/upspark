@@ -9,6 +9,7 @@ import {Safe} from "./system/safe";
 
 const path = require('path');
 const electron = require('electron');
+const Victor = require('victor');
 const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} = electron;
 
 let settingsWindow: any;
@@ -60,6 +61,19 @@ let reload = () => {
     });
 };
 
+function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
+    let radians = angle * Math.PI / 180;
+    console.log('radians', radians);
+
+    const cos = Math.cos(radians),
+        sin = Math.sin(radians),
+        ox = x - cx,
+        oy = y - cy,
+        nx = (cos * ox) + (sin * oy) + cx,
+        ny = (sin * ox) + (cos * oy) + cy;
+    return [Math.round(nx), Math.round(ny)];
+}
+
 let adhereSettings = ():Promise<any> => {
     globalShortcut.unregisterAll();
 
@@ -76,13 +90,16 @@ let adhereSettings = ():Promise<any> => {
             width: 1,
             height: .5
         }),
-        resources.get('style', 'content', '')
+        resources.get('style', 'content', ''),
+        resources.get('settings', 'rotation', 0),
     ]).then((values) => {
+        let metrics:string = '';
 
         let hotkey:string = values[0];
         let location:Location = values[1];
         let size:Size = values[2];
         let style:string = values[3];
+        let rotation:number = values[4];
 
         let displays:any[] = electron.screen.getAllDisplays();
         let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
@@ -90,11 +107,52 @@ let adhereSettings = ():Promise<any> => {
         let x:number = display.bounds.x + (display.bounds.width * location.x);
         let y:number = display.bounds.y + (display.bounds.height * location.y);
 
-        let width:number = size.width * display.bounds.width;
-        let height:number = size.height * display.bounds.height;
+        let runnerWidth:number = size.width * display.bounds.width;
+        let runnerHeight:number = size.height * display.bounds.height;
+        let width:number = runnerWidth;
+        let height:number = runnerHeight;
 
         x += width * location.offsetX;
         y += height * location.offsetY;
+
+        if(rotation !== 0) {
+            let cx:number = width/2 + x;
+            let cy:number = height/2 + y;
+
+            let topRightPoint:number[] = rotate(cx, cy, x+width, y,  rotation);
+            let bottomRightPoint:number[] = rotate(cx, cy, x+width, y+height, rotation);
+            let topLeftPoint:number[] = rotate(cx, cy, x, y,  rotation);
+            let bottomLeftPoint:number[] = rotate(cx, cy,x, y+height,  rotation);
+
+            console.log(topRightPoint, bottomRightPoint, bottomLeftPoint, topLeftPoint);
+
+            x = Math.min(topLeftPoint[0], Math.min(topRightPoint[0],  Math.min(bottomLeftPoint[0], bottomRightPoint[0])));
+            y = Math.min(topLeftPoint[1], Math.min(topRightPoint[1],  Math.min(bottomLeftPoint[1], bottomRightPoint[1])));
+
+            let upperX:number = Math.max(topLeftPoint[0], Math.max(topRightPoint[0],  Math.max(bottomLeftPoint[0], bottomRightPoint[0])));
+            let upperY:number = Math.max(topLeftPoint[1], Math.max(topRightPoint[1],  Math.max(bottomLeftPoint[1], bottomRightPoint[1])));
+
+            width = Math.abs(upperX - x);
+            height = Math.abs(upperY - y);
+
+            runnerWidth -= 15;
+            runnerHeight -= 15;
+
+            metrics = `
+                up-runner {
+                    position: absolute;
+                    top:50%;
+                    left: 50%;
+                    overflow-x:visible;
+                    overflow-y:visible;
+                }
+                #runner {
+                    width: ${runnerWidth}px;
+                    height: ${runnerHeight}px;
+                    transform: translateY(-50%) translateX(-50%) rotate(${rotation}deg);
+                }
+            `;
+        }
 
         x = Math.floor(x);
         y = Math.floor(y);
@@ -107,6 +165,7 @@ let adhereSettings = ():Promise<any> => {
 
         runnerWindow.setPosition(x, y);
         runnerWindow.setSize(width, height);
+        runnerWindow.webContents.send('metrics', metrics);
         runnerWindow.webContents.send('style', style);
 
         globalShortcut.register(hotkey, toggleRunner);
@@ -484,8 +543,8 @@ let onDisplayChange = () => {
 let initSettings = () => {
     let options: any = {};
 
-    options.width  = 1060;
-    options.height = 700;
+    options.width  = 1100;
+    options.height = 800;
     options.show = false;
     options.title = 'Upspark - Settings';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');

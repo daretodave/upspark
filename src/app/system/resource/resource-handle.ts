@@ -61,7 +61,7 @@ export class ResourceHandle<T extends ResourceModel> {
         fs.readFile(this.path, this.format, (err: NodeJS.ErrnoException, data: string) => {
 
             if(err === null) {
-                this.model  = <T>this.translator.deserialize(data);
+                this.model  = <T>this.translator.deserialize(this.type, data);
                 resolve(this.model);
                 return;
             }

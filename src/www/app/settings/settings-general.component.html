@@ -63,6 +63,12 @@
                 <div class="metrics-slider-input"><input (input)="onOffsetYInput($event.target.value)" [(ngModel)]="mockSettings.offsetY" type="text" class="form-control"></div>
                 <div class="metrics-slider-tool"><up-slider #offsetYSlider [lower]="-1" [value]="settings.offsetY" (onPositionChange)="onOffsetYUpdate($event)" (onPositionFinalChange)="onOffsetYUpdateFinal($event)"></up-slider></div>
             </div>
+
+            <span class="settings-label">Rotation</span>
+            <div class="metrics-slider-horizontal">
+                <div class="metrics-slider-input"><input (input)="onRotationInput($event.target.value)" [(ngModel)]="mockSettings.rotation" type="text" class="form-control"></div>
+                <div class="metrics-slider-tool"><up-slider #rotationSlider [upper]="360" [value]="settings.rotation" (onPositionChange)="onRotationUpdate($event)" (onPositionFinalChange)="onRotationUpdateFinal($event)"></up-slider></div>
+            </div>
         </div>
 
 

@@ -11,6 +11,7 @@ require('./runner.component.scss');
 export class RunnerComponent implements AfterViewInit {
     ngAfterViewInit(): void {
         ipcRenderer.removeAllListeners('style');
+        ipcRenderer.removeAllListeners('metrics');
 
         ipcRenderer.on('style', (event:any, arg:string) => {
 
@@ -18,6 +19,19 @@ export class RunnerComponent implements AfterViewInit {
             if (style === null) {
                 style = document.createElement('style');
                 style.setAttribute("id", "runner-style");
+
+                document.head.appendChild(style);
+            }
+
+            style.innerHTML = arg;
+        });
+
+        ipcRenderer.on('metrics', (event:any, arg:string) => {
+
+            let style = document.getElementById('metrics');
+            if (style === null) {
+                style = document.createElement('style');
+                style.setAttribute("id", 'metrics');
 
                 document.head.appendChild(style);
             }
