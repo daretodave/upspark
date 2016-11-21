@@ -9,7 +9,6 @@ import {Safe} from "./system/safe";
 
 const path = require('path');
 const electron = require('electron');
-const Victor = require('victor');
 const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} = electron;
 
 let settingsWindow: any;
@@ -63,7 +62,6 @@ let reload = () => {
 
 function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
     let radians = angle * Math.PI / 180;
-    console.log('radians', radians);
 
     const cos = Math.cos(radians),
         sin = Math.sin(radians),
@@ -124,8 +122,6 @@ let adhereSettings = ():Promise<any> => {
             let topLeftPoint:number[] = rotate(cx, cy, x, y,  rotation);
             let bottomLeftPoint:number[] = rotate(cx, cy,x, y+height,  rotation);
 
-            console.log(topRightPoint, bottomRightPoint, bottomLeftPoint, topLeftPoint);
-
             x = Math.min(topLeftPoint[0], Math.min(topRightPoint[0],  Math.min(bottomLeftPoint[0], bottomRightPoint[0])));
             y = Math.min(topLeftPoint[1], Math.min(topRightPoint[1],  Math.min(bottomLeftPoint[1], bottomRightPoint[1])));
 
@@ -160,8 +156,7 @@ let adhereSettings = ():Promise<any> => {
         width = Math.ceil(width);
         height = Math.ceil(height);
 
-        console.log(display.bounds.width, display.bounds.height, size.width, size.height);
-        console.log(x, y, width, height);
+        console.log('Runner resize and relocated to [x,y,w,h]', x, y, width, height);
 
         runnerWindow.setPosition(x, y);
         runnerWindow.setSize(width, height);
