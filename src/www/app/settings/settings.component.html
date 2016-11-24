@@ -1,24 +1,27 @@
 <div class="container">
     <div class="row">
         <div class="col-md-3 settings-sidenav">
-            <h4><small>SETTINGS</small></h4>
-            <hr>
-            <ul class="nav nav-pills nav-stacked settings-pills">
-                <li class="nav-item" >
-                    <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/general']">General</a>
-                </li>
-                <li class="nav-item" >
-                    <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/appearance']">Theme</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/about']">About</a>
-                </li>
-            </ul>
-
-            <div class="copyright hidden-sm-down">
+            <div class="settings-sidenav__inner">
+                <h4><small>SETTINGS</small></h4>
                 <hr>
-                &copy; <span class="copyright-link">upspark</span>
+                <ul class="nav nav-pills nav-stacked settings-pills">
+                    <li class="nav-item" >
+                        <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/general']">General</a>
+                    </li>
+                    <li class="nav-item" >
+                        <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/appearance']">Theme</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" [routerLinkActive]="['active']" [routerLink]="['/settings/about']">About</a>
+                    </li>
+                </ul>
+
+                <div class="copyright hidden-sm-down">
+                    <hr>
+                    &copy; <span class="copyright-link">upspark</span>
+                </div>
             </div>
+
         </div>
         <div class="col-md-9 settings-main">
             <router-outlet></router-outlet>

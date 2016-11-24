@@ -1,5 +1,5 @@
 .settings-sidenav {
-  padding: 30px 30px 20px 15px;
+
 }
 .settings-main {
   padding: 40px 20px;
@@ -16,5 +16,18 @@
     border-bottom: 1px dashed black;
     font-weight: bold;
     cursor: pointer;
+  }
+}
+
+.settings-sidenav {
+  position: relative;
+}
+@media screen and (min-width: 768px) {
+  .settings-sidenav__inner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: inherit;
+    padding: 30px 30px 20px 15px;
   }
 }

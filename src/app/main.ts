@@ -113,7 +113,7 @@ let adhereSettings = ():Promise<any> => {
         x += width * location.offsetX;
         y += height * location.offsetY;
 
-        if(rotation !== 0) {
+        if(rotation !== 0 && rotation !== 360) {
             let cx:number = width/2 + x;
             let cy:number = height/2 + y;
 
@@ -156,7 +156,7 @@ let adhereSettings = ():Promise<any> => {
         width = Math.ceil(width);
         height = Math.ceil(height);
 
-        console.log('Runner resize and relocated to [x,y,w,h]', x, y, width, height);
+        console.log('Runner resize and relocated to [x,y,w,h]', x, y, width, height, rotation);
 
         runnerWindow.setPosition(x, y);
         runnerWindow.setSize(width, height);
@@ -538,8 +538,8 @@ let onDisplayChange = () => {
 let initSettings = () => {
     let options: any = {};
 
-    options.width  = 1100;
-    options.height = 800;
+    options.width  = 1050;
+    options.height = 600;
     options.show = false;
     options.title = 'Upspark - Settings';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
