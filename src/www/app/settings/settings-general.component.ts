@@ -59,6 +59,8 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
                 this.offsetYSlider.setValue(this.settings.offsetY);
 
                 this.rotationSlider.setValue(this.settings.rotation);
+
+                this.updateDemoRunner();
             });
         });
 
@@ -68,6 +70,34 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
                 this.settingsService.setScreens(this.settings);
             });
         });
+
+        ipcRenderer.on('settings-hotkey-reload', () => {
+            this.zone.run(() => {
+                this.settingsService.setHotkey(this.settings);
+
+            });
+        });
+    }
+
+    setHotkeyModifier(modifier:string) {
+        this.settings.hotkeyModifier = modifier;
+        this.settingsService.setSetting('hotkey', this.settings.getHotkey(), true);
+    }
+
+    handleHotkeyInput(event:KeyboardEvent) {
+        event.preventDefault();
+        if(!event.key || event.key.toUpperCase() === "CONTROL" || event.key.toUpperCase() === "COMMAND") {
+            return;
+        }
+
+        this.settings.hotkey = event.key;
+        if(event.ctrlKey) {
+            this.settings.hotkeyModifier = 'Control';
+        } else if(event.metaKey) {
+            this.settings.hotkeyModifier = 'Command';
+        }
+        this.settingsService.setSetting('hotkey', this.settings.getHotkey(), true);
+
     }
 
     resetMetrics() {
@@ -82,6 +112,9 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.mockSettings.rotation = this.getSafeMetric(this.settings.rotation);
     }
 
+    triggerResetHotkey() {
+        ipcRenderer.send('settings-hotkey-reset');
+    }
     triggerResetMetrics() {
         ipcRenderer.send('settings-metrics-reset');
     }

@@ -23,12 +23,39 @@ export class SettingsService {
         settings.offsetX = this.getSetting<number>('offset-x');
         settings.offsetY = this.getSetting<number>('offset-y');
         settings.screen = this.getSetting<number>('screen');
-        settings.hotkey = this.getSetting<string>('hotkey');
         settings.style = this.getSetting<string>('style');
         settings.rotation = this.getSetting<number>('rotation');
         settings.resourceLocation = this.getSetting<string>('resource-dir');
 
+        this.setHotkey(settings);
         this.setScreens(settings);
+    }
+
+    setHotkey(settings:Settings) {
+        let blocks:string[] = this.getSetting<string>('hotkey').split('+');
+        if (blocks.length === 1 && blocks[0].length) {
+            let hotkey:string = blocks[0];
+
+            settings.hotkey = hotkey;
+            settings.hotkeyModifier = '--';
+        } else if(blocks.length === 2) {
+            let hotkey:string = blocks[1];
+            let modifier:string = blocks[0].toUpperCase();
+
+            if (modifier === "CONTROL") {
+                modifier = 'Control';
+            } else if(modifier === "COMMAND") {
+                modifier = 'Command';
+            } else {
+                modifier = '--';
+            }
+
+            settings.hotkey = hotkey;
+            settings.hotkeyModifier = modifier;
+        } else {
+            settings.hotkey = '';
+            settings.hotkeyModifier = '';
+        }
     }
 
     setScreens(settings:Settings) {

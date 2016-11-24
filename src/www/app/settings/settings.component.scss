@@ -22,13 +22,16 @@
 .settings-sidenav {
   position: relative;
 }
-@media screen and (min-width: 768px) {
+.settings-sidenav__inner {
+  padding-top: 40px;
+}
+@media screen and (min-width: 992px) {
   .settings-sidenav__inner {
     position: fixed;
     top: 0;
-    left: 0;
+    left: 10px;
     width: inherit;
-    padding: 30px 30px 20px 15px;
+    padding: 30px 30px 40px 15px;
   }
 }
 

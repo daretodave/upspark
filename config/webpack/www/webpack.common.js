@@ -3,6 +3,7 @@ import Helpers from '../../helpers';
 import Webpack from 'webpack';
 import HtmlPlugin from 'html-webpack-plugin';
 
+let {ProvidePlugin} = Webpack;
 let {CommonsChunkPlugin} = Webpack.optimize;
 
 let config = {};
@@ -10,18 +11,16 @@ let config = {};
 (function(module, loaders) {
 
     let typescript = {},
-        bootstrap = {},
         html = {},
         scss = {},
+        css  = {},
+        assets = {},
         json = {};
 
     typescript.test = /\.ts$/;
     typescript.loaders = [];
     typescript.loaders.push('awesome-typescript-loader');
     typescript.loaders.push('angular2-template-loader');
-
-    bootstrap.test = /bootstrap[\/\\]dist[\/\\]js[\/\\]umd[\/\\]/;
-    bootstrap.loader = 'imports?jQuery=jquery';
 
     html.test = /\.html$/;
     html.loader = 'html';
@@ -33,14 +32,23 @@ let config = {};
     scss.loaders.push('css');
     scss.loaders.push('sass');
 
+    css.test = /\.css/;
+    css.loaders = [];
+    css.loaders.push('style');
+    css.loaders.push('css');
+
+    assets.test = /\.(png|woff|woff2|eot|ttf|svg)$/;
+    assets.loader = 'url-loader?limit=100000';
+
     json.test = /\.json$/;
     json.loader = 'json';
 
     loaders.push(
         typescript,
         html,
+        css,
+        assets,
         scss,
-        bootstrap,
         json
     );
 
@@ -71,10 +79,17 @@ let config = {};
         return new HtmlPlugin(config);
     })({});
 
+    // Inject app dependencies into the html
+    let provideJQuery = (function(config) {
+        config.$ = config.jQuery ="jquery";
+        return new ProvidePlugin(config);
+    })({});
+
 
     plugins.push(
         common,
-        html
+        html,
+        provideJQuery
     );
 
 })(config.plugins = []);

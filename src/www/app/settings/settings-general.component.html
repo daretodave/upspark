@@ -1,18 +1,42 @@
 
+<div class="row">
 
-<div class="screen-select" *ngIf="settings.screens.length > 1">
-    <p class="lead">DISPLAY | <small class="reset-action" (click)="triggerResetDisplay()">reset</small></p>
+    <div class="hotkey-select col-md-6">
+        <p class="lead">HOTKEY | <small class="reset-action" (click)="triggerResetHotkey()">reset</small></p>
 
-    <div class="row">
-        <div *ngFor="let screen of settings.screens" class="col-md-4">
-            <div class="screen-option" [class.active]="screen.selected" (click)="onScreenUpdate(screen.index)">
-                {{screen.index}}
+        <div class="input-group">
+            <div class="input-group-btn">
+                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    {{settings.hotkeyModifier}}&nbsp;
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" >
+                    <li><a (click)="setHotkeyModifier('--')">--</a></li>
+                    <li><a (click)="setHotkeyModifier('Control')">Control</a></li>
+                    <li><a (click)="setHotkeyModifier('Command')">Command</a></li>
+                </ul>
             </div>
+            <input type="text" class="form-control hotkey-input" [(ngModel)]="settings.hotkey" (keydown)="handleHotkeyInput($event)">
+        </div>
 
+        <hr class="hidden-md hidden-lg">
+    </div>
+
+    <div class="screen-select col-md-6" *ngIf="settings.screens.length > 1">
+        <p class="lead">DISPLAY | <small class="reset-action" (click)="triggerResetDisplay()">reset</small></p>
+
+        <div class="row">
+            <div *ngFor="let screen of settings.screens" class="col-xs-6">
+                <div class="screen-option" [class.active]="screen.selected" (click)="onScreenUpdate(screen.index)">
+                    {{screen.index}}
+                </div>
+            </div>
         </div>
     </div>
 
 </div>
+
+<hr>
 
 <div class="metrics-container">
     <p class="lead">METRICS | <small class="reset-action" (click)="triggerResetMetrics()">reset</small></p>

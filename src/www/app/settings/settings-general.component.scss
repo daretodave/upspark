@@ -1,9 +1,9 @@
 .screen-option {
-  height: 50px;
+  height: 35px;
   width: 100%;
   border: 1px solid rgba(0, 0, 0, .5);
   text-align: center;
-  line-height: 50px;
+  line-height: 35px;
   &.active {
     border: 1px solid dodgerblue;
   }
@@ -60,4 +60,17 @@
 
 .metrics-container {
   margin-bottom: 15px;
+}
+
+.hotkey-select {
+  margin-bottom: 15px;
+}
+
+p.lead {
+  font-weight: 100;
+  font-size: 16px;
+}
+
+.hotkey-input {
+  text-transform: capitalize;
 }

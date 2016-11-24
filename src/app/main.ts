@@ -611,6 +611,21 @@ let initSettings = () => {
 
     });
 
+    ipcMain.on('settings-hotkey-reset', (event:any, args:any) => {
+
+        console.log('Settings:reset-hotkey');
+
+        let settings:Settings = resources.syncGet<Settings>('settings');
+        settings.hotkey = 'Control+`';
+
+        adhereSettings().then(() => {
+            resources.save('settings');
+            event.sender.send('settings-hotkey-reload');
+        });
+
+
+    });
+
     ipcMain.on('open-resources', openResourceDirectory);
     ipcMain.on('get-setting', (event:any, args:any) => {
         let resolve:any = undefined;
