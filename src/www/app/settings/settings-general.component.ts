@@ -189,7 +189,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.onYUpdateFinal = this.onMetricUpdate('y', true);
         this.onYInput = this.onSliderInput(this.onYUpdateFinal, this.ySlider);
 
-        this.onRotationUpdate = () => {};
+        this.onRotationUpdate = this.onMetricUpdate('rotation');
         this.onRotationUpdateFinal = this.onMetricUpdate('rotation', true);
         this.onRotationInput = this.onSliderInput(this.onRotationUpdateFinal, this.rotationSlider, 0, 360);
 

@@ -114,13 +114,16 @@ let adhereSettings = ():Promise<any> => {
         y += height * location.offsetY;
 
         if(rotation !== 0 && rotation !== 360) {
+
             let cx:number = width/2 + x;
             let cy:number = height/2 + y;
 
-            let topRightPoint:number[] = rotate(cx, cy, x+width, y,  rotation);
+            let topRightPoint:number[] = rotate(cx, cy, x+width, y, rotation);
             let bottomRightPoint:number[] = rotate(cx, cy, x+width, y+height, rotation);
             let topLeftPoint:number[] = rotate(cx, cy, x, y,  rotation);
             let bottomLeftPoint:number[] = rotate(cx, cy,x, y+height,  rotation);
+
+
 
             x = Math.min(topLeftPoint[0], Math.min(topRightPoint[0],  Math.min(bottomLeftPoint[0], bottomRightPoint[0])));
             y = Math.min(topLeftPoint[1], Math.min(topRightPoint[1],  Math.min(bottomLeftPoint[1], bottomRightPoint[1])));
@@ -159,10 +162,14 @@ let adhereSettings = ():Promise<any> => {
         width = Math.ceil(width);
         height = Math.ceil(height);
 
-        console.log('Runner resize and relocated to [x,y,w,h]', x, y, width, height, rotation);
+        console.log('Runner resize and relocated to [x,y,w,h]', x, y, width, height, rotation, runnerWindow.getMaximumSize());
 
-        runnerWindow.setPosition(x, y);
-        runnerWindow.setSize(width, height);
+        runnerWindow.setBounds({
+            x: x,
+            y: y,
+            width: width,
+            height: height
+        });
         runnerWindow.webContents.send('metrics', metrics);
         runnerWindow.webContents.send('style', style);
 
@@ -707,16 +714,15 @@ let initSettings = () => {
 let initRunner = () => {
     let options: any = {};
 
-    options.width  = 500;
-    options.height = 100;
     options.frame = false;
-    options.resizable = true;
+    options.resizable = false;
     options.movable = false;
     options.maximizable = false;
     options.minimizable = false;
     options.transparent = true;
     options.alwaysOnTop = true;
     options.skipTaskbar = true;
+    options.enableLargerThanScreen = true;
     options.title = 'Upspark - Runner';
     options.show = false;
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
