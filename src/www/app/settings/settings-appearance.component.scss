@@ -1,0 +1,13 @@
+.theme-option {
+  min-height: 100px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  margin: 5px 0 15px 0;
+}
+.theme-option-title {
+  flex-grow: 1;
+}
+.theme-option-desc {
+  font-size: 12px;
+}

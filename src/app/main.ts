@@ -6,6 +6,9 @@ import {Location} from "./model/location";
 import {Style} from "./window/runner/style";
 import {TextTranslator} from "./system/resource/translators/translate-text";
 import {Safe} from "./system/safe";
+import {Themes} from "./window/themes";
+import {Theme} from "./window/theme";
+import {LoadedTheme} from "./window/loaded-theme";
 
 const path = require('path');
 const electron = require('electron');
@@ -20,6 +23,7 @@ let quit:boolean = false;
 
 let resources:Resource;
 let safe: Safe;
+let theme: LoadedTheme;
 
 let init = () => {
 
@@ -626,6 +630,10 @@ let initSettings = () => {
 
     });
 
+    ipcMain.on('get-themes', (event:any, args:any) => {
+        event.returnValue = Themes.get(args);
+    });
+
     ipcMain.on('open-resources', openResourceDirectory);
     ipcMain.on('get-setting', (event:any, args:any) => {
         let resolve:any = undefined;
@@ -655,6 +663,12 @@ let initSettings = () => {
                 break;
             case 'screen':
                 resolve = settings.location.screen;
+                break;
+            case 'theme-global':
+                resolve = settings.theme.global;
+                break;
+            case 'theme-runner':
+                resolve = settings.theme.runner;
                 break;
             case 'hotkey':
                 resolve = settings.hotkey;
@@ -718,6 +732,12 @@ let initSettings = () => {
                 case 'rotation':
                     settings.rotation = value;
                     break;
+                case 'theme-runner':
+                    settings.theme.runner = value;
+                    break;
+                case 'theme-global':
+                    settings.theme.global = value;
+                    break;
                 case 'hotkey':
                     settings.hotkey = value;
                     break;
@@ -730,18 +750,38 @@ let initSettings = () => {
             }
         }).then(() => {
             console.log('Settings:set', 'adhere');
-            adhereSettings().then(() => {
-                if(save) {
-                    console.log('Settings:set', 'save', `[isStyle]=${setting==='style'}`);
-                    resources.save(setting === 'style' ? 'style' : 'settings').then(() => {
-                        console.log('Settings:set saved');
-                    }).catch((reason:any) => {
-                        console.log('Settings:set', 'save-fail', reason);
-                    });
+
+            let promises: Promise<any>[] = [];
+            let target:string = setting.split('-')[0];
+
+            if(setting.startsWith('theme') && (theme === null || theme.target !== target || theme.name !== value)) {
+                promises.push(Themes.load(target, value));
+            }
+
+            Promise.all(promises).then((values:any[]) => {
+                if(values.length) {
+                    let css:string = values[0];
+
+                    theme = new LoadedTheme(target, value, css);
+                    console.log('Settings:set', value, 'theme loaded and set');
                 }
+
+                adhereSettings().then(() => {
+                    if(save) {
+                        console.log('Settings:set', 'save', `[isStyle]=${setting==='style'}`);
+                        resources.save(setting === 'style' ? 'style' : 'settings').then(() => {
+                            console.log('Settings:set saved');
+                        }).catch((reason:any) => {
+                            console.log('Settings:set', 'save-fail', reason);
+                        });
+                    }
+                }).catch((reason:any) => {
+                    console.log('Settings:set', 'adhere-fail', reason);
+                });
             }).catch((reason:any) => {
-                console.log('Settings:set', 'adhere-fail', 'reason');
+                console.log('Settings:set', 'theme-load-fail', reason);
             });
+
         });
 
 

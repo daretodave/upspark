@@ -1,1 +1,21 @@
-<p>appearance</p>
+<div class="row">
+
+    <div class="col-md-6">
+        <p class="lead">Global</p>
+        <hr>
+        <div class="row">
+            <div class="col-xs-12" *ngFor="let theme of global.themes">
+
+                <div class="theme-option" [style.background]="theme.palette.backgroundColor">
+                    <div class="theme-option-title" [style.color]="theme.palette.textColor">{{theme.name}}</div>
+                    <div class="theme-option-desc"  [style.color]="theme.palette.descColor">{{theme.description}}</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <p class="lead">Runner</p>
+        <hr>
+    </div>
+</div>

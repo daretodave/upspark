@@ -8,6 +8,7 @@ import {SettingsAppearanceComponent} from "./settings-appearance.component";
 import {SettingsAboutComponent} from "./settings-about.component";
 import {SettingsService} from "./settings.service";
 import {SliderModule} from "../shared/slider/slider.module";
+import {ThemeService} from "./theme.service";
 
 @NgModule({
     imports: [
@@ -23,7 +24,7 @@ import {SliderModule} from "../shared/slider/slider.module";
         SettingsAboutComponent,
     ],
     providers: [
-
+        ThemeService,
         SettingsService
     ]
 })

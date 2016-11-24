@@ -1,0 +1,38 @@
+{
+  "global": [
+    {
+      "name": "Superhero",
+      "description": "The brave and the blue",
+      "location": "./static/themes/global/superhero.css",
+      "palette": {
+        "textColor": "#ebebeb",
+        "backgroundColor": "#2b3e50",
+        "descColor": "white"
+      }
+    },
+    {
+      "name": "Cyborg",
+      "description": "Jet black and electric blue",
+      "location": "./static/themes/global/cyborg.css",
+      "palette": {
+        "textColor": "white",
+        "backgroundColor": "#060606",
+        "descColor": "#888888"
+      }
+    }
+  ],
+
+  "runner": [
+    {
+      "name": "Illuminated",
+      "description": "True to the form",
+      "location": "./static/themes/runner/illuminated.css",
+      "palette": {
+        "textColor": "black",
+        "backgroundColor": "white",
+        "descColor": "black"
+      }
+    }
+  ]
+
+}

@@ -6,19 +6,24 @@ config.target = 'node';
 
 (function(module, loaders) {
 
-    let typescript = {};
+    let typescript = {},
+        css = {},
+        json = {};
     
     typescript.test = /\.ts$/;
     typescript.loaders = [];
     typescript.loaders.push('ts-loader');
 
-    let css = {};
     css.test = /\.css$/;
     css.loaders = [];
     css.loaders.push('css-loader');
 
+    json.test = /\.json$/;
+    json.loader = 'json';
+
     loaders.push(
         typescript,
+        json,
         css
     );
 
