@@ -1,13 +1,12 @@
-<nav class="sticky-top navbar navbar-dark bg-inverse">
-    <ul class="nav navbar-nav">
+<nav class="sticky-top navbar navbar-inverse">
+    <ul class="nav navbar-nav create-action-container">
         <li class="nav-item">
             <a class="nav-link" routerLink="/safe/new">Create</a>
         </li>
     </ul>
 
-    <form class="form-inline float-xs-right">
-        <input class="form-control" type="text" placeholder="Filter" name="filter" [(ngModel)]="filter">
-    </form>
+    <input class="form-control search-filter" type="text" placeholder="Filter" name="filter" [(ngModel)]="filter">
+
 </nav>
 
 <div *ngIf="values" class="safe-content">
@@ -26,7 +25,7 @@
     </div>
 </div>
 
-<nav class="sticky-bottom navbar navbar-dark bg-inverse">
+<nav class="sticky-bottom navbar navbar-inverse">
     <ul class="nav navbar-nav">
         <li class="nav-item">
             <a class="nav-link" (click)="lock()">Lock</a>
@@ -38,7 +37,7 @@
             <a class="nav-link text-success" routerLink="/safe/import">Import</a>
         </li>
     </ul>
-    <ul class="nav navbar-nav float-xs-right">
+    <ul class="nav navbar-nav pull-right">
         <li class="nav-item">
             <a class="nav-link" routerLink="/safe/update">Password</a>
         </li>

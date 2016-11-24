@@ -4,6 +4,7 @@
   bottom: 0;
   left: 0;
   width: 100%;
+  margin-bottom: 0;
 
 }
 
@@ -41,4 +42,14 @@
 
 .safe-key-value__edit {
   padding: 0 20px;
+}
+
+.search-filter {
+  float: right;
+  width: 150px;
+  margin-top: 7px;
+  margin-right: 10px;
+}
+.create-action-container {
+  float: left;
 }
