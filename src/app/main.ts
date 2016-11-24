@@ -147,6 +147,9 @@ let adhereSettings = ():Promise<any> => {
                     height: ${runnerHeight}px;
                     transform: translateY(-50%) translateX(-50%) rotate(${rotation}deg);
                 }
+                body {
+                    overflow: hidden;
+                }
             `;
         }
 
@@ -543,6 +546,7 @@ let initSettings = () => {
     options.show = false;
     options.title = 'Upspark - Settings';
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
+    options.alwaysOnTop = true;
 
     settingsWindow = new BrowserWindow(options);
     settingsWindow.loadURL(www('settings'));
@@ -563,6 +567,20 @@ let initSettings = () => {
     electron.screen.on('display-removed', onDisplayChange);
     electron.screen.on('display-added', onDisplayChange);
     electron.screen.on('display-metrics-changed', onDisplayChange);
+    ipcMain.on('settings-metrics-reset', (event:any, args:any) => {
+
+        console.log('Settings:reset-metrics');
+
+        let settings:Settings = resources.syncGet<Settings>('settings');
+
+        settings.toDefaultState();
+
+        adhereSettings().then(() => {
+            event.sender.send('settings-metrics-reload');
+        });
+
+
+    });
 
     ipcMain.on('open-resources', openResourceDirectory);
     ipcMain.on('get-setting', (event:any, args:any) => {

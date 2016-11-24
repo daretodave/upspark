@@ -31,3 +31,12 @@
     padding: 30px 30px 20px 15px;
   }
 }
+
+.reset-action {
+  color: #1981ff;
+  border-bottom: 1px dotted black;
+  &:hover {
+    border-bottom: 2px solid black;
+    cursor: pointer;
+  }
+}

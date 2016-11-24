@@ -33,6 +33,37 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
     }
 
     ngOnInit() {
+        this.resetMetrics();
+
+        ipcRenderer.removeAllListeners('display-updated');
+        ipcRenderer.removeAllListeners('settings-metrics-reload');
+
+        ipcRenderer.on('display-updated', () => {
+            console.log('system.displays updated');
+            this.zone.run(() => {
+                this.settingsService.setScreens(this.settings);
+            });
+        });
+
+        ipcRenderer.on('settings-metrics-reload', () => {
+            this.zone.run(() => {
+                this.resetMetrics();
+
+                this.xSlider.setValue(this.settings.x);
+                this.ySlider.setValue(this.settings.y);
+
+                this.widthSlider.setValue(this.settings.width);
+                this.heightSlider.setValue(this.settings.height);
+
+                this.offsetXSlider.setValue(this.settings.offsetX);
+                this.offsetYSlider.setValue(this.settings.offsetY);
+
+                this.rotationSlider.setValue(this.settings.rotation);
+            });
+        });
+    }
+
+    resetMetrics() {
         this.settingsService.setSettings(this.settings);
 
         this.mockSettings.width = this.getSafeMetric(this.settings.width);
@@ -42,15 +73,10 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.mockSettings.x = this.getSafeMetric(this.settings.x);
         this.mockSettings.y = this.getSafeMetric(this.settings.y);
         this.mockSettings.rotation = this.getSafeMetric(this.settings.rotation);
+    }
 
-        ipcRenderer.removeAllListeners('display-updated');
-        ipcRenderer.on('display-updated', () => {
-            console.log('system.displays updated');
-            this.zone.run(() => {
-                this.settingsService.setScreens(this.settings);
-            });
-        });
-
+    triggerResetMetrics() {
+        ipcRenderer.send('settings-metrics-reset');
     }
 
     updateDemoRunner() {
