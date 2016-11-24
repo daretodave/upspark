@@ -14,7 +14,7 @@ export class ThemeService {
 
     getThemes(target:string): Themes {
         let themes:Theme[] = ipcRenderer.sendSync('get-themes', target);
-        let selection:Themes = new Themes(themes);
+        let selection:Themes = new Themes(target, themes);
 
         selection.select(this.settings.getSetting<string>(`theme-${target}`));
 

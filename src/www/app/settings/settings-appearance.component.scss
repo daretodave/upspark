@@ -1,13 +1,25 @@
 .theme-option {
-  min-height: 100px;
+  min-height: 80px;
   padding: 10px;
   display: flex;
   flex-direction: column;
   margin: 5px 0 15px 0;
+  border: 3px solid grey;
+  &:hover,&.selected {
+    border: 3px solid dodgerblue;
+  }
+  &:hover:not(.selected) {
+    cursor: pointer;
+  }
 }
 .theme-option-title {
   flex-grow: 1;
 }
 .theme-option-desc {
   font-size: 12px;
+}
+
+
+.theme-option-default {
+  min-height: 0;
 }

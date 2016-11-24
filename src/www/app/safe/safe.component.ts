@@ -23,7 +23,21 @@ export class SafeComponent  implements AfterViewInit {
         ipcRenderer.removeAllListeners('safe-main');
         ipcRenderer.removeAllListeners('safe-auth');
         ipcRenderer.removeAllListeners('safe-create');
+        ipcRenderer.removeAllListeners('style-safe');
 
+        ipcRenderer.on('style-safe', (event:any, arg:string) => {
+
+            console.log('test');
+            let style = document.getElementById('safe-style');
+            if (style === null) {
+                style = document.createElement('style');
+                style.setAttribute("id", "safe-style");
+
+                document.head.appendChild(style);
+            }
+
+            style.innerHTML = arg;
+        });
         ipcRenderer.on('safe-loader', (event:any, arg:string) => {
             let element = document.getElementById('safe-loader');
             if(arg === 'on') {

@@ -37,6 +37,8 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
 
         ipcRenderer.removeAllListeners('display-updated');
         ipcRenderer.removeAllListeners('settings-metrics-reload');
+        ipcRenderer.removeAllListeners('settings-display-reload');
+        ipcRenderer.removeAllListeners('settings-hotkey-reload');
 
         ipcRenderer.on('display-updated', () => {
             console.log('system.displays updated');

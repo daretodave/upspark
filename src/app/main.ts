@@ -23,7 +23,7 @@ let quit:boolean = false;
 
 let resources:Resource;
 let safe: Safe;
-let theme: LoadedTheme;
+
 
 let init = () => {
 
@@ -38,7 +38,25 @@ let init = () => {
         resources.load('style'),
         safe.init()
     ])
-    .then(() => {
+    .then((values:any[]) => {
+        let promises: Promise<any>[] = [values[0]];
+
+        let settings: Settings = values[0];
+
+        promises.push(settings.theme.global ? Themes.load('global', settings.theme.global) : null);
+        promises.push(settings.theme.runner ? Themes.load('runner', settings.theme.runner) : null);
+
+        return Promise.all(promises);
+    })
+    .then((values:any[]) => {
+        let settings: Settings = values[0];
+        if (values[1] !== null) {
+            Themes.setTheme('global', settings.theme.global, values[1]);
+        }
+        if (values[2] !== null) {
+            Themes.setTheme('runner', settings.theme.runner, values[2]);
+        }
+
         initSettings();
         initRunner();
         initSafe();
@@ -78,6 +96,13 @@ function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
 
 let adhereSettings = ():Promise<any> => {
     globalShortcut.unregisterAll();
+
+    if (Themes.has('global')) {
+        let css:string = Themes.getCSS('global');
+
+        settingsWindow.webContents.send('style-settings', css);
+        safeWindow.webContents.send('style-safe', css);
+    }
 
     return Promise.all([
         resources.get('settings', 'hotkey', 'Control+`'),
@@ -286,6 +311,12 @@ let initSafe = () => {
     if (process.env.ENV !== 'development') {
         safeWindow.setMenu(null);
     }
+
+    safeWindow.webContents.on('did-finish-load', () => {
+       if(Themes.has('global')) {
+           safeWindow.webContents.send('style-safe', Themes.getCSS('global'));
+       }
+    });
 
     safeWindow.on('close', (e:any) => {
         if(quit) {
@@ -575,6 +606,12 @@ let initSettings = () => {
         }
     });
 
+    settingsWindow.webContents.on('did-finish-load', () => {
+        if(Themes.has('global')) {
+            settingsWindow.webContents.send('style-settings', Themes.getCSS('global'));
+        }
+    });
+
     electron.screen.on('display-removed', onDisplayChange);
     electron.screen.on('display-added', onDisplayChange);
     electron.screen.on('display-metrics-changed', onDisplayChange);
@@ -752,20 +789,16 @@ let initSettings = () => {
             console.log('Settings:set', 'adhere');
 
             let promises: Promise<any>[] = [];
-            let target:string = setting.split('-')[0];
+            let target:string = setting.split('-')[1];
 
-            if(setting.startsWith('theme') && (theme === null || theme.target !== target || theme.name !== value)) {
+            if(setting.startsWith('theme') && !Themes.isLoaded(target, value)) {
                 promises.push(Themes.load(target, value));
             }
 
             Promise.all(promises).then((values:any[]) => {
                 if(values.length) {
-                    let css:string = values[0];
-
-                    theme = new LoadedTheme(target, value, css);
-                    console.log('Settings:set', value, 'theme loaded and set');
+                    Themes.setTheme(target, value, values[0]);
                 }
-
                 adhereSettings().then(() => {
                     if(save) {
                         console.log('Settings:set', 'save', `[isStyle]=${setting==='style'}`);
@@ -782,6 +815,8 @@ let initSettings = () => {
                 console.log('Settings:set', 'theme-load-fail', reason);
             });
 
+        }).catch((reason:any) => {
+            console.log('Settings:set', 'theme-load-fail', reason);
         });
 
 
