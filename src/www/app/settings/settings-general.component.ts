@@ -61,6 +61,13 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
                 this.rotationSlider.setValue(this.settings.rotation);
             });
         });
+
+        ipcRenderer.on('settings-display-reload', () => {
+            this.zone.run(() => {
+                this.settings.screen = this.settingsService.getSetting<number>('screen');
+                this.settingsService.setScreens(this.settings);
+            });
+        });
     }
 
     resetMetrics() {
@@ -77,6 +84,9 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
 
     triggerResetMetrics() {
         ipcRenderer.send('settings-metrics-reset');
+    }
+    triggerResetDisplay() {
+        ipcRenderer.send('settings-display-reset');
     }
 
     updateDemoRunner() {

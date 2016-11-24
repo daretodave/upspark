@@ -1,7 +1,7 @@
 
 
 <div class="screen-select" *ngIf="settings.screens.length > 1">
-    <p class="lead">DISPLAY</p>
+    <p class="lead">DISPLAY | <small class="reset-action" (click)="triggerResetDisplay()">reset</small></p>
 
     <div class="row">
         <div *ngFor="let screen of settings.screens" class="col-md-4">

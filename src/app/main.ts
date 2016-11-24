@@ -574,6 +574,7 @@ let initSettings = () => {
     electron.screen.on('display-removed', onDisplayChange);
     electron.screen.on('display-added', onDisplayChange);
     electron.screen.on('display-metrics-changed', onDisplayChange);
+
     ipcMain.on('settings-metrics-reset', (event:any, args:any) => {
 
         console.log('Settings:reset-metrics');
@@ -590,6 +591,21 @@ let initSettings = () => {
         adhereSettings().then(() => {
             resources.save('settings');
             event.sender.send('settings-metrics-reload');
+        });
+
+
+    });
+
+    ipcMain.on('settings-display-reset', (event:any, args:any) => {
+
+        console.log('Settings:reset-display');
+
+        let settings:Settings = resources.syncGet<Settings>('settings');
+        settings.location.screen = 0;
+
+        adhereSettings().then(() => {
+            resources.save('settings');
+            event.sender.send('settings-display-reload');
         });
 
 
