@@ -579,10 +579,16 @@ let initSettings = () => {
         console.log('Settings:reset-metrics');
 
         let settings:Settings = resources.syncGet<Settings>('settings');
+        let screen:number = settings.location.screen;
+        let hotkey:string = settings.hotkey;
 
         settings.toDefaultState();
 
+        settings.location.screen = screen;
+        settings.hotkey = hotkey;
+
         adhereSettings().then(() => {
+            resources.save('settings');
             event.sender.send('settings-metrics-reload');
         });
 
