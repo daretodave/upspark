@@ -1,4 +1,8 @@
 import Helpers from '../../helpers';
+import {name, version} from '../../../package.json';
+import Webpack from 'webpack';
+
+let {DefinePlugin} = Webpack;
 
 let config = {};
 
@@ -8,6 +12,7 @@ config.target = 'node';
 
     let typescript = {},
         css = {},
+        text = {},
         json = {};
     
     typescript.test = /\.ts$/;
@@ -21,9 +26,13 @@ config.target = 'node';
     json.test = /\.json$/;
     json.loader = 'json';
 
+    text.test = /\.txt$/;
+    text.loader = 'raw';
+
     loaders.push(
         typescript,
         json,
+        text,
         css
     );
 
@@ -34,6 +43,22 @@ config.target = 'node';
     entry.main = Helpers.path('src', 'app', 'main.ts');
 
 })(config.entry = {});
+
+(function(plugins) {
+
+    let define = (function(global) {
+        global.APP_NAME = JSON.stringify(name);
+        global.APP_VERSION = JSON.stringify(version);
+
+        return new DefinePlugin(global);
+    })({});
+
+
+    plugins.push(
+        define
+    );
+
+})(config.plugins = []);
 
 (function(node) {
     

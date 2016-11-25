@@ -4,7 +4,7 @@ require('./settings.component.scss');
 
 const {ipcRenderer} = require('electron');
 
-declare const APP_VERSION:string;
+declare let APP_VERSION:string;
 
 @Component({
     selector: 'up-settings',

@@ -1,0 +1,10 @@
+export class LogMessage {
+
+    constructor(
+        public message:string,
+        public error: boolean = false,
+        public date: Date = new Date()) {
+    }
+
+
+}

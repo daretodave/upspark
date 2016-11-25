@@ -9,6 +9,9 @@ import {TextTranslator} from "./system/resource/translators/translate-text";
 import {Safe} from "./system/safe";
 import {Themes} from "./window/themes";
 import {ResourceMissingPolicy} from "./system/resource/resource-missing-policy";
+import {Log} from "./system/logger/log";
+import {Logger} from "./system/logger/logger";
+import {LogTranslator} from "./system/logger/log-translator";
 
 const path = require('path');
 const electron = require('electron');
@@ -24,24 +27,31 @@ let quit:boolean = false;
 let resources:Resource;
 let safe: Safe;
 
-
 let init = () => {
 
     safe = new Safe(path.join(app.getPath('appData'), 'upspark'), 'aes-256-ctr');
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
 
     resources.attach('settings.json', Settings);
+    resources.attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
 
     resources.attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);
     resources.attach('global.css', GlobalStyle, new TextTranslator(), 'global-style', ResourceMissingPolicy.DEFAULT);
 
-    Promise.all([
-        resources.load('settings'),
-        resources.load('runner-style'),
-        resources.load('global-style'),
-        safe.init()
-    ])
-    .then((values:any[]) => {
+    resources.load('log').then((log:Log) => {
+
+        Logger
+            .attach(log, 50, () => resources.save('log'))
+            .info('UPSPARK | </boot>');
+
+        return Promise.all([
+            resources.load('settings'),
+            resources.load('runner-style'),
+            resources.load('global-style'),
+            safe.init()
+        ]);
+
+    }).then((values:any[]) => {
         let promises: Promise<any>[] = [values[0]];
 
         let settings: Settings = values[0];
@@ -66,7 +76,11 @@ let init = () => {
         initTray();
 
         runnerWindow.webContents.on('did-finish-load', adhereSettings);
-    }).catch((e) => {
+
+        return true;
+    })
+    .then(() => Logger.info('UPSPARK | <boot>'))
+    .catch((e) => {
         console.log(e);
         //TODO: Error window
     });
