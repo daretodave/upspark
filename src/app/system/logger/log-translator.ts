@@ -12,7 +12,7 @@ const template:string = require('./log-template.txt').replace(eolMatcher, EOL);
 
 const constants:any = {};
 
-constants.lineLength = 100;
+constants.lineLength = 150;
 constants.version = APP_VERSION;
 constants.tab = '\t';
 constants.system = `${arch()} ${type()} ${release()} (${cpus().length} core)`;
@@ -65,6 +65,7 @@ export class LogTranslator implements ResourceTranslator {
 
         let minute = date.getMinutes();
         let hour = date.getHours();
+        let second = date.getSeconds();
 
         if(hour > 12) {
             hour = hour-12;
@@ -73,10 +74,12 @@ export class LogTranslator implements ResourceTranslator {
 
         let hourString:string = (hour < 10 ? '0' : '') + hour;
         let minuteString:string = (minute < 10 ? '0' : '') + minute;
+        let secondString:string = (second < 10 ? '0' : '') + second;
 
         return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}` +
                 ' at ' +
-                `${hourString}:${minuteString} ${pm ? 'PM' : 'AM'}`;
+                `${hourString}:${minuteString}:${secondString} ` +
+                `${pm ? 'PM' : 'AM'}`;
     }
 
     static replaceValue(contents:string, key:string, value: string) {

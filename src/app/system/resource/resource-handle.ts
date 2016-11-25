@@ -63,6 +63,7 @@ export class ResourceHandle<T extends ResourceModel> {
         fs.readFile(this.path, this.format, (err: NodeJS.ErrnoException, data: string) => {
 
             if(err === null) {
+                Logger.info(`finished loading ${this.key}`);
                 this.model  = <T>this.translator.deserialize(this.type, data);
                 resolve(this.model);
                 return;
@@ -80,8 +81,10 @@ export class ResourceHandle<T extends ResourceModel> {
             }
 
             if(onMissingPolicy === ResourceMissingPolicy.CREATE_BLANK || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT) {
+                Logger.info(`${this.key} not found at ${this.path}, creating`);
                 this._save(resolve, reject);
             } else {
+                Logger.info(`${this.key} not found at ${this.path}, proceeding`);
                 resolve(this.model);
             }
 
@@ -90,16 +93,16 @@ export class ResourceHandle<T extends ResourceModel> {
 
     reload(onMissingPolicy: ResourceMissingPolicy = this.onMissingPolicy): Promise<T> {
         this.promise = null;
-        return this.load(onMissingPolicy);
+        return this.load(onMissingPolicy, true);
     };
 
-    load(onMissingPolicy: ResourceMissingPolicy = this.onMissingPolicy): Promise<T> {
+    load(onMissingPolicy: ResourceMissingPolicy = this.onMissingPolicy, reload:boolean = false): Promise<T> {
 
         if(this.promise != null) {
             return this.promise;
         }
 
-        Logger.info('loading ' + this.key, this.path);
+        Logger.info(`${reload ? 'RE-' : ''}loading ${this.key}`);
 
         let executor = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => {
 

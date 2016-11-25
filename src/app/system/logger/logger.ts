@@ -44,7 +44,6 @@ export class Logger  {
 
     private static push(error:boolean, ...args:any[]): ILogger {
         let text:string = args.join('\n');
-        let time:number = new Date().getTime();
         let indent:number = 0;
 
         if(this.blocks) {
@@ -59,7 +58,7 @@ export class Logger  {
 
             let prefix:string = '\t'.repeat(indent);
             if(lastBlock != null) {
-                prefix = `${prefix}#${lastBlock.name}(${this.getTimeText(time - lastBlock.init, true)})- `;
+                prefix = `${prefix}~ `;
                 indent += 3;
             }
 
@@ -67,8 +66,8 @@ export class Logger  {
         }
         let message:LogMessage = new LogMessage(text, error);
         message.indent = indent;
-
         text = LogTranslator.getMessageText(message, true);
+
         console[error ? 'error' : 'log'](text);
 
         if(this.log === null) {
