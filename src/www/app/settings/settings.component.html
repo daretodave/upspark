@@ -11,14 +11,11 @@
                     <li class="nav-item" [routerLinkActive]="['active']" >
                         <a class="nav-link" [routerLink]="['/settings/appearance']">Theme</a>
                     </li>
-                    <li class="nav-item" [routerLinkActive]="['active']">
-                        <a class="nav-link"  [routerLink]="['/settings/about']">About</a>
-                    </li>
                 </ul>
 
                 <div class="copyright hidden-xs hidden-sm">
                     <hr>
-                    &copy; <span class="copyright-link">upspark</span>
+                    <span class="copyright-link" (click)="openWebsite()">upspark {{version}}</span>
                 </div>
             </div>
 
@@ -28,7 +25,7 @@
         </div>
         <div class="hidden-md hidden-lg copyright text-center">
             <hr>
-            &copy; <span class="copyright-link">upspark</span>
+            <span class="copyright-link" (click)="openWebsite()">upspark {{version}}</span>
             <hr>
         </div>
     </div>

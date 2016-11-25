@@ -2,8 +2,9 @@ import Helpers from '../../helpers';
 
 import Webpack from 'webpack';
 import HtmlPlugin from 'html-webpack-plugin';
+import {name, version} from '../../../package.json';
 
-let {ProvidePlugin} = Webpack;
+let {ProvidePlugin, DefinePlugin} = Webpack;
 let {CommonsChunkPlugin} = Webpack.optimize;
 
 let config = {};
@@ -79,17 +80,25 @@ let config = {};
         return new HtmlPlugin(config);
     })({});
 
-    // Inject app dependencies into the html
-    let provideJQuery = (function(config) {
-        config.$ = config.jQuery ="jquery";
-        return new ProvidePlugin(config);
+    let provide = (function(global) {
+        global.$ = global.jQuery ="jquery";
+
+        return new ProvidePlugin(global);
+    })({});
+
+    let define = (function(global) {
+        global.APP_NAME = JSON.stringify(name);
+        global.APP_VERSION = JSON.stringify(version);
+
+        return new DefinePlugin(global);
     })({});
 
 
     plugins.push(
         common,
         html,
-        provideJQuery
+        provide,
+        define
     );
 
 })(config.plugins = []);

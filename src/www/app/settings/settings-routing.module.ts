@@ -3,7 +3,6 @@ import {RouterModule} from "@angular/router";
 import {SettingsComponent} from "./settings.component";
 import {SettingsGeneralComponent} from "./settings-general.component";
 import {SettingsAppearanceComponent} from "./settings-appearance.component";
-import {SettingsAboutComponent} from "./settings-about.component";
 
 @NgModule({
     imports: [
@@ -29,10 +28,6 @@ import {SettingsAboutComponent} from "./settings-about.component";
                     {
                         path: 'appearance',
                         component: SettingsAppearanceComponent
-                    },
-                    {
-                        path: 'about',
-                        component: SettingsAboutComponent
                     }
                 ]
             },

@@ -5,7 +5,6 @@ import {SettingsComponent} from "./settings.component";
 import {NgModule} from "@angular/core";
 import {SettingsGeneralComponent} from "./settings-general.component";
 import {SettingsAppearanceComponent} from "./settings-appearance.component";
-import {SettingsAboutComponent} from "./settings-about.component";
 import {SettingsService} from "./settings.service";
 import {SliderModule} from "../shared/slider/slider.module";
 import {ThemeService} from "./theme.service";
@@ -21,7 +20,6 @@ import {ThemeService} from "./theme.service";
         SettingsComponent,
         SettingsGeneralComponent,
         SettingsAppearanceComponent,
-        SettingsAboutComponent,
     ],
     providers: [
         ThemeService,

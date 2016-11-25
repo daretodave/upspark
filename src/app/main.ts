@@ -681,6 +681,8 @@ let initSettings = () => {
 
     });
 
+    ipcMain.on('site', () => shell.openExternal('https://upspark.io'));
+
     ipcMain.on('get-themes', (event:any, args:any) => {
         event.returnValue = Themes.get(args);
     });

@@ -4,11 +4,15 @@ require('./settings.component.scss');
 
 const {ipcRenderer} = require('electron');
 
+declare const APP_VERSION:string;
+
 @Component({
     selector: 'up-settings',
     templateUrl: './settings.component.html'
 })
 export class SettingsComponent implements AfterViewInit {
+
+    private version:string = APP_VERSION;
 
     ngAfterViewInit() {
         ipcRenderer.removeAllListeners('style-settings');
@@ -24,6 +28,10 @@ export class SettingsComponent implements AfterViewInit {
 
             style.innerHTML = arg;
         });
+    }
+
+    openWebsite() {
+        ipcRenderer.send('site');
     }
 
     constructor() {
