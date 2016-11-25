@@ -3,6 +3,7 @@ import {JSONTranslator} from "./translators/translate-json";
 import {ResourceMissingPolicy} from "./resource-missing-policy";
 import {ResourceModel} from "./resource-model";
 import {Resource} from "./resource";
+import {Logger} from "../logger/logger";
 
 const fs = require('fs');
 
@@ -12,6 +13,7 @@ export class ResourceHandle<T extends ResourceModel> {
     private model:T;
 
     constructor(
+        private key: string,
         private path: string,
         private type: { new(...args: any[]): T },
         private onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_DEFAULT,
@@ -96,6 +98,8 @@ export class ResourceHandle<T extends ResourceModel> {
         if(this.promise != null) {
             return this.promise;
         }
+
+        Logger.info('loading ' + this.key, this.path);
 
         let executor = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => {
 

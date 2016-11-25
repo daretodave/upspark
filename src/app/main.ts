@@ -38,11 +38,12 @@ let init = () => {
     resources.attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);
     resources.attach('global.css', GlobalStyle, new TextTranslator(), 'global-style', ResourceMissingPolicy.DEFAULT);
 
-    resources.load('log').then((log:Log) => {
+    resources.load('log')
+    .then((log:Log) => {
 
         Logger
-            .attach(log, 50, () => resources.save('log'))
-            .info('UPSPARK | </boot>');
+            .attach(log, 50, () => resources.save('log', false))
+            .start('boot');
 
         return Promise.all([
             resources.load('settings'),
@@ -51,9 +52,9 @@ let init = () => {
             safe.init()
         ]);
 
-    }).then((values:any[]) => {
+    })
+    .then((values:any[]) => {
         let promises: Promise<any>[] = [values[0]];
-
         let settings: Settings = values[0];
 
         promises.push(settings.theme.global ? Themes.load('global', settings.theme.global) : null);
@@ -79,7 +80,7 @@ let init = () => {
 
         return true;
     })
-    .then(() => Logger.info('UPSPARK | <boot>'))
+    .then(() => Logger.finish('boot'))
     .catch((e) => {
         console.log(e);
         //TODO: Error window

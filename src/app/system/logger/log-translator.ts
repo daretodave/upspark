@@ -12,7 +12,7 @@ const template:string = require('./log-template.txt').replace(eolMatcher, EOL);
 
 const constants:any = {};
 
-constants.lineLength = 50;
+constants.lineLength = 100;
 constants.version = APP_VERSION;
 constants.tab = '\t';
 constants.system = `${arch()} ${type()} ${release()} (${cpus().length} core)`;
@@ -92,7 +92,7 @@ export class LogTranslator implements ResourceTranslator {
             message += ' ERROR |';
         }
         message = `${message} ${logMessage.message}`;
-        return LogTranslator.append('\t\t\t', message, true, skipFinalEOL);
+        return LogTranslator.append('\t'.repeat(6 + logMessage.indent), message, true, skipFinalEOL);
     }
 
     serialize(model: Log): string {

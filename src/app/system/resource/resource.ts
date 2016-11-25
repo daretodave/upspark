@@ -3,6 +3,7 @@ import {ResourceTranslator} from "./resource-translator";
 import {JSONTranslator} from "./translators/translate-json";
 import {ResourceMissingPolicy} from "./resource-missing-policy";
 import {ResourceModel} from "./resource-model";
+import {Logger} from "../logger/logger";
 
 const _path = require('path');
 const fs = require('fs');
@@ -44,8 +45,6 @@ export class Resource {
     }
 
     attach<T extends ResourceModel>(path: string, type: { new(...args: any[]): T }, translator: ResourceTranslator = new JSONTranslator(), key:string = null, onMissingPolicy: ResourceMissingPolicy = ResourceMissingPolicy.CREATE_DEFAULT): ResourceHandle<T> {
-        let handle: ResourceHandle<T> = new ResourceHandle(_path.join(this.root, path), type, onMissingPolicy, 'utf8', translator, this);
-
         if(key === null) {
             let ext: string = _path.extname(path);
 
@@ -56,6 +55,8 @@ export class Resource {
             }
 
         }
+        let handle: ResourceHandle<T> = new ResourceHandle(key, _path.join(this.root, path), type, onMissingPolicy, 'utf8', translator, this);
+
 
 
         this.validateProvidedKey(key);
@@ -65,14 +66,17 @@ export class Resource {
         return handle;
     }
 
-    save<T extends ResourceModel>(key: string): Promise<boolean> {
+    save<T extends ResourceModel>(key: string, log: boolean = true): Promise<boolean> {
         this.validateProvidedKey(key, true);
-
+        if (log) {
+            Logger.info('saving ' + key);
+        }
         return this.resources.get(key).save();
     }
 
     reload<T extends ResourceModel>(key: string): Promise<T> {
         this.validateProvidedKey(key, true);
+        Logger.info('reloading ' + key);
 
         return this.resources.get(key).reload();
     }
