@@ -3,12 +3,12 @@ import {Resource} from './system/resource';
 import {Settings} from "./window/runner/settings";
 import {Size} from "./model/size";
 import {Location} from "./model/location";
-import {Style} from "./window/runner/style";
+import {RunnerStyle} from "./window/runner-style";
+import {GlobalStyle} from "./window/global-style";
 import {TextTranslator} from "./system/resource/translators/translate-text";
 import {Safe} from "./system/safe";
 import {Themes} from "./window/themes";
-import {Theme} from "./window/theme";
-import {LoadedTheme} from "./window/loaded-theme";
+import {ResourceMissingPolicy} from "./system/resource/resource-missing-policy";
 
 const path = require('path');
 const electron = require('electron');
@@ -31,11 +31,14 @@ let init = () => {
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
 
     resources.attach('settings.json', Settings);
-    resources.attach('style.css', Style, new TextTranslator());
+
+    resources.attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);
+    resources.attach('global.css', GlobalStyle, new TextTranslator(), 'global-style', ResourceMissingPolicy.DEFAULT);
 
     Promise.all([
         resources.load('settings'),
-        resources.load('style'),
+        resources.load('runner-style'),
+        resources.load('global-style'),
         safe.init()
     ])
     .then((values:any[]) => {
@@ -73,7 +76,8 @@ let init = () => {
 let reload = () => {
     Promise.all([
         resources.reload('settings'),
-        resources.reload('style')
+        resources.reload('runner-style'),
+        resources.reload('global-style')
     ])
     .then(() => adhereSettings())
     .catch((e) => {
@@ -104,6 +108,12 @@ let adhereSettings = ():Promise<any> => {
         safeWindow.webContents.send('style-safe', css);
     }
 
+    if (Themes.has('runner')) {
+        let css:string = Themes.getCSS('runner');
+
+        runnerWindow.webContents.send('style-runner', css);
+    }
+
     return Promise.all([
         resources.get('settings', 'hotkey', 'Control+`'),
         resources.get('settings', 'location', {
@@ -117,7 +127,8 @@ let adhereSettings = ():Promise<any> => {
             width: 1,
             height: .5
         }),
-        resources.get('style', 'content', ''),
+        resources.get('runner-style', 'content', ''),
+        resources.get('global-style', 'content', ''),
         resources.get('settings', 'rotation', 0),
     ]).then((values) => {
         let metrics:string = '';
@@ -125,8 +136,9 @@ let adhereSettings = ():Promise<any> => {
         let hotkey:string = values[0];
         let location:Location = values[1];
         let size:Size = values[2];
-        let style:string = values[3];
-        let rotation:number = values[4];
+        let runnerStyle:string = values[3];
+        let globalStyle:string = values[4];
+        let rotation:number = values[5];
 
         let displays:any[] = electron.screen.getAllDisplays();
         let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
@@ -199,8 +211,10 @@ let adhereSettings = ():Promise<any> => {
             width: width,
             height: height
         });
+
         runnerWindow.webContents.send('metrics', metrics);
-        runnerWindow.webContents.send('style', style);
+        runnerWindow.webContents.send('style', runnerStyle);
+        settingsWindow.webContents.send('style-global', globalStyle);
 
         globalShortcut.register(hotkey, toggleRunner);
     }).catch((error) => {
@@ -710,9 +724,6 @@ let initSettings = () => {
             case 'hotkey':
                 resolve = settings.hotkey;
                 break;
-            case 'style':
-                resolve = resources.syncGet<Style>('style').content;
-                break;
             case 'rotation':
                 resolve = settings.rotation;
                 break;
@@ -778,9 +789,6 @@ let initSettings = () => {
                 case 'hotkey':
                     settings.hotkey = value;
                     break;
-                case 'style':
-                    resources.syncGet<Style>('style').content = value;
-                    break;
                 default:
                     console.log('Settings:set', setting, 'NOT FOUND');
                     break;
@@ -801,12 +809,8 @@ let initSettings = () => {
                 }
                 adhereSettings().then(() => {
                     if(save) {
-                        console.log('Settings:set', 'save', `[isStyle]=${setting==='style'}`);
-                        resources.save(setting === 'style' ? 'style' : 'settings').then(() => {
-                            console.log('Settings:set saved');
-                        }).catch((reason:any) => {
-                            console.log('Settings:set', 'save-fail', reason);
-                        });
+                        console.log('Settings:set', 'save');
+                        resources.save('settings');
                     }
                 }).catch((reason:any) => {
                     console.log('Settings:set', 'adhere-fail', reason);

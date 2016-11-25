@@ -10,7 +10,6 @@ export class Settings {
     hotkeyModifier:string;
     hotkey:string;
     rotation:number;
-    style:string;
     screens:SettingsScreen[];
     resourceLocation:string;
 

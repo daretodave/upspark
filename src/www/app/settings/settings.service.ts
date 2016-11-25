@@ -23,7 +23,6 @@ export class SettingsService {
         settings.offsetX = this.getSetting<number>('offset-x');
         settings.offsetY = this.getSetting<number>('offset-y');
         settings.screen = this.getSetting<number>('screen');
-        settings.style = this.getSetting<string>('style');
         settings.rotation = this.getSetting<number>('rotation');
         settings.resourceLocation = this.getSetting<string>('resource-dir');
 

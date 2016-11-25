@@ -1,3 +1,9 @@
 #runner {
-    background: red;
+    background: rgba(255, 255, 255, 0.7);
+}
+#runner-path {
+    color: black;
+}
+#runner-debug {
+    color: black;
 }

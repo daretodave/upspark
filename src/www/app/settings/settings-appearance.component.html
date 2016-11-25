@@ -24,5 +24,22 @@
     <div class="col-md-6">
         <p class="lead">Runner</p>
         <hr>
+        <div class="row">
+
+            <div class="col-xs-12">
+                <div class="theme-option theme-option-default" (click)="select(runner, '')" [class.selected]="runner.selected === null">
+                    <div class="theme-option-title">Default</div>
+                </div>
+            </div>
+
+            <div class="col-md-6" *ngFor="let theme of runner.themes">
+
+                <div (click)="select(runner, theme.name)" class="theme-option" [style.background]="theme.palette.backgroundColor" [class.selected]="theme.selected">
+                    <div class="theme-option-title" [style.color]="theme.palette.textColor">{{theme.name}}</div>
+                    <div class="theme-option-desc"  [style.color]="theme.palette.descColor">{{theme.description}}</div>
+                </div>
+
+            </div>
+        </div>
     </div>
 </div>
