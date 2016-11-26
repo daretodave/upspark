@@ -1,8 +1,6 @@
 /// <reference path="../typings/index.d.ts" />
 import {Resource} from './system/resource';
 import {Settings} from "./window/runner/settings";
-import {Size} from "./model/size";
-import {Location} from "./model/location";
 import {RunnerStyle} from "./window/runner-style";
 import {GlobalStyle} from "./window/global-style";
 import {TextTranslator} from "./system/resource/translators/translate-text";
@@ -12,6 +10,7 @@ import {ResourceMissingPolicy} from "./system/resource/resource-missing-policy";
 import {Log} from "./system/logger/log";
 import {Logger} from "./system/logger/logger";
 import {LogTranslator} from "./system/logger/log-translator";
+import {PlatformBootstrapper as Platform} from "./api/platform/platform-bootstrapper";
 
 const path = require('path');
 const electron = require('electron');
@@ -26,15 +25,18 @@ let quit:boolean = false;
 
 let resources:Resource;
 let safe: Safe;
+let platform: Platform;
 
 let init = () => {
 
     safe = new Safe(path.join(app.getPath('appData'), 'upspark'), 'aes-256-ctr');
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
+    platform = new Platform(resources);
+
+    platform.attach();
 
     resources.attach('settings.json', Settings);
     resources.attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
-
     resources.attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);
     resources.attach('global.css', GlobalStyle, new TextTranslator(), 'global-style', ResourceMissingPolicy.DEFAULT);
 
@@ -49,6 +51,8 @@ let init = () => {
             resources.load('settings'),
             resources.load('runner-style'),
             resources.load('global-style'),
+
+            platform.reload(),
 
             safe.init()
         ]);
@@ -95,7 +99,7 @@ let init = () => {
     })
     .then(() => adhereSettings())
     .then(() => Logger.finish('boot'))
-    .catch((e) => Logger.finish('boot', e.toString()));
+    .catch((e) => Logger.finish('boot', e));
 
 };
 

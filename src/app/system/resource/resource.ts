@@ -66,6 +66,17 @@ export class Resource {
         return handle;
     }
 
+    release(key:string) {
+        this.validateProvidedKey(key, false);
+
+        Logger.info(`resource '${key}' is being released`);
+
+        if(!this.resources.has(key)) {
+            Logger.info(`resource '${key}' was not found | release complete`);
+            return;
+        }
+    }
+
     save<T extends ResourceModel>(key: string, log: boolean = true): Promise<boolean> {
         this.validateProvidedKey(key, true);
 

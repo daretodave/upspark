@@ -49,6 +49,7 @@
     "@exponent/electron-cookies": "^2.0.0",
     "@types/lodash": "^4.14.39",
     "angulartics2": "^1.4.3",
+    "babel-core": "^6.18.2",
     "core-js": "^2.4.1",
     "electron": "^1.4.3",
     "jquery": "^3.1.1",
