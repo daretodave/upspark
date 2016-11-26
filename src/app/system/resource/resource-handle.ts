@@ -37,9 +37,9 @@ export class ResourceHandle<T extends ResourceModel> {
         return this;
     }
 
-    save(): Promise<boolean> {
+    save(log:boolean = true): Promise<boolean> {
         let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
-            this._save(resolve, reject);
+            this._save(resolve, reject, log);
         };
         return new Promise<boolean>(executor);
     }
@@ -48,12 +48,18 @@ export class ResourceHandle<T extends ResourceModel> {
         return this.model;
     }
 
-    private _save(resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void) {
+    private _save(resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void, log: boolean = true, reload:boolean = false) {
+        if (log) {
+            Logger.info(`${reload ? 'creating' : 'saving'} resource '${this.key}'`);
+        }
         let contents:string = this.translator.serialize(this.model);
         fs.writeFile(this.path, contents, (err: NodeJS.ErrnoException) => {
             if(err !== null) {
                 reject(err);
                 return;
+            }
+            if (log) {
+                Logger.info(`${reload ? 'created' : 'saved '} resource '${this.key}'`);
             }
             resolve(true);
         });
@@ -63,7 +69,7 @@ export class ResourceHandle<T extends ResourceModel> {
         fs.readFile(this.path, this.format, (err: NodeJS.ErrnoException, data: string) => {
 
             if(err === null) {
-                Logger.info(`${this.key} ${reload ? 're' : ''}loaded`);
+                Logger.info(`resource '${this.key}' ${reload ? 're' : ''}loaded`);
                 this.model  = <T>this.translator.deserialize(this.type, data);
                 resolve(this.model);
                 return;
@@ -75,16 +81,17 @@ export class ResourceHandle<T extends ResourceModel> {
             }
 
             this.model = <T>(new this.type());
+            let defaulted:boolean = onMissingPolicy === ResourceMissingPolicy.DEFAULT || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT;
 
-            if (onMissingPolicy === ResourceMissingPolicy.DEFAULT || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT) {
+            if (defaulted) {
                 this.model.toDefaultState();
             }
 
             if(onMissingPolicy === ResourceMissingPolicy.CREATE_BLANK || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT) {
-                Logger.info(`${this.key} ${reload ? 're' : ''}loaded  (not on disk, resource created)`);
-                this._save(resolve, reject);
+                Logger.info(`resource '${this.key}' ${reload ? 're' : ''} was not found, creating a${defaulted ? ' defaulted' : 'n empty'} resource and saving to disk`);
+                this._save(resolve, reject, true, true);
             } else {
-                Logger.info(`${this.key} ${reload ? 're' : ''}loaded  (not on disk, proceeding)`);
+                Logger.info(`resource '${this.key}' ${reload ? 're' : ''} was not found, using a${defaulted ? ' defaulted' : 'n empty'} resource`);
                 resolve(this.model);
             }
 

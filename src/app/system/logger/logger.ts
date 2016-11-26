@@ -41,7 +41,7 @@ export class Logger  {
             return this.saving;
         }
 
-        this.saving =
+        let promise:Promise<any> =
             this.save()
                 .then(() => {
                     if(this.dirty) {
@@ -57,7 +57,11 @@ export class Logger  {
                     this.saving = null;
                 });
 
-        return this.saving;
+        if(!override) {
+            this.saving = promise;
+        }
+
+        return promise;
     }
 
     private static getTimeText(diff:number, short:boolean = false):string {
@@ -92,7 +96,7 @@ export class Logger  {
             let prefix:string = '\t'.repeat(indent);
             if(lastBlock != null) {
                 prefix = `${prefix}~ `;
-                indent += 3;
+                indent += 2;
             }
 
             text = prefix + text;

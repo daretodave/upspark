@@ -18,7 +18,6 @@ constants.tab = '\t';
 constants.system = `${arch()} ${type()} ${release()} (${cpus().length} core)`;
 constants.line = '-'.repeat(constants.lineLength);
 
-
 const wordWrapMatcher = new RegExp('.{1,' + constants.lineLength + '}(\s|$)|\S+?(\s|$)', 'g');
 
 export class LogTranslator implements ResourceTranslator {
@@ -27,9 +26,7 @@ export class LogTranslator implements ResourceTranslator {
     }
 
     deserialize<T>(type: { new(...args: any[]): Log }, contents: string): Log {
-        let log = new Log();
-
-        return log;
+        return new Log();
     }
 
     static wrap(string:string): string[] {

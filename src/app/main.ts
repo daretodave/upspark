@@ -42,7 +42,7 @@ let init = () => {
     .then((log:Log) => {
 
         Logger
-            .attach(log, 50, () => resources.save('log', false))
+            .attach(log, 200, () => resources.save('log', false))
             .start('boot');
 
         return Promise.all([
@@ -76,9 +76,17 @@ let init = () => {
         initSafe();
         initTray();
 
-        runnerWindow.webContents.on('did-finish-load', adhereSettings);
-        return true;
+        Logger.info('runner loading');
+        let executor = (resolve: (value:any) => void, reject: (reason?: any) => void) => {
+            runnerWindow.webContents.once('did-finish-load', () => {
+                Logger.info('runner loaded');
+                resolve(true);
+            });
+        };
+
+        return new Promise<any>(executor);
     })
+    .then(() => adhereSettings())
     .then(() => Logger.finish('boot'))
     .catch((e) => Logger.finish('boot', e.toString()));
 
@@ -120,16 +128,20 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
 
     if (globalTheme) {
         let css:string = Themes.getCSS('global');
+        if (log) {
+            Logger.info(`setting global theme [${globalTheme}], css.length is ${css.length}`);
+        }
 
-        Logger.info(`setting global theme [${globalTheme}], css.length is ${css.length}`);
         settingsWindow.webContents.send('style-settings', css);
         safeWindow.webContents.send('style-safe', css);
     }
 
     if (runnerTheme) {
         let css:string = Themes.getCSS('runner');
+        if (log) {
+            Logger.info(`setting runner theme [${globalTheme}], css.length is ${css.length}`);
+        }
 
-        Logger.info(`setting runner theme [${globalTheme}], css.length is ${css.length}`);
         runnerWindow.webContents.send('style-runner', css);
     }
 
@@ -314,32 +326,17 @@ let initTray = () => {
         click: () => app.quit()
     });
 
-    if (process.env.ENV === 'development') {
-        options.push({
-            'type': 'separator',
-        });
-        options.push({
-            'label': 'Load Settings',
-            click: () => settingsWindow.loadURL(www('settings'))
-        });
-        options.push({
-            'label': 'Load Safe Auth',
-            click: () => safeWindow.loadURL(www('safe/auth'))
-        });
-        options.push({
-            'label': 'Load Safe Create',
-            click: () => safeWindow.loadURL(www('safe/create'))
-        });
-        options.push({
-            'label': 'Load Safe',
-            click: () => safeWindow.loadURL(www('safe/main'))
-        });
-    }
-
     tray.on('click', toggleRunner);
     
     tray.setContextMenu(Menu.buildFromTemplate(options));
     tray.setToolTip('Upspark');
+
+    // let info:string[] = options.map((menu:any) => (menu.label || '-------').toLowerCase());
+    // info.push('-------');
+    // info.unshift('-------');
+    // info.unshift('system-tray loaded');
+    //
+    // Logger.info.apply(Logger, info);
 };
 
 let initSafe = () => {
@@ -790,9 +787,21 @@ let initSettings = () => {
     });
 
     ipcMain.on('set-setting', (event: any, setting:string, value:any, save:boolean) => {
-        console.log('Settings:set', setting, value, `[save]=${save}`);
-        resources.load('settings').then((settings:Settings) => {
-            console.log('Settings:set..');
+        let target:string = null;
+        let blocks:string[] = setting.split('-');
+        if(blocks.length > 1) {
+            target = blocks[1];
+        }
+
+        if(save) {
+            Logger.start(`set-setting`);
+            Logger.info(`set '${setting}' to [${value}]`);
+        }
+
+        resources
+        .load('settings')
+        .then((settings:Settings) => {
+
             switch(setting) {
                 case 'width':
                     settings.size.width = value;
@@ -828,40 +837,35 @@ let initSettings = () => {
                     settings.hotkey = value;
                     break;
                 default:
-                    console.log('Settings:set', setting, 'NOT FOUND');
-                    break;
-            }
-        }).then(() => {
-            console.log('Settings:set', 'adhere');
-
-            let promises: Promise<any>[] = [];
-            let target:string = setting.split('-')[1];
-
-            if(setting.startsWith('theme') && !Themes.isLoaded(target, value)) {
-                promises.push(Themes.load(target, value));
+                    throw `can not find setting by the name of '${setting}'`;
             }
 
-            Promise.all(promises).then((values:any[]) => {
-                if(values.length) {
-                    Themes.setTheme(target, value, values[0]);
-                }
-                adhereSettings(save).then(() => {
-                    if(save) {
-                        console.log('Settings:set', 'save');
-                        resources.save('settings');
-                    }
-                }).catch((reason:any) => {
-                    console.log('Settings:set', 'adhere-fail', reason);
-                });
-            }).catch((reason:any) => {
-                console.log('Settings:set', 'theme-load-fail', reason);
-            });
-
-        }).catch((reason:any) => {
-            console.log('Settings:set', 'theme-load-fail', reason);
+            return blocks[0] === 'theme' && !Themes.isLoaded(target, value);
+        })
+        .then((loadThemeCSS:boolean) => {
+            return loadThemeCSS ? Themes.load(target, value) : null;
+        })
+        .then((css:string) => {
+            if(css) {
+                Themes.setTheme(target, value, css);
+            }
+            return adhereSettings(save);
+        })
+        .then(() => {
+            return save ? <Promise<any>>resources.save('settings') : null;
+        })
+        .then(() => {
+            if(save) {
+                Logger.finish(`set-setting`);
+            }
+        })
+        .catch((reason:any) => {
+            if(log) {
+                Logger.finish(`set-setting`, reason)
+            } else {
+                Logger.error(reason);
+            }
         });
-
-
     });
 };
 

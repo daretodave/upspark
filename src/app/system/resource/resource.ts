@@ -68,10 +68,8 @@ export class Resource {
 
     save<T extends ResourceModel>(key: string, log: boolean = true): Promise<boolean> {
         this.validateProvidedKey(key, true);
-        if (log) {
-            Logger.info('saving ' + key);
-        }
-        return this.resources.get(key).save();
+
+        return this.resources.get(key).save(log);
     }
 
     reload<T extends ResourceModel>(key: string): Promise<T> {
