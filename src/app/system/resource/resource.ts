@@ -76,7 +76,6 @@ export class Resource {
 
     reload<T extends ResourceModel>(key: string): Promise<T> {
         this.validateProvidedKey(key, true);
-        Logger.info('reloading ' + key);
 
         return this.resources.get(key).reload();
     }

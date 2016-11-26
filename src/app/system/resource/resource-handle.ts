@@ -59,11 +59,11 @@ export class ResourceHandle<T extends ResourceModel> {
         });
     }
 
-    private _load(onMissingPolicy: ResourceMissingPolicy, resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) {
+    private _load(onMissingPolicy: ResourceMissingPolicy, resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void, reload:boolean = false) {
         fs.readFile(this.path, this.format, (err: NodeJS.ErrnoException, data: string) => {
 
             if(err === null) {
-                Logger.info(`finished loading ${this.key}`);
+                Logger.info(`${this.key} ${reload ? 're' : ''}loaded`);
                 this.model  = <T>this.translator.deserialize(this.type, data);
                 resolve(this.model);
                 return;
@@ -81,10 +81,10 @@ export class ResourceHandle<T extends ResourceModel> {
             }
 
             if(onMissingPolicy === ResourceMissingPolicy.CREATE_BLANK || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT) {
-                Logger.info(`${this.key} not found at ${this.path}, creating`);
+                Logger.info(`${this.key} ${reload ? 're' : ''}loaded  (not on disk, resource created)`);
                 this._save(resolve, reject);
             } else {
-                Logger.info(`${this.key} not found at ${this.path}, proceeding`);
+                Logger.info(`${this.key} ${reload ? 're' : ''}loaded  (not on disk, proceeding)`);
                 resolve(this.model);
             }
 
@@ -102,12 +102,12 @@ export class ResourceHandle<T extends ResourceModel> {
             return this.promise;
         }
 
-        Logger.info(`${reload ? 'RE-' : ''}loading ${this.key}`);
+        Logger.info(`${this.key} ${reload ? 're': ''}loading (${this.path})`);
 
         let executor = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => {
 
             let task = () => {
-                this._load(onMissingPolicy, resolve, reject);
+                this._load(onMissingPolicy, resolve, reject, reload);
             };
 
             if(this.resource != null) {

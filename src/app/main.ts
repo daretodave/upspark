@@ -77,28 +77,23 @@ let init = () => {
         initTray();
 
         runnerWindow.webContents.on('did-finish-load', adhereSettings);
-
         return true;
     })
     .then(() => Logger.finish('boot'))
-    .catch((e) => {
-        console.log(e);
-        //TODO: Error window
-    });
+    .catch((e) => Logger.finish('boot', e.toString()));
 
 };
 
 let reload = () => {
+    Logger.start('reload');
     Promise.all([
         resources.reload('settings'),
         resources.reload('runner-style'),
         resources.reload('global-style')
     ])
     .then(() => adhereSettings())
-    .catch((e) => {
-        console.log(e);
-        //TODO: Error window
-    });
+    .then(() => Logger.finish('reload'))
+    .catch((e) => Logger.finish('reload', e.toString()));
 };
 
 function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
@@ -113,19 +108,28 @@ function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
     return [Math.round(nx), Math.round(ny)];
 }
 
-let adhereSettings = ():Promise<any> => {
+let adhereSettings = (log:boolean = true):Promise<any> => {
+    if(log) {
+        Logger.start('configure', true)
+    }
+
     globalShortcut.unregisterAll();
 
-    if (Themes.has('global')) {
+    let globalTheme:string = Themes.has('global');
+    let runnerTheme:string = Themes.has('runner');
+
+    if (globalTheme) {
         let css:string = Themes.getCSS('global');
 
+        Logger.info(`setting global theme [${globalTheme}], css.length is ${css.length}`);
         settingsWindow.webContents.send('style-settings', css);
         safeWindow.webContents.send('style-safe', css);
     }
 
-    if (Themes.has('runner')) {
+    if (runnerTheme) {
         let css:string = Themes.getCSS('runner');
 
+        Logger.info(`setting runner theme [${globalTheme}], css.length is ${css.length}`);
         runnerWindow.webContents.send('style-runner', css);
     }
 
@@ -146,6 +150,10 @@ let adhereSettings = ():Promise<any> => {
         resources.get('global-style', 'content', ''),
         resources.get('settings', 'rotation', 0),
     ]).then((values) => {
+        if(log) {
+            Logger.info(`calculating metrics`);
+        }
+
         let metrics:string = '';
 
         let hotkey:string = values[0];
@@ -170,7 +178,6 @@ let adhereSettings = ():Promise<any> => {
         y += height * location.offsetY;
 
         if(rotation !== 0 && rotation !== 360) {
-
             let cx:number = width/2 + x;
             let cy:number = height/2 + y;
 
@@ -218,7 +225,12 @@ let adhereSettings = ():Promise<any> => {
         width = Math.ceil(width);
         height = Math.ceil(height);
 
-        console.log('Runner resize and relocated to [x,y,w,h]', x, y, width, height, rotation, runnerWindow.getMaximumSize());
+        if(log) {
+            Logger.info(`+ runner.hotkey = '${hotkey}'`);
+            Logger.info(`+ runner.x = ${x} | runner.y = ${y}`);
+            Logger.info(`+ runner.width = ${runnerWidth} | runner.height = ${runnerHeight} | runner.rotation = ${rotation}`);
+            Logger.info(`+ window.width = ${width} | window.height = ${height}`);
+        }
 
         runnerWindow.setBounds({
             x: x,
@@ -232,9 +244,18 @@ let adhereSettings = ():Promise<any> => {
         settingsWindow.webContents.send('style-global', globalStyle);
 
         globalShortcut.register(hotkey, toggleRunner);
-    }).catch((error) => {
-        console.log(error);
-        //TODO: Error window
+    })
+    .then(() =>  {
+        if(log) {
+            Logger.finish('configure', null);
+        }
+    })
+    .catch((e) => {
+        if(log) {
+            Logger.finish('configure', e.toString())
+        } else {
+            console.error(e);
+        }
     });
 };
 let openResourceDirectory = () => {
@@ -824,7 +845,7 @@ let initSettings = () => {
                 if(values.length) {
                     Themes.setTheme(target, value, values[0]);
                 }
-                adhereSettings().then(() => {
+                adhereSettings(save).then(() => {
                     if(save) {
                         console.log('Settings:set', 'save');
                         resources.save('settings');

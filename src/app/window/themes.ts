@@ -1,5 +1,6 @@
 import {Theme} from "./theme";
 import {LoadedTheme} from "./loaded-theme";
+import {Logger} from "../system/logger/logger";
 const themes: any = require('../config/themes.json');
 const loaded: Map<string, LoadedTheme> = new Map<string, LoadedTheme>();
 const fs = require('fs');
@@ -28,12 +29,15 @@ export class Themes {
 
     static load(key: string, themeName: string): Promise<string> {
 
+        Logger.info(`theme [${themeName}] loading`);
+
         let themes: Theme[] = Themes.get(key);
         let selected: Theme = themes.find((theme:Theme) => theme.name === themeName) || null;
 
         let executor = (resolve: (value?: string | PromiseLike<string>) => void, reject: (reason?: any) => void) => {
             if(selected === null) {
                 resolve('');
+                Logger.info(`theme [${themeName}] not found`);
                 return;
             }
 
@@ -42,6 +46,8 @@ export class Themes {
                     reject(err);
                     return;
                 }
+
+                Logger.info(`theme [${themeName}] loaded`);
                 resolve(data);
             });
 
@@ -51,7 +57,12 @@ export class Themes {
 
     }
 
-    static has(target: string) {
-        return loaded.has(target);
+    static has(target: string):string {
+        let theme: LoadedTheme = loaded.get(target);
+        if(!theme) {
+           return null;
+        }
+
+        return theme.name;
     }
 }

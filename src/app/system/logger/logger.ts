@@ -14,10 +14,13 @@ export class Logger  {
 
     private static log:Log = null;
     private static max:number;
-    private static save: () => void = null;
+    private static saving:Promise<any>;
+    private static dirty:boolean;
+    private static pendingError:boolean;
+    private static save: () => Promise<any> = null;
     private static blocks: LoggerBlock[];
 
-    public static attach(log:Log, max:number, save: () => void): ILogger {
+    public static attach(log:Log, max:number, save: () => Promise<any>): ILogger {
         this.log = log;
         this.max = max;
         this.save = save;
@@ -25,6 +28,36 @@ export class Logger  {
 
         let self:any = this;
         return self;
+    }
+
+    public static persist(error:boolean = false, override:boolean = false): Promise<any> {
+        if(this.save === null || (this.blocks.length > 0 && !error)) {
+            return;
+        }
+
+        if(this.saving != null && !override) {
+            this.dirty = true;
+            this.pendingError = error;
+            return this.saving;
+        }
+
+        this.saving =
+            this.save()
+                .then(() => {
+                    if(this.dirty) {
+                        this.dirty = false;
+                        return this.persist(this.pendingError, true);
+                    }
+
+                    this.saving = null;
+                    return true;
+                })
+                .catch((e) => {
+                    console.log(e);
+                    this.saving = null;
+                });
+
+        return this.saving;
     }
 
     private static getTimeText(diff:number, short:boolean = false):string {
@@ -74,6 +107,10 @@ export class Logger  {
             return this;
         }
 
+        if(error) {
+            this.log.error = message;
+        }
+
         this.log.messages.unshift(message);
         if(this.log.messages.length > this.max) {
             this.log.messages.splice(this.max);
@@ -83,7 +120,11 @@ export class Logger  {
         return self;
     }
 
-    public static finish(name:string): ILogger {
+    public static finish(name:string, error:string = null): ILogger {
+        if(error != null) {
+            this.error(error);
+        }
+
         let task:LoggerBlock = null;
         this.blocks = this.blocks.filter((block:LoggerBlock) => {
             if(block.name === name) {
@@ -99,23 +140,21 @@ export class Logger  {
         }
         let diff:number = (new Date().getTime()) - task.init;
 
-        this.info(`#${name} finished in ${this.getTimeText(diff)}`);
+        this.push(false, `#${name} finished in ${this.getTimeText(diff)}`);
+        this.persist();
+
         return self;
     }
 
     public static start(name:string, sync: boolean = true): ILogger {
-        this.info(`#${name} started`);
+        let self:ILogger = this.push(false, `#${name} started`);
         this.blocks.push(new LoggerBlock(name, sync));
-
-        let self:any = this;
         return self;
     }
 
     public static append(error:boolean, ...args:any[]): ILogger {
         args.forEach((arg) =>  Logger.push(error, arg));
-        if(this.save !== null) {
-            this.save();
-        }
+        this.persist();
 
         let self:any = this;
         return self;
@@ -123,17 +162,15 @@ export class Logger  {
 
     public static info(...args:any[]): ILogger {
         let self:ILogger = this.push(false, args.join('\n'));
-        if(this.save !== null) {
-            this.save();
-        }
+        this.persist();
+
         return self;
     }
 
     public static error(...args:any[]): ILogger {
         let self:ILogger = this.push(true, args.join('\n'));
-        if(this.save !== null) {
-            this.save();
-        }
+
+        this.persist(true);
         return self;
     }
 
