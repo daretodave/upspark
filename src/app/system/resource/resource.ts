@@ -84,13 +84,11 @@ export class Resource {
         return this.resources.get(key).load();
     }
 
-    get<T>(key: string, property: string, _default:T = null): Promise<T> {
+    get<T>(key: string): Promise<T> {
+        this.validateProvidedKey(key, true);
+
         return this.load(key).then(function(resource:any) {
-            let value:T = resource[property];
-            if(value === null) {
-                return _default;
-            }
-            return value;
+            return resource;
         });
     }
 

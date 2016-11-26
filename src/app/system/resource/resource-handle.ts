@@ -37,18 +37,18 @@ export class ResourceHandle<T extends ResourceModel> {
         return this;
     }
 
-    save(log:boolean = true): Promise<boolean> {
-        let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
+    save(log:boolean = true): Promise<T> {
+        let executor = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => {
             this._save(resolve, reject, log);
         };
-        return new Promise<boolean>(executor);
+        return new Promise<T>(executor);
     }
 
     get(): T {
         return this.model;
     }
 
-    private _save(resolve: (value?: any | PromiseLike<any>) => void, reject: (reason?: any) => void, log: boolean = true, reload:boolean = false) {
+    private _save(resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void, log: boolean = true, reload:boolean = false) {
         if (log) {
             Logger.info(`${reload ? 'creating' : 'saving'} resource '${this.key}'`);
         }
@@ -61,7 +61,8 @@ export class ResourceHandle<T extends ResourceModel> {
             if (log) {
                 Logger.info(`${reload ? 'created' : 'saved '} resource '${this.key}'`);
             }
-            resolve(true);
+
+            resolve(this.model);
         });
     }
 
@@ -69,7 +70,7 @@ export class ResourceHandle<T extends ResourceModel> {
         fs.readFile(this.path, this.format, (err: NodeJS.ErrnoException, data: string) => {
 
             if(err === null) {
-                Logger.info(`resource '${this.key}' ${reload ? 're' : ''}loaded`);
+                Logger.info(`resource '${this.key}' is ${reload ? 're' : ''}loaded`);
                 this.model  = <T>this.translator.deserialize(this.type, data);
                 resolve(this.model);
                 return;
@@ -88,10 +89,10 @@ export class ResourceHandle<T extends ResourceModel> {
             }
 
             if(onMissingPolicy === ResourceMissingPolicy.CREATE_BLANK || onMissingPolicy === ResourceMissingPolicy.CREATE_DEFAULT) {
-                Logger.info(`resource '${this.key}' ${reload ? 're' : ''} was not found, creating a${defaulted ? ' defaulted' : 'n empty'} resource and saving to disk`);
+                Logger.info(`resource '${this.key}' was not found | creating a${defaulted ? ' defaulted' : 'n empty'} resource and saving to disk`);
                 this._save(resolve, reject, true, true);
             } else {
-                Logger.info(`resource '${this.key}' ${reload ? 're' : ''} was not found, using a${defaulted ? ' defaulted' : 'n empty'} resource`);
+                Logger.info(`resource '${this.key}' was not found | using a${defaulted ? ' defaulted' : 'n empty'} resource`);
                 resolve(this.model);
             }
 
@@ -109,7 +110,7 @@ export class ResourceHandle<T extends ResourceModel> {
             return this.promise;
         }
 
-        Logger.info(`${this.key} ${reload ? 're': ''}loading (${this.path})`);
+        Logger.info(`resource '${this.key}' is ${reload ? 're': ''}loading from ${this.path}`);
 
         let executor = (resolve: (value?: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => {
 

@@ -29,15 +29,23 @@ export class Themes {
 
     static load(key: string, themeName: string): Promise<string> {
 
-        Logger.info(`theme [${themeName}] loading`);
+        if(themeName) {
+            Logger.info(`theme '${themeName.toLowerCase()}' loading for ${key}`);
+        }
 
         let themes: Theme[] = Themes.get(key);
         let selected: Theme = themes.find((theme:Theme) => theme.name === themeName) || null;
 
         let executor = (resolve: (value?: string | PromiseLike<string>) => void, reject: (reason?: any) => void) => {
+            if(!themeName) {
+                resolve('');
+                Logger.info(`theme set to '${themeName.toLowerCase()}' for ${key} | css.content = ''`);
+                return;
+            }
+
             if(selected === null) {
                 resolve('');
-                Logger.info(`theme [${themeName}] not found`);
+                Logger.info(`theme '${themeName.toLowerCase()}' not found, sending empty CSS`);
                 return;
             }
 
@@ -47,7 +55,7 @@ export class Themes {
                     return;
                 }
 
-                Logger.info(`theme [${themeName}] loaded`);
+                Logger.info(`theme '${themeName.toLowerCase()}' loaded`);
                 resolve(data);
             });
 

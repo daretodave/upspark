@@ -49,6 +49,7 @@ let init = () => {
             resources.load('settings'),
             resources.load('runner-style'),
             resources.load('global-style'),
+
             safe.init()
         ]);
 
@@ -57,6 +58,9 @@ let init = () => {
         let promises: Promise<any>[] = [values[0]];
         let settings: Settings = values[0];
 
+        if(settings.theme.global || settings.theme.runner) {
+            Logger.start('theme');
+        }
         promises.push(settings.theme.global ? Themes.load('global', settings.theme.global) : null);
         promises.push(settings.theme.runner ? Themes.load('runner', settings.theme.runner) : null);
 
@@ -70,6 +74,9 @@ let init = () => {
         if (values[2] !== null) {
             Themes.setTheme('runner', settings.theme.runner, values[2]);
         }
+        if(settings.theme.global || settings.theme.runner) {
+            Logger.finish('theme');
+        }
 
         initSettings();
         initRunner();
@@ -78,7 +85,7 @@ let init = () => {
 
         Logger.info('runner loading');
         let executor = (resolve: (value:any) => void, reject: (reason?: any) => void) => {
-            runnerWindow.webContents.once('did-finish-load', () => {
+            runnerWindow.webContents.on('did-finish-load', () => {
                 Logger.info('runner loaded');
                 resolve(true);
             });
@@ -101,7 +108,7 @@ let reload = () => {
     ])
     .then(() => adhereSettings())
     .then(() => Logger.finish('reload'))
-    .catch((e) => Logger.finish('reload', e.toString()));
+    .catch((e) => Logger.finish('reload', e.getMessage()));
 };
 
 function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
@@ -129,76 +136,71 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
     if (globalTheme) {
         let css:string = Themes.getCSS('global');
         if (log) {
-            Logger.info(`setting global theme [${globalTheme}], css.length is ${css.length}`);
+            Logger.info(`setting global theme to '${globalTheme}' | theme.css.length = ${css.length} bytes`);
         }
 
         settingsWindow.webContents.send('style-settings', css);
         safeWindow.webContents.send('style-safe', css);
+    } else {
+        if (log) {
+            Logger.info(`setting global theme to nothing`);
+        }
+
+        settingsWindow.webContents.send('style-settings', '');
+        safeWindow.webContents.send('style-safe', '');
     }
 
     if (runnerTheme) {
         let css:string = Themes.getCSS('runner');
         if (log) {
-            Logger.info(`setting runner theme [${globalTheme}], css.length is ${css.length}`);
+            Logger.info(`setting runner theme to '${runnerTheme}' | theme.css.length = ${css.length} bytes`);
         }
 
         runnerWindow.webContents.send('style-runner', css);
+    } else {
+        if (log) {
+            Logger.info(`setting runner theme to nothing`);
+        }
+
+        runnerWindow.webContents.send('style-runner', '');
     }
 
     return Promise.all([
-        resources.get('settings', 'hotkey', 'Control+`'),
-        resources.get('settings', 'location', {
-            x: 0,
-            y: 0,
-            offsetX: 0,
-            offsetY: .5,
-            screen: 0
-        }),
-        resources.get('settings', 'size', {
-            width: 1,
-            height: .5
-        }),
-        resources.get('runner-style', 'content', ''),
-        resources.get('global-style', 'content', ''),
-        resources.get('settings', 'rotation', 0),
-    ]).then((values) => {
+        resources.get('settings'),
+        resources.get('runner-style'),
+        resources.get('global-style'),
+    ]).then((values:any[]) => {
         if(log) {
-            Logger.info(`calculating metrics`);
+            Logger.start(`metrics`);
         }
+        let settings:Settings = values[0];
+        let runnerStyle:string = values[1].content;
+        let globalStyle:string = values[2].content;
 
         let metrics:string = '';
 
-        let hotkey:string = values[0];
-        let location:Location = values[1];
-        let size:Size = values[2];
-        let runnerStyle:string = values[3];
-        let globalStyle:string = values[4];
-        let rotation:number = values[5];
-
         let displays:any[] = electron.screen.getAllDisplays();
-        let display = displays[Math.min(Math.max(location.screen, 0), displays.length-1)];
+        let display = displays[Math.min(Math.max(settings.location.screen, 0), displays.length-1)];
 
-        let x:number = display.bounds.x + (display.bounds.width * location.x);
-        let y:number = display.bounds.y + (display.bounds.height * location.y);
+        let x:number = display.bounds.x + (display.bounds.width * settings.location.x);
+        let y:number = display.bounds.y + (display.bounds.height * settings.location.y);
 
-        let runnerWidth:number = size.width * display.bounds.width;
-        let runnerHeight:number = size.height * display.bounds.height;
+        let runnerWidth:number = settings.size.width * display.bounds.width;
+        let runnerHeight:number = settings.size.height * display.bounds.height;
         let width:number = runnerWidth;
         let height:number = runnerHeight;
 
-        x += width * location.offsetX;
-        y += height * location.offsetY;
+        x += width * settings.location.offsetX;
+        y += height * settings.location.offsetY;
 
-        if(rotation !== 0 && rotation !== 360) {
+        if(settings.rotation !== 0 && settings.rotation !== 360) {
             let cx:number = width/2 + x;
             let cy:number = height/2 + y;
 
-            let topRightPoint:number[] = rotate(cx, cy, x+width, y, rotation);
-            let bottomRightPoint:number[] = rotate(cx, cy, x+width, y+height, rotation);
-            let topLeftPoint:number[] = rotate(cx, cy, x, y,  rotation);
-            let bottomLeftPoint:number[] = rotate(cx, cy,x, y+height,  rotation);
-
-
+            let topRightPoint:number[] = rotate(cx, cy, x+width, y, settings.rotation);
+            let bottomRightPoint:number[] = rotate(cx, cy, x+width, y+height, settings.rotation);
+            let topLeftPoint:number[] = rotate(cx, cy, x, y,  settings.rotation);
+            let bottomLeftPoint:number[] = rotate(cx, cy,x, y+height,  settings.rotation);
 
             x = Math.min(topLeftPoint[0], Math.min(topRightPoint[0],  Math.min(bottomLeftPoint[0], bottomRightPoint[0])));
             y = Math.min(topLeftPoint[1], Math.min(topRightPoint[1],  Math.min(bottomLeftPoint[1], bottomRightPoint[1])));
@@ -223,7 +225,7 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
                 #runner {
                     width: ${runnerWidth}px;
                     height: ${runnerHeight}px;
-                    transform: translateY(-50%) translateX(-50%) rotate(${rotation}deg);
+                    transform: translateY(-50%) translateX(-50%) rotate(${settings.rotation}deg);
                 }
                 body {
                     overflow: hidden;
@@ -238,12 +240,15 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
         height = Math.ceil(height);
 
         if(log) {
-            Logger.info(`+ runner.hotkey = '${hotkey}'`);
-            Logger.info(`+ runner.x = ${x} | runner.y = ${y}`);
-            Logger.info(`+ runner.width = ${runnerWidth} | runner.height = ${runnerHeight} | runner.rotation = ${rotation}`);
-            Logger.info(`+ window.width = ${width} | window.height = ${height}`);
+            Logger.info(`runner.x = ${x} | runner.y = ${y}`);
+            Logger.info(`runner.width = ${runnerWidth} | runner.height = ${runnerHeight} | runner.rotation = ${settings.rotation}`);
+            Logger.info(`window.width = ${width} | window.height = ${height}`);
+            Logger.finish('metrics');
         }
 
+        if(log) {
+            Logger.info('setting runner metrics');
+        }
         runnerWindow.setBounds({
             x: x,
             y: y,
@@ -251,11 +256,16 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
             height: height
         });
 
+        if(log) {
+            Logger.info('setting runner style');
+        }
         runnerWindow.webContents.send('metrics', metrics);
         runnerWindow.webContents.send('style', runnerStyle);
         settingsWindow.webContents.send('style-global', globalStyle);
-
-        globalShortcut.register(hotkey, toggleRunner);
+        if(log) {
+            Logger.info(`setting runner hotkey to ${settings.hotkey.toUpperCase()}`);
+        }
+        globalShortcut.register(settings.hotkey, toggleRunner);
     })
     .then(() =>  {
         if(log) {
@@ -264,7 +274,7 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
     })
     .catch((e) => {
         if(log) {
-            Logger.finish('configure', e.toString())
+            Logger.finish('configure', e.getMessage())
         } else {
             console.error(e);
         }
@@ -846,8 +856,9 @@ let initSettings = () => {
             return loadThemeCSS ? Themes.load(target, value) : null;
         })
         .then((css:string) => {
-            if(css) {
+            if(css !== null) {
                 Themes.setTheme(target, value, css);
+                console.log(target, value);
             }
             return adhereSettings(save);
         })
