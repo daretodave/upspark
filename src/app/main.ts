@@ -320,6 +320,10 @@ let initTray = () => {
         'type': 'separator',
     });
     options.push({
+        'label': 'Log',
+        click: () => electron.shell.openItem(path.join(resources.root, 'upspark.log'))
+    });
+    options.push({
         'label': 'Documentation',
         click: () => shell.openExternal('https://upspark.io/documentation')
     });
