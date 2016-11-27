@@ -10,7 +10,8 @@ import {ResourceMissingPolicy} from "./system/resource/resource-missing-policy";
 import {Log} from "./system/logger/log";
 import {Logger} from "./system/logger/logger";
 import {LogTranslator} from "./system/logger/log-translator";
-import {PlatformBootstrapper as Platform} from "./api/platform/platform-bootstrapper";
+import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
+import {Platform} from "./api/platform/platform";
 
 const path = require('path');
 const electron = require('electron');
@@ -25,15 +26,18 @@ let quit:boolean = false;
 
 let resources:Resource;
 let safe: Safe;
+let bootstrapper: PlatformBootstrapper;
 let platform: Platform;
 
 let init = () => {
 
+
     safe = new Safe(path.join(app.getPath('appData'), 'upspark'), 'aes-256-ctr');
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
-    platform = new Platform(resources);
+    platform = new Platform();
 
-    platform.attach();
+    bootstrapper = new PlatformBootstrapper(resources, platform);
+    bootstrapper.attach();
 
     resources.attach('settings.json', Settings);
     resources.attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
@@ -52,7 +56,7 @@ let init = () => {
             resources.load('runner-style'),
             resources.load('global-style'),
 
-            platform.reload(),
+            bootstrapper.reload(),
 
             safe.init()
         ]);

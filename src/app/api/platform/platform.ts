@@ -1,8 +1,9 @@
-import {ResourceModel} from "../../system/resource/resource-model";
+const internal: string[] = require('builtin-modules');
 
-export class Platform implements ResourceModel {
+export class Platform {
 
-    toDefaultState(): void {
+    constructor() {
     }
+
 
 }

@@ -2,6 +2,8 @@ import Helpers from '../../helpers';
 import {name, version} from '../../../package.json';
 import Webpack from 'webpack';
 
+const nodeExternals = require('webpack-node-externals');
+
 let {DefinePlugin} = Webpack;
 
 let config = {};
@@ -9,6 +11,9 @@ let config = {};
 config.target = 'node';
 
 (function(module, loaders) {
+
+    module.exprContextRegExp = /$^/;
+    module.unknownContextCritical = false;
 
     let typescript = {},
         css = {},
@@ -70,18 +75,9 @@ config.target = 'node';
 
 (function(externals) {
 
-    externals.electron = Helpers.imported('electron');
-    externals.net = Helpers.imported('net');
-    externals.shell = Helpers.imported('shell');
-    externals.remote = Helpers.imported('remote');
-    externals.app = Helpers.imported('app');
-    externals.ipc = Helpers.imported('ipc');
-    externals.fs = Helpers.imported('fs');
-    externals.buffer = Helpers.imported('buffer');
+    externals.push(nodeExternals());
 
-    externals.system = externals.file ='{}';
-
-})(config.externals = {});
+})(config.externals = []);
 
 // module resolution
 (function(resolve, alias, extensions, modules) {
@@ -91,6 +87,7 @@ config.target = 'node';
     extensions.push('');
     extensions.push('.ts');
     extensions.push('.js');
+    extensions.push('.json');
 
     modules.push(Helpers.path('node_modules'));
 

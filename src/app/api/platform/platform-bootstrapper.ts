@@ -1,15 +1,43 @@
 import {Resource} from "../../system/resource/resource";
 import {PlatformPackage, DEFAULT_MAIN} from "./platform-package";
 import {Logger} from "../../system/logger/logger";
-
 import * as path from 'path';
 import * as fs from 'fs';
+const {NodeVM} = require('vm2');
 
-const template:string = require('raw-loader!./platform-template.js');
+import {Platform} from "./platform";
+
+const babel = require("babel-core"),
+      presetLatest = require("babel-preset-latest");
+
+const template:string = require('./platform-template.txt');
 
 export class PlatformBootstrapper {
 
-    constructor(private resources:Resource) {
+    private code:string;
+    private vm:any;
+
+    private compiler(options:any) {
+        return function(code:string) {
+            return babel.transform(code, options).code;
+        }
+    }
+
+    constructor(private resources:Resource, private platform:Platform) {
+        let options:any = {};
+        options.presets = [];
+        options.presets.push(presetLatest);
+
+        this.vm = new NodeVM({
+            console: 'inherit',
+            compiler: this.compiler(options),
+            sandbox: {},
+            require: {
+                external: true,
+                builtin: ['*'],
+                root: resources.root
+            }
+        });
     }
 
     attach() {
@@ -52,6 +80,7 @@ export class PlatformBootstrapper {
     }
 
     reload(): Promise<any>  {
+        this.code = null;
         let executor = (resolve: (value:any) => void, reject: (reason?: any) => void) => {
             //Logger.start('platform');
 
@@ -84,18 +113,28 @@ export class PlatformBootstrapper {
                             `platform.name = ${_package.name} | ` +
                             `platform.version = ${_package.version}`);
 
-                return this.load(main, original);
+                return Promise.all([
+                    this.load(main, original)
+                ]);
 
             })
-            .then((main:string) => {
-                console.log(main);
+            .then((values:any[]) => {
+                this.code = values[0];
+
+                Logger.info('testing');
+
+                let test:any = this.vm.run(this.code);
+                console.log(test);
             })
             .then(() => {
                 resolve(true);
             })
             .catch((e) => {
                 //Logger.finish('platform');
-                reject(e);
+                if(this.code != null) {
+                    Logger.info(this.code);
+                }
+                reject(e ? (e.stack || e) : this.error());
             });
         };
 
