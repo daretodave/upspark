@@ -3,9 +3,13 @@ import {PlatformPackage, DEFAULT_MAIN} from "./platform-package";
 import {Logger} from "../../system/logger/logger";
 import * as path from 'path';
 import * as fs from 'fs';
-
 import {Platform} from "./platform";
+import methodOf = require("lodash/methodOf");
 
+const babel = require('babel-core');
+const MemoryFS = require("memory-fs");
+const webpack = require('webpack');
+const internal: string[] = require('builtin-modules');
 const template:string = require('./platform-template.txt');
 
 export class PlatformBootstrapper {
@@ -19,6 +23,147 @@ export class PlatformBootstrapper {
 
     private error(...args:any[]): string {
         return `Upspark had an issue starting up the platform.\n${args.join('\n')}`;
+    }
+
+    private loadIntoMemory(file:string, memory:any, base:string): Promise<any> {
+        let name:string = path.basename(file);
+        let location:string = file.replace(base, '/');
+        let isJSON:boolean = path.extname(file).toUpperCase() === '.JSON';
+
+        Logger.info(`loading ${name} into memory at ${location} | isJSON = ${isJSON}`);
+
+        let executor = (resolve: (value?: any) => void, reject: (reason?: any) => void) => {
+            fs.readFile(file, (err:any, data:Buffer) => {
+                if(err && !isJSON) {
+                    reject(err);
+                    return;
+                }
+
+                if(isJSON) {
+                    memory.writeFileSync(location, data.toString());
+                    Logger.info(`file ${name} loaded`);
+                    resolve(true);
+                    return;
+                }
+
+                Logger.info(`transpiling ${name} | ${data.length} bytes`);
+
+                let options:any = {};
+                options.presets = [];
+                options.presets.push("latest");
+
+                try {
+                    let bundle:any = babel.transform(data.toString(), options);
+                    let code:string = bundle.code;
+
+                    Logger.info(`transpiled ${name} | ${code.length} bytes`);
+
+                    memory.writeFileSync(location, code);
+
+                    resolve(true);
+                } catch (err) {
+                    reject(err);
+                }
+
+            });
+        };
+        return new Promise<any>(executor);
+    }
+
+    private stat(file:string, memory:any, base:string): Promise<any> {
+        Logger.info(`collecting stat on ${path.basename(file)}`);
+
+        let executor = (resolve: (value?: any) => void, reject: (reason?: any) => void) => {
+            fs.stat(file, (err: any, stats:any) => {
+                if(err) {
+                    Logger.error(err);
+                    resolve(true);
+                    return;
+                }
+                let extension:string = path.extname(file).toUpperCase();
+
+                if(stats.isDirectory()) {
+                    this.collect(file, memory, base).then(resolve).catch(reject);
+                } else if(extension === ".JS" || extension === ".JSON") {
+                    this.loadIntoMemory(file, memory, base).then(resolve).catch(reject);
+                } else {
+                    resolve(true);
+                }
+            });
+        };
+
+        return new Promise<any>(executor);
+    }
+
+    private collect(dir:string, memory:any, base:string): Promise<any> {
+        Logger.info(`walking resource tree at ${dir}`);
+
+        let executor = (resolve: (value?: any) => void, reject: (reason?:any) => void) => {
+            fs.readdir(dir, (err:any, files:string[]) => {
+                if(err) {
+                    Logger.error(err);
+                    resolve(true);
+                    return;
+                }
+                Promise.all(files.map((file) => this.stat(path.join(dir, file), memory, base))).then(resolve).catch(reject);
+            });
+        };
+        return new Promise<any>(executor);
+    }
+
+    private webpack(context:string, entry:string, input:any): Promise<string> {
+        Logger.info(`webpacking | ${entry} at ${context}`)
+        let executor = (resolve: (value?: string | PromiseLike<string>) => void, reject: (reason?: string) => void) => {
+            let config:any = {};
+            let output:any = new MemoryFS();
+
+            config.context = '/';
+            config.entry = './'+ entry;
+            config.output = {};
+            config.target = 'node';
+
+            config.output.path = '/';
+            config.output.filename = 'platform.bundle.js';
+            config.externals = {};
+
+            config.resolve = {};
+            config.resolve.root = './';
+
+            config.resolve.extenstions = [];
+            config.resolve.extenstions.push('');
+            config.resolve.extenstions.push('.js');
+            config.resolve.extenstions.push('.json');
+
+            config.resolve.modulesDirectories = [];
+            config.resolve.modulesDirectories.push(path.join(context, 'node_modules'));
+
+            internal.forEach((include:string) => config.externals[include] = `require('${include}')`);
+
+            let compiler:any = webpack(config);
+
+            compiler.inputFileSystem = input;
+            compiler.resolvers.normal.fileSystem = compiler.inputFileSystem;
+            compiler.resolvers.context.fileSystem = compiler.inputFileSystem;
+            compiler.outputFileSystem = output;
+
+            compiler.run((err:any, stats:any) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+
+                let result = stats.toJson();
+                if (result.errors.length) {
+                    Logger.error(result.errors.join('\n'));
+                }
+
+                let code = output.readFileSync("/platform.bundle.js").toString();
+                Logger.info(`webpacked | ${code.length} bytes`);
+
+                resolve(code);
+            });
+        };
+        return new Promise<string>(executor);
     }
 
     private exists(path:string, original:boolean): Promise<boolean> {
@@ -86,21 +231,36 @@ export class PlatformBootstrapper {
 
                 return Promise.all([
                     this.exists(main, original),
-                    main
+                    path.join(main, '../'),
+                    path.basename(main)
                 ]);
 
             })
             .then((values:any[]) => {
                 let path: string = values[1];
+                let entry: string = values[2];
                 if(!values[0]) {
                     reject(this.error(
-                        `The entry point '${path}' could not be found.`,
+                        `The entry point ${entry}, could not be found at '${path}'`,
                         `Please double check your package.json file.'.`
                     ));
                     return;
                 }
 
-                Logger.info('webpacking platform');
+                let memory:any = new MemoryFS();
+
+                return Promise.all([
+                    memory,
+                    this.collect(path, memory, path),
+                    path,
+                    entry
+                ]);
+            })
+            .then((values:any[]) => {
+                return this.webpack(values[2], values[3], values[0]);
+            })
+            .then((source) => {
+                console.log(source);
             })
             .then(() => {
                 resolve(true);
