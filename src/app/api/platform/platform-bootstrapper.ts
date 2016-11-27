@@ -3,44 +3,17 @@ import {PlatformPackage, DEFAULT_MAIN} from "./platform-package";
 import {Logger} from "../../system/logger/logger";
 import * as path from 'path';
 import * as fs from 'fs';
-const {NodeVM} = require('vm2');
 
 import {Platform} from "./platform";
-
-const babel = require("babel-core"),
-      presetLatest = require("babel-preset-latest");
 
 const template:string = require('./platform-template.txt');
 
 export class PlatformBootstrapper {
 
-    private code:string;
-    private vm:any;
-
-    private compiler(options:any) {
-        return function(code:string) {
-            return babel.transform(code, options).code;
-        }
-    }
-
     constructor(private resources:Resource, private platform:Platform) {
-        let options:any = {};
-        options.presets = [];
-        options.presets.push(presetLatest);
-
-        this.vm = new NodeVM({
-            console: 'inherit',
-            compiler: this.compiler(options),
-            sandbox: {},
-            require: {
-                external: true,
-                builtin: ['*'],
-                root: resources.root
-            }
-        });
     }
 
-    attach() {
+    public attach() {
         this.resources.attach('package.json', PlatformPackage);
     }
 
@@ -48,18 +21,17 @@ export class PlatformBootstrapper {
         return `Upspark had an issue starting up the platform.\n${args.join('\n')}`;
     }
 
-    private load(path:string, original:boolean): Promise<string> {
-        Logger.info(`reading platform script at ${path}`);
-        let executor = (resolve: (value?: string | PromiseLike<string>) => void, reject: (reason?: any) => void) => {
-            fs.readFile(path, 'utf8', (err: NodeJS.ErrnoException, data: string) => {
-                if(err === null) {
-                    Logger.info(`finished reading platform script | ${data.length} bytes`);
-                    resolve(data);
+    private exists(path:string, original:boolean): Promise<boolean> {
+        Logger.info(`confirming platform script is at ${path}`);
+        let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
+            fs.exists(path, (exists: boolean) => {
+                if(exists) {
+                    Logger.info(`platform script exists`);
+                    resolve(true);
                     return;
                 }
-
-                if(err.code !== 'ENOENT' || !original) {
-                    reject(err);
+                if(!exists && !original) {
+                    reject(false);
                     return;
                 }
 
@@ -72,15 +44,14 @@ export class PlatformBootstrapper {
                     }
 
                     Logger.info(`template platform script written to ${path}`);
-                    resolve(template);
+                    resolve(true);
                 });
             });
         };
-        return new Promise<string>(executor);
+        return new Promise<boolean>(executor);
     }
 
     reload(): Promise<any>  {
-        this.code = null;
         let executor = (resolve: (value:any) => void, reject: (reason?: any) => void) => {
             //Logger.start('platform');
 
@@ -114,26 +85,28 @@ export class PlatformBootstrapper {
                             `platform.version = ${_package.version}`);
 
                 return Promise.all([
-                    this.load(main, original)
+                    this.exists(main, original),
+                    main
                 ]);
 
             })
             .then((values:any[]) => {
-                this.code = values[0];
+                let path: string = values[1];
+                if(!values[0]) {
+                    reject(this.error(
+                        `The entry point '${path}' could not be found.`,
+                        `Please double check your package.json file.'.`
+                    ));
+                    return;
+                }
 
-                Logger.info('testing');
-
-                let test:any = this.vm.run(this.code);
-                console.log(test);
+                Logger.info('webpacking platform');
             })
             .then(() => {
                 resolve(true);
             })
             .catch((e) => {
                 //Logger.finish('platform');
-                if(this.code != null) {
-                    Logger.info(this.code);
-                }
                 reject(e ? (e.stack || e) : this.error());
             });
         };
