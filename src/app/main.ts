@@ -34,9 +34,8 @@ let init = () => {
 
     safe = new Safe(path.join(app.getPath('appData'), 'upspark'), 'aes-256-ctr');
     resources = new Resource(path.join(app.getPath('home'), '.upspark'));
-    platform = new Platform();
 
-    bootstrapper = new PlatformBootstrapper(resources, platform);
+    bootstrapper = new PlatformBootstrapper(resources);
     bootstrapper.attach();
 
     resources.attach('settings.json', Settings);
@@ -65,6 +64,8 @@ let init = () => {
     .then((values:any[]) => {
         let promises: Promise<any>[] = [values[0]];
         let settings: Settings = values[0];
+
+        platform = values[3];
 
         if(settings.theme.global || settings.theme.runner) {
             Logger.start('theme');

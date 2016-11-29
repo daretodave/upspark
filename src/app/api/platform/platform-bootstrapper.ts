@@ -9,12 +9,14 @@ import methodOf = require("lodash/methodOf");
 const babel = require('babel-core');
 const MemoryFS = require("memory-fs");
 const webpack = require('webpack');
+const vm = require('vm');
 const internal: string[] = require('builtin-modules');
 const template:string = require('./platform-template.txt');
 
+
 export class PlatformBootstrapper {
 
-    constructor(private resources:Resource, private platform:Platform) {
+    constructor(private resources:Resource) {
     }
 
     public attach() {
@@ -196,8 +198,8 @@ export class PlatformBootstrapper {
         return new Promise<boolean>(executor);
     }
 
-    reload(): Promise<any>  {
-        let executor = (resolve: (value:any) => void, reject: (reason?: any) => void) => {
+    reload(): Promise<Platform>  {
+        let executor = (resolve: (value:Platform) => void, reject: (reason?: any) => void) => {
             //Logger.start('platform');
 
             this.resources
@@ -260,10 +262,15 @@ export class PlatformBootstrapper {
                 return this.webpack(values[2], values[3], values[0]);
             })
             .then((source) => {
-                console.log(source);
-            })
-            .then(() => {
-                resolve(true);
+                Logger.info('testing+resolving platform');
+                let platform: Platform = new Platform();
+                try {
+                    vm.runInNewContext(source, platform);
+                } catch(err) {
+                    reject(err);
+                }
+
+                resolve(platform);
             })
             .catch((e) => {
                 //Logger.finish('platform');
@@ -271,7 +278,7 @@ export class PlatformBootstrapper {
             });
         };
 
-        return new Promise<any>(executor);
+        return new Promise<Platform>(executor);
     }
 
 }
