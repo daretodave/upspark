@@ -107,7 +107,12 @@ export class PlatformBootstrapper {
                     resolve(true);
                     return;
                 }
-                Promise.all(files.map((file) => this.stat(path.join(dir, file), memory, base))).then(resolve).catch(reject);
+                Promise.all(files.map((file) => {
+                    if(file === 'node_modules') {
+                        return true;
+                    }
+                    return this.stat(path.join(dir, file), memory, base)
+                })).then(resolve).catch(reject);
             });
         };
         return new Promise<any>(executor);
@@ -129,8 +134,7 @@ export class PlatformBootstrapper {
             config.externals = {};
 
             config.resolve = {};
-            config.resolve.root = './';
-
+            config.resolve.root = path.join(context, 'node_modules');
             config.resolve.extenstions = [];
             config.resolve.extenstions.push('');
             config.resolve.extenstions.push('.js');
@@ -251,6 +255,28 @@ export class PlatformBootstrapper {
 
                 let memory:any = new MemoryFS();
 
+                const statOrig = memory.stat.bind(memory);
+                const readFileOrig = memory.readFile.bind(memory);
+
+                memory.stat = function (_path:any, cb:any) {
+                    statOrig(_path, function(err:any, result:any) {
+                        if (err) {
+                            return fs.stat(_path, cb);
+                        } else {
+                            return cb(err, result);
+                        }
+                    });
+                };
+                memory.readFile = function (path:any, cb:any) {
+                    readFileOrig(path, function (err:any, result:any) {
+                        if (err) {
+                            return fs.readFile(path, cb);
+                        } else {
+                            return cb(err, result);
+                        }
+                    });
+                };
+
                 return Promise.all([
                     memory,
                     this.collect(path, memory, path),
@@ -262,8 +288,9 @@ export class PlatformBootstrapper {
                 return this.webpack(values[2], values[3], values[0]);
             })
             .then((source) => {
-                Logger.info('testing+resolving platform');
+                Logger.info('testing+resolve platform');
                 let platform: Platform = new Platform();
+
                 try {
                     vm.runInNewContext(source, platform);
                 } catch(err) {
