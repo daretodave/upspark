@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit, AfterViewInit, ViewChild, ElementRef, Output, EventEmitter} from '@angular/core';
 
 require('./runner-basic.component.scss');
 
@@ -6,7 +6,18 @@ require('./runner-basic.component.scss');
     selector: 'up-runner-basic',
     templateUrl: 'runner-basic.component.html',
 })
-export class RunnerBasicComponent {
+export class RunnerBasicComponent implements AfterViewInit {
+
+    @ViewChild('runnerInput') input: ElementRef;
+    @Output() onCommand:EventEmitter<string>;
+
+    ngAfterViewInit() {
+        this.input.nativeElement.focus();
+    }
+
+    onEnter(value:string) {
+        this.onCommand.emit(value);
+    }
 
     constructor() {
     }

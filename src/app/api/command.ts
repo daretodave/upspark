@@ -13,7 +13,6 @@ export class Command {
     }
 
     public execute: () => Promise<any> = this.resolve.bind(this);
-
     private resolve():Promise<any> {
         let args:any[] = Array.from(arguments);
         let executor = (resolve: (value?: any) => void, reject: (reason?: any) => void) => {

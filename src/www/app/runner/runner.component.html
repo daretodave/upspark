@@ -1,7 +1,6 @@
 <div id="runner">
     <div id="runner__path">
         <div id="runner-image">
-
         </div>
         <div id="runner-path">
         </div>
@@ -9,7 +8,5 @@
     <div id="runner__container">
         <router-outlet></router-outlet>
     </div>
-    <div id="runner-debug">
-        upspark
-    </div>
+    <div id="runner-debug" [innerHTML]="output"></div>
 </div>

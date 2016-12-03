@@ -9,6 +9,9 @@ require('./runner.component.scss');
     templateUrl: 'runner.component.html',
 })
 export class RunnerComponent implements AfterViewInit {
+
+    private output:string = '';
+
     ngAfterViewInit(): void {
         ipcRenderer.removeAllListeners('style');
         ipcRenderer.removeAllListeners('metrics');
@@ -26,7 +29,6 @@ export class RunnerComponent implements AfterViewInit {
 
             style.innerHTML = arg;
         });
-
         ipcRenderer.on('style-runner', (event:any, arg:string) => {
 
             let style = document.getElementById('runner-theme');
@@ -39,7 +41,6 @@ export class RunnerComponent implements AfterViewInit {
 
             style.innerHTML = arg;
         });
-
         ipcRenderer.on('metrics', (event:any, arg:string) => {
 
             let style = document.getElementById('metrics');

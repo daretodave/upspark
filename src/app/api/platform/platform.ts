@@ -4,19 +4,25 @@ import {Safe} from "../modules/safe";
 import {Util} from "../util";
 import {Command} from "../command";
 import * as _ from 'lodash';
+import {Renderer} from "../modules/renderer";
 
 const util = require('util');
 const tryRequire = require('try-require');
 const modules:Map<string, ApiModule> = new Map<string, ApiModule>();
 
-function register<T extends ApiModule>(module: { new(...args:any[]): T }):Platform {
-    let resolve:ApiModule = new module();
+function register(...apiModules: { new(...args:any[]): ApiModule }[]):Platform {
+    apiModules.forEach((module: { new(...args:any[]): ApiModule }) => {
+        let resolve:ApiModule = new module();
 
-    modules.set(resolve.package(), resolve);
+        modules.set(resolve.package(), resolve);
+    });
     return this;
 }
 
-register(Safe);
+register(
+    Safe,
+    Renderer
+);
 
 const excludes:string[] = require('builtin-modules');
 
