@@ -1,11 +1,15 @@
 import {Command} from "./command";
+import {Platform} from "./platform/platform";
 export class Upspark {
 
     public context:string;
     public commands: Map<any, Command> = new Map<string, Command>();
 
+    constructor(private platform:Platform) {
+    }
+
     public on(directive:any, executor:any) {
-        this.commands.set(directive, new Command(this.context || null, executor));
+        this.commands.set(directive, new Command(this.context || null, executor, this.platform));
     }
 
     public get(directive:any): any {

@@ -11,6 +11,10 @@ export class Util {
         return result;
     }
 
+    public static toArray(args:any): any[] {
+        return Array.isArray(args) ? args : Array.from(arguments);
+    }
+
     public static isFunction(functionToCheck:any) {
         let getType:any = {};
         return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';

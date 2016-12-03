@@ -29,7 +29,7 @@ export class Platform {
     public upspark:Upspark;
 
     constructor(public reference:any) {
-        this.upspark = new Upspark();
+        this.upspark = new Upspark(this);
     }
 
     public getMessage():string {
