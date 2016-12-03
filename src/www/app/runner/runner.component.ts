@@ -60,6 +60,39 @@ export class RunnerComponent implements AfterViewInit {
         });
     }
 
+    onBasicInputChange(value:string) {
+        let blocks:string[] = value.split(":", 2);
+        let command:string = '';
+        let argument:string = '';
+
+        if(blocks.length) {
+            command = blocks[0];
+        }
+        if(blocks.length > 1) {
+            argument = blocks[1];
+        }
+
+        this.command = command;
+        this.argument = argument;
+    }
+
+    onCommandChange(value:string) {
+        let input:string = `${value}`;
+        if(this.argument) {
+            input += `:${this.argument}`;
+
+        }
+        this.input = input;
+    }
+    onArgumentChange(value:string) {
+        let input:string = `${this.command}`;
+        if(value) {
+            input += `:${value}`;
+
+        }
+        this.input = input;
+    }
+
     toggle(): void {
         this.split = !this.split;
         console.log(this.input);

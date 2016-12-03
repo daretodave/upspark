@@ -44,3 +44,13 @@ up-runner-split {
     flex-grow: 1;
     flex-direction: column;
 }
+
+@media all and (max-width: 900px) {
+  #runner-split-lower {
+    flex-direction: column;
+  }
+  #runner-split-argument {
+    border-right: 0;
+    border-bottom: 3px dotted #5b5b5b;
+  }
+}
