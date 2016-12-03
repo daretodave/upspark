@@ -16,7 +16,31 @@ const template:string = require('./platform-template.txt');
 
 export class PlatformBootstrapper {
 
+    private memory:any = new MemoryFS();
+    private pendingReference:any = {};
+
     constructor(private resources:Resource) {
+        const statOrig = this.memory.stat.bind(this.memory);
+        const readFileOrig = this.memory.readFile.bind(this.memory);
+
+        this.memory.stat = function (_path:any, cb:any) {
+            statOrig(_path, function(err:any, result:any) {
+                if (err) {
+                    return fs.stat(_path, cb);
+                } else {
+                    return cb(err, result);
+                }
+            });
+        };
+        this.memory.readFile = function (path:any, cb:any) {
+            readFileOrig(path, function (err:any, result:any) {
+                if (err) {
+                    return fs.readFile(path, cb);
+                } else {
+                    return cb(err, result);
+                }
+            });
+        };
     }
 
     public attach() {
@@ -27,7 +51,7 @@ export class PlatformBootstrapper {
         return `Upspark had an issue starting up the platform.\n${args.join('\n')}`;
     }
 
-    private loadIntoMemory(file:string, memory:any, base:string): Promise<any> {
+    private loadIntoMemory(file:string, memory:any, base:string, reference:any): Promise<any> {
         let name:string = path.basename(file);
         let location:string = file.replace(base, '/');
         let isJSON:boolean = path.extname(file).toUpperCase() === '.JSON';
@@ -72,7 +96,7 @@ export class PlatformBootstrapper {
         return new Promise<any>(executor);
     }
 
-    private stat(file:string, memory:any, base:string): Promise<any> {
+    private stat(file:string, memory:any, base:string, reference:any): Promise<any> {
         Logger.info(`collecting stat on ${path.basename(file)}`);
 
         let executor = (resolve: (value?: any) => void, reject: (reason?: any) => void) => {
@@ -85,9 +109,9 @@ export class PlatformBootstrapper {
                 let extension:string = path.extname(file).toUpperCase();
 
                 if(stats.isDirectory()) {
-                    this.collect(file, memory, base).then(resolve).catch(reject);
+                    this.collect(file, memory, base, reference).then(resolve).catch(reject);
                 } else if(extension === ".JS" || extension === ".JSON") {
-                    this.loadIntoMemory(file, memory, base).then(resolve).catch(reject);
+                    this.loadIntoMemory(file, memory, base, reference).then(resolve).catch(reject);
                 } else {
                     resolve(true);
                 }
@@ -97,7 +121,7 @@ export class PlatformBootstrapper {
         return new Promise<any>(executor);
     }
 
-    private collect(dir:string, memory:any, base:string): Promise<any> {
+    private collect(dir:string, memory:any, base:string, reference:any): Promise<any> {
         Logger.info(`walking resource tree at ${dir}`);
 
         let executor = (resolve: (value?: any) => void, reject: (reason?:any) => void) => {
@@ -111,7 +135,7 @@ export class PlatformBootstrapper {
                     if(file === 'node_modules') {
                         return true;
                     }
-                    return this.stat(path.join(dir, file), memory, base)
+                    return this.stat(path.join(dir, file), memory, base, reference)
                 })).then(resolve).catch(reject);
             });
         };
@@ -253,55 +277,47 @@ export class PlatformBootstrapper {
                     return;
                 }
 
-                let memory:any = new MemoryFS();
-
-                const statOrig = memory.stat.bind(memory);
-                const readFileOrig = memory.readFile.bind(memory);
-
-                memory.stat = function (_path:any, cb:any) {
-                    statOrig(_path, function(err:any, result:any) {
-                        if (err) {
-                            return fs.stat(_path, cb);
-                        } else {
-                            return cb(err, result);
-                        }
-                    });
-                };
-                memory.readFile = function (path:any, cb:any) {
-                    readFileOrig(path, function (err:any, result:any) {
-                        if (err) {
-                            return fs.readFile(path, cb);
-                        } else {
-                            return cb(err, result);
-                        }
-                    });
-                };
-
                 return Promise.all([
-                    memory,
-                    this.collect(path, memory, path),
+                    this.memory,
+                    this.collect(path, this.memory, path, this.pendingReference),
                     path,
-                    entry
+                    entry,
                 ]);
             })
             .then((values:any[]) => {
                 return this.webpack(values[2], values[3], values[0]);
             })
-            .then((source) => {
-                Logger.info('testing+resolve platform');
-                let platform: Platform = new Platform();
+            .then((source:string) => {
+                let platform: Platform = new Platform(this.pendingReference);
+
+                Logger.info('testing+resolve platform')
+                        .line()
+                        .line('SOURCE::WEBPACKED')
+                        .line()
+                        .plain('\n', source, '\n')
+                        .line('SOURCE::WEBPACKED')
+                        .line();
 
                 try {
                     vm.runInNewContext(source, platform);
+                    this.pendingReference = {};
                 } catch(err) {
                     reject(err);
                 }
+
+                Logger.line('PLATFORM')
+                    .line()
+                    .plain(platform)
+                    .line()
+                    .line('PLATFORM')
+                    .line();
 
                 resolve(platform);
             })
             .catch((e) => {
                 //Logger.finish('platform');
                 reject(e ? (e.stack || e) : this.error());
+                Logger.info('release any resources');
             });
         };
 

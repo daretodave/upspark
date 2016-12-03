@@ -118,7 +118,7 @@ export class ResourceHandle<T extends ResourceModel> {
                 this._load(onMissingPolicy, resolve, reject, reload);
             };
 
-            if(this.resource != null) {
+            if(this.resource !== null) {
                 this.resource.init(task, reject);
             } else {
                 task();

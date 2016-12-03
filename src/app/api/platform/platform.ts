@@ -6,7 +6,7 @@ export class Platform {
 
     public upspark:Upspark;
 
-    constructor() {
+    constructor(private reference:any) {
         this.upspark = new Upspark();
     }
 

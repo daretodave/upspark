@@ -10,13 +10,14 @@ declare let APP_VERSION:string;
 const eolMatcher = new RegExp('(?:\r\n|\r|\n)', 'g');
 const template:string = require('./log-template.txt').replace(eolMatcher, EOL);
 
-const constants:any = {};
+export const constants:any = {};
 
 constants.lineLength = 150;
 constants.version = APP_VERSION;
 constants.tab = '\t';
+constants.lineMarker = '-';
 constants.system = `${arch()} ${type()} ${release()} (${cpus().length} core)`;
-constants.line = '-'.repeat(constants.lineLength);
+constants.line = constants.lineMarker.repeat(constants.lineLength);
 
 const wordWrapMatcher = new RegExp('.{1,' + constants.lineLength + '}(\s|$)|\S+?(\s|$)', 'g');
 
@@ -88,11 +89,21 @@ export class LogTranslator implements ResourceTranslator {
 
     static getMessageText(logMessage:LogMessage, skipFinalEOL: boolean): string {
         let message:string = LogTranslator.getDateTitle(logMessage.date) + ' |';
-        if(logMessage.error) {
+        if(logMessage.error && !logMessage.plain) {
             message += ' ERROR |';
         }
-        message = `${message} ${logMessage.message}`;
-        return LogTranslator.append('\t'.repeat(6 + logMessage.indent), message, true, skipFinalEOL);
+        if(!logMessage.plain) {
+            message = `${message} ${logMessage.message}`;
+        } else {
+            message = logMessage.message;
+        }
+
+        let prefix:string = '\t'.repeat(6 + logMessage.indent);
+        if(logMessage.plain) {
+            prefix = '';
+        }
+
+        return LogTranslator.append(prefix, message, true, skipFinalEOL);
     }
 
     serialize(model: Log): string {

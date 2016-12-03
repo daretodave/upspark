@@ -58,7 +58,6 @@ export class Resource {
         let handle: ResourceHandle<T> = new ResourceHandle(key, _path.join(this.root, path), type, onMissingPolicy, 'utf8', translator, this);
 
 
-
         this.validateProvidedKey(key);
 
         this.resources.set(key, handle);

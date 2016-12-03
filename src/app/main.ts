@@ -62,6 +62,7 @@ let init = () => {
 
     })
     .then((values:any[]) => {
+
         let promises: Promise<any>[] = [values[0]];
         let settings: Settings = values[0];
 

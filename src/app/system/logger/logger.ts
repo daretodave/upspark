@@ -1,14 +1,22 @@
 import {Log} from "./log";
 import {LogMessage} from "./log-message";
-import {LogTranslator} from "./log-translator";
+import {LogTranslator, constants} from "./log-translator";
 import {LoggerBlock} from "./logger-block";
+import {Printer} from "./printer";
+
+import * as util from 'util';
+
+declare const APP_VERSION:string;
 
 interface ILogger {
     error(...args:any[]): ILogger;
     info(...args:any[]): ILogger;
+    plain(...args:any[]): ILogger;
+    push(error:boolean, plain:boolean, ...args:any[]): ILogger;
     append(error:boolean, ...args:any[]): ILogger;
     start(name:string): ILogger;
     finish(name:string): ILogger;
+    line(tag?:string ): ILogger;
 }
 export class Logger  {
 
@@ -19,6 +27,7 @@ export class Logger  {
     private static pendingError:boolean;
     private static save: () => Promise<any> = null;
     private static blocks: LoggerBlock[];
+    private static printer: Printer = new Printer(`upspark [${APP_VERSION}]`);
 
     public static attach(log:Log, max:number, save: () => Promise<any>): ILogger {
         this.log = log;
@@ -29,6 +38,23 @@ export class Logger  {
         let self:any = this;
         return self;
     }
+
+    private static clean: (arg:any) => any = (arg:any) => {
+        if(arg === null) {
+            return '[NULL]';
+        }
+        if(arg["getMessage"]) {
+            return arg.getMessage();
+        }
+        if(typeof arg === 'object' || arg instanceof Object) {
+            console.log('inspecting... ', arg);
+            return util.inspect(arg, {
+                showHidden: true,
+                depth: null
+            });
+        }
+        return arg;
+    };
 
     public static persist(error:boolean = false, override:boolean = false): Promise<any> {
         if(this.save === null || (this.blocks.length > 0 && !error)) {
@@ -79,11 +105,11 @@ export class Logger  {
         return `${diff}${short?'':' '}${unit}`;
     }
 
-    private static push(error:boolean, ...args:any[]): ILogger {
+    public static push(error:boolean, plain:boolean, ...args:any[]): ILogger {
         let text:string = args.join('\n');
         let indent:number = 0;
 
-        if(this.blocks) {
+        if(this.blocks && !plain) {
 
             let lastBlock:LoggerBlock = null;
             this.blocks.forEach((block:LoggerBlock) => {
@@ -101,11 +127,12 @@ export class Logger  {
 
             text = prefix + text;
         }
-        let message:LogMessage = new LogMessage(text, error);
+        let message:LogMessage = new LogMessage(text, error, plain);
         message.indent = indent;
+
         text = LogTranslator.getMessageText(message, true);
 
-        console[error ? 'error' : 'log'](text);
+        Logger.printer.print(error, plain, text);
 
         if(this.log === null) {
             return this;
@@ -144,14 +171,23 @@ export class Logger  {
         }
         let diff:number = (new Date().getTime()) - task.init;
 
-        this.push(false, `#${name} finished in ${this.getTimeText(diff)}`);
+        this.push(false, false, `#${name} finished in ${this.getTimeText(diff)}`);
+        this.persist();
+
+        return self;
+    }
+
+    public static plain(...args:any[]): ILogger {
+        args = args.map(Logger.clean);
+
+        let self:ILogger = this.push(false, true, args.join('\n'));
         this.persist();
 
         return self;
     }
 
     public static start(name:string, sync: boolean = true): ILogger {
-        let self:ILogger = this.push(false, `#${name} started`);
+        let self:ILogger = this.push(false, false, `#${name} started`);
         this.blocks.push(new LoggerBlock(name, sync));
         return self;
     }
@@ -165,14 +201,34 @@ export class Logger  {
     }
 
     public static info(...args:any[]): ILogger {
-        let self:ILogger = this.push(false, args.join('\n'));
+        args = args.map(Logger.clean);
+
+        let self:ILogger = this.push(false, false, args.join('\n'));
         this.persist();
 
         return self;
     }
 
+    public static line(title:any = ''): ILogger {
+        let message:string;
+
+        title = Logger.clean(title);
+        if(title.length) {
+            let line:string = constants.lineMarker.repeat(constants.lineLength/2 - title.length/2);
+            message = line + title + line;
+        } else {
+            message = constants.line;
+        }
+
+
+        let self:ILogger = this.push(false, true, message);
+        return self;
+    }
+
     public static error(...args:any[]): ILogger {
-        let self:ILogger = this.push(true, args.join('\n'));
+        args = args.map(Logger.clean);
+
+        let self:ILogger = this.push(true, false, args.join('\n'));
 
         this.persist(true);
         return self;
