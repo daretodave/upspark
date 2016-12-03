@@ -1,4 +1,19 @@
-<textarea class="plain" #runnerInput  [ngModel]="input"
-          (ngModelChange)="onInputChange($event)" (keyup.enter)="onEnter(runnerInput.value)">
+<div id="runner-split">
+    <input id="runner-split-input" type="text" class="plain" (ngModelChange)="onCommandChange($event)"
+           (keydown)="onKeyDown($event)" [ngModel]="command" #runnerInput>
 
-</textarea>
+    <div id="runner-split-lower">
+
+         <textarea id="runner-split-argument"
+                   class="plain"
+                   [ngModel]="argument"
+                   (ngModelChange)="onArgumentChange($event)"
+                   #runnerArgument
+                   (keyup.enter)="onEnter(runnerInput.value, runnerArgument.value)">
+    </textarea>
+
+        <div id="runner-split-output" [innerHTML]="output"></div>
+
+    </div>
+
+</div>

@@ -13,26 +13,45 @@ export class RunnerSplitComponent implements AfterViewInit {
     }
 
     @ViewChild('runnerInput') runnerInput: ElementRef;
-    @Output() onCommand:EventEmitter<string>;
-    @Input() input: string;
-    @Output() inputChange: EventEmitter<string> = new EventEmitter<string>();
+    @ViewChild('runnerArgument') runnerArgument: ElementRef;
 
+    @Output() onCommand:EventEmitter<string>  = new EventEmitter<string>();
+    @Input() argument: string;
+    @Output() argumentChange: EventEmitter<string> = new EventEmitter<string>();
+    @Input() command: string;
+    @Output() commandChange: EventEmitter<string> = new EventEmitter<string>();
     @Input() output: string;
-    @Output() outputChange: EventEmitter<string> = new EventEmitter<string>();
 
     constructor() {
     }
 
-    onEnter(value:string) {
-        this.onCommand.emit(value);
+    onKeyDown(arg:KeyboardEvent):boolean {
+        if(arg.key === ':') {
+            arg.preventDefault();
+            arg.stopPropagation();
+            arg.stopImmediatePropagation();
+
+            this.runnerArgument.nativeElement.focus();
+            return false;
+        }
+        return true;
     }
 
-    onInputChange(update:string) {
-        this.inputChange.emit(update);
+    onEnter(command:string, argument:string) {
+        if(!command) {
+            this.ngAfterViewInit();
+            return;
+        }
+
+        this.onCommand.emit(`${command}:${argument}`);
     }
 
-    onOutputChange(update:string) {
-        this.outputChange.emit(update);
+    onArgumentChange(update:string) {
+        this.argumentChange.emit(update);
+    }
+
+    onCommandChange(update:string) {
+        this.commandChange.emit(update);
     }
 
 }

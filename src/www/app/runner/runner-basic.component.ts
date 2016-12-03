@@ -1,7 +1,4 @@
-import {
-    Component, OnInit, AfterViewInit, ViewChild, ElementRef, Output, EventEmitter, Input,
-    DoCheck
-} from '@angular/core';
+import {Component, AfterViewInit, ViewChild, ElementRef, Output, EventEmitter, Input} from "@angular/core";
 
 require('./runner-basic.component.scss');
 
@@ -16,7 +13,7 @@ export class RunnerBasicComponent implements AfterViewInit {
     }
 
     @ViewChild('runnerInput') runnerInput: ElementRef;
-    @Output() onCommand:EventEmitter<string>;
+    @Output() onCommand:EventEmitter<string> = new EventEmitter<string>();
 
     @Input() input: string;
     @Output() inputChange: EventEmitter<string> = new EventEmitter<string>();

@@ -12,6 +12,8 @@ export class RunnerComponent implements AfterViewInit {
 
     private output:string = '';
     private debug:string = '';
+    private argument:string = '';
+    private command:string = '';
     private input:string = '';
     private split:boolean = false;
 
