@@ -1,6 +1,9 @@
 import {Upspark} from "../upspark";
 import {ApiModule} from "../modules/api-module";
 import {Safe} from "../modules/safe";
+import {Util} from "../util";
+import {Command} from "../command";
+import * as _ from 'lodash';
 
 const util = require('util');
 const tryRequire = require('try-require');
@@ -30,10 +33,34 @@ export class Platform {
     }
 
     public getMessage():string {
-        return util.inspect(this.upspark.commands);
+        let commands:any[] = [];
+        let message:string[] = [];
+
+        this.upspark.commands.forEach((value:Command, command:string) => {
+            let resolve:any = {};
+            resolve.context = value.context;
+            resolve.command = command;
+            if(!Util.isFunction(value.executor)) {
+                resolve.message = ` = '${value.executor}'`;
+            } else {
+                resolve.message = `(${Util.getArgumentNames(value.executor).join(', ')})`;
+            }
+            commands.push(resolve);
+        });
+        commands = _.sortBy(commands, ['context', 'command']);
+
+        message.push("commands");
+
+        commands.forEach((command:any) => message.push(`@[${command.context}]\t\t${command.command}${command.message}`));
+
+        return message.join("\n");
     }
 
-    public include(path:string) {
+    private setContext(path:string) {
+        this.upspark.context = path;
+    }
+
+    private include(path:string) {
         if(!excludes.includes(path)) {
             throw `Could not find module ${path}`;
         }
@@ -47,6 +74,7 @@ export class Platform {
         return tryRequire(path);
     }
 
+    public __context: (path:string) => void = this.setContext.bind(this);
     public require: (path:string) => void = this.include.bind(this);
 
 }

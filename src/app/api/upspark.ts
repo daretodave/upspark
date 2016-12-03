@@ -1,13 +1,15 @@
+import {Command} from "./command";
 export class Upspark {
 
-    public commands: Map<any, any> = new Map<string, any>();
+    public context:string;
+    public commands: Map<any, Command> = new Map<string, Command>();
 
-    public on(directive:any, command:any) {
-        this.commands.set(directive, command);
+    public on(directive:any, executor:any) {
+        this.commands.set(directive, new Command(this.context || null, executor));
     }
 
     public get(directive:any): any {
-        return this.commands.get(directive);
+        return this.commands.get(directive).executor;
     }
 
     public run(directive:any, ...args:any[]) {
@@ -17,9 +19,9 @@ export class Upspark {
         if(!this.commands.has(directive)) {
             throw `command '${directive}' not found`;
         }
-        let command: any = this.commands.get(directive);
+        let command: Command = this.commands.get(directive);
 
-        return command.apply(this, args);
+        return command.executor.apply(this, args);
     }
 
 }

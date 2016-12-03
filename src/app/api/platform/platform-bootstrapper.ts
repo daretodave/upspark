@@ -77,8 +77,14 @@ export class PlatformBootstrapper {
                 options.presets = [];
                 options.presets.push("latest");
 
+                let contextSwitch:string = `
+                    (function(location, context) {
+                        context(location);
+                    })('${location}', __context);
+                `;
+
                 try {
-                    let bundle:any = babel.transform(data.toString(), options);
+                    let bundle:any = babel.transform(`${contextSwitch} ${data.toString()}`, options);
                     let code:string = bundle.code;
 
                     Logger.info(`transpiled ${name} | ${code.length} bytes`);
@@ -167,6 +173,8 @@ export class PlatformBootstrapper {
             config.resolve.modulesDirectories.push(path.join(context, 'node_modules'));
 
             excludes.forEach((include:string) => config.externals[include] = `require('${include}')`);
+
+            config.externals['__context'] = '__context';
 
             let compiler:any = webpack(config);
 
@@ -304,12 +312,7 @@ export class PlatformBootstrapper {
                     reject(err);
                 }
 
-                Logger.line('PLATFORM')
-                    .line()
-                    .block(platform)
-                    .line()
-                    .line('PLATFORM')
-                    .line();
+                Logger.info(platform);
 
                 resolve(platform);
             })
