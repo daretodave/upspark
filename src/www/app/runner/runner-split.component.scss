@@ -7,12 +7,18 @@
     font-size: 4.5em;
     text-align:center;
     color: white;
+    margin-bottom:20px;
+    resize: none;
+    overflow: auto;
 }
 #runner-split-argument {
     height: 100%;
     color: white;
     border-right: 3px solid #838383;
     width: 100%;
+  font-size: 1.4em;
+  font-family: "Lucida Console", Monaco, monospace;
+  padding-right: 20px;
 }
 
 #runner-split-lower {

@@ -12,8 +12,6 @@ require("./app.component.scss");
 })
 export class AppComponent implements OnInit {
 
-    private route:string;
-
     ngOnInit() {
         document.addEventListener('drop', function(e) {
             e.preventDefault();
