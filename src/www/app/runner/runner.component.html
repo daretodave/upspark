@@ -1,12 +1,13 @@
 <div id="runner">
     <div id="runner__path">
-        <div id="runner-image">
+        <div id="runner-image" [class.split]="split" (click)="toggle()">
         </div>
         <div id="runner-path">
         </div>
     </div>
     <div id="runner__container">
-        <router-outlet></router-outlet>
+        <up-runner-basic *ngIf="!split" [(input)]="input"></up-runner-basic>
+        <up-runner-split *ngIf="split" [(input)]="input" [(output)]="output"></up-runner-split>
     </div>
-    <div id="runner-debug" [innerHTML]="output"></div>
+    <div id="runner-debug" [innerHTML]="debug"></div>
 </div>

@@ -9,5 +9,5 @@ import '@angular/router';
 // RxJS
 import 'rxjs';
 
+// JQuery
 import 'jquery';
-// Bootstrap

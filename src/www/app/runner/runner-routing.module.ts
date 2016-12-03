@@ -9,19 +9,10 @@ import {RunnerSplitComponent} from "./runner-split.component";
         RouterModule.forChild([
             {
                 path: 'runner',
-                component: RunnerComponent,
                 children: [
                     {
                         path: '',
-                        redirectTo: 'basic',
-                    },
-                    {
-                        path: 'basic',
-                        component: RunnerBasicComponent,
-                    },
-                    {
-                        path: 'split',
-                        component: RunnerSplitComponent,
+                        component: RunnerComponent,
                     }
                 ]
             },

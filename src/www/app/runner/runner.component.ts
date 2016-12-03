@@ -11,6 +11,9 @@ require('./runner.component.scss');
 export class RunnerComponent implements AfterViewInit {
 
     private output:string = '';
+    private debug:string = '';
+    private input:string = '';
+    private split:boolean = false;
 
     ngAfterViewInit(): void {
         ipcRenderer.removeAllListeners('style');
@@ -53,6 +56,11 @@ export class RunnerComponent implements AfterViewInit {
 
             style.innerHTML = arg;
         });
+    }
+
+    toggle(): void {
+        this.split = !this.split;
+        console.log(this.input);
     }
 
     constructor() {
