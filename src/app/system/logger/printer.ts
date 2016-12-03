@@ -12,6 +12,7 @@ export class Printer {
         if(blocks.length > 1 && plain) {
             message = blocks[1].trim();
         }
+
         let block:any;
         if(error) {
             block = gutil.colors.red('ERROR');

@@ -3,14 +3,13 @@ import {PlatformPackage, DEFAULT_MAIN} from "./platform-package";
 import {Logger} from "../../system/logger/logger";
 import * as path from 'path';
 import * as fs from 'fs';
-import {Platform} from "./platform";
+import {Platform, excludes} from "./platform";
 import methodOf = require("lodash/methodOf");
 
 const babel = require('babel-core');
 const MemoryFS = require("memory-fs");
 const webpack = require('webpack');
 const vm = require('vm');
-const internal: string[] = require('builtin-modules');
 const template:string = require('./platform-template.txt');
 
 
@@ -167,7 +166,7 @@ export class PlatformBootstrapper {
             config.resolve.modulesDirectories = [];
             config.resolve.modulesDirectories.push(path.join(context, 'node_modules'));
 
-            internal.forEach((include:string) => config.externals[include] = `require('${include}')`);
+            excludes.forEach((include:string) => config.externals[include] = `require('${include}')`);
 
             let compiler:any = webpack(config);
 
@@ -294,7 +293,7 @@ export class PlatformBootstrapper {
                         .line()
                         .line('SOURCE::WEBPACKED')
                         .line()
-                        .plain('\n', source, '\n')
+                        .block(source)
                         .line('SOURCE::WEBPACKED')
                         .line();
 
@@ -307,7 +306,7 @@ export class PlatformBootstrapper {
 
                 Logger.line('PLATFORM')
                     .line()
-                    .plain(platform)
+                    .block(platform)
                     .line()
                     .line('PLATFORM')
                     .line();

@@ -12,6 +12,7 @@ interface ILogger {
     error(...args:any[]): ILogger;
     info(...args:any[]): ILogger;
     plain(...args:any[]): ILogger;
+    block(...args:any[]): ILogger;
     push(error:boolean, plain:boolean, ...args:any[]): ILogger;
     append(error:boolean, ...args:any[]): ILogger;
     start(name:string): ILogger;
@@ -47,7 +48,6 @@ export class Logger  {
             return arg.getMessage();
         }
         if(typeof arg === 'object' || arg instanceof Object) {
-            console.log('inspecting... ', arg);
             return util.inspect(arg, {
                 showHidden: true,
                 depth: null
@@ -175,6 +175,12 @@ export class Logger  {
         this.persist();
 
         return self;
+    }
+
+    public static block(...args:any[]): ILogger {
+        args = ['',''].concat(args).concat(['','']);
+
+        return Logger.plain.apply(this, args);
     }
 
     public static plain(...args:any[]): ILogger {

@@ -118,7 +118,7 @@ let reload = () => {
     ])
     .then(() => adhereSettings())
     .then(() => Logger.finish('reload'))
-    .catch((e) => Logger.finish('reload', e.getMessage()));
+    .catch(e => Logger.finish('reload', e.getMessage()));
 };
 
 function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
