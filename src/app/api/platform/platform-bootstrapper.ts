@@ -235,7 +235,6 @@ export class PlatformBootstrapper {
 
     reload(): Promise<Platform>  {
         let executor = (resolve: (value:Platform) => void, reject: (reason?: any) => void) => {
-            //Logger.start('platform');
 
             this.resources
             .load('package')
@@ -302,6 +301,7 @@ export class PlatformBootstrapper {
                         .line('SOURCE::WEBPACKED')
                         .line()
                         .block(source)
+                        .line()
                         .line('SOURCE::WEBPACKED')
                         .line();
 
