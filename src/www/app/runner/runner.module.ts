@@ -5,6 +5,7 @@ import {NgModule} from "@angular/core";
 import {RunnerBasicComponent} from "./runner-basic.component";
 import {RunnerSplitComponent} from "./runner-split.component";
 import {FormsModule} from "@angular/forms";
+import {SystemService} from "../shared/system/system.service";
 
 @NgModule({
     imports: [
@@ -18,6 +19,7 @@ import {FormsModule} from "@angular/forms";
         RunnerSplitComponent
     ],
     providers: [
+        SystemService
     ]
 })
 export class RunnerModule {}

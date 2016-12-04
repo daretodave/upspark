@@ -191,13 +191,13 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
             Logger.info(`setting runner theme to '${runnerTheme}' | theme.css.length = ${css.length} bytes`);
         }
 
-        runnerWindow.webContents.send('style-runner', css);
+        runnerWindow.webContents.send('css--runner-theme', css);
     } else {
         if (log) {
             Logger.info(`setting runner theme to nothing`);
         }
 
-        runnerWindow.webContents.send('style-runner', '');
+        runnerWindow.webContents.send('css--runner-theme', '');
     }
 
     return Promise.all([
@@ -278,6 +278,7 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
             Logger.info(`runner.x = ${x} | runner.y = ${y}`);
             Logger.info(`runner.width = ${runnerWidth} | runner.height = ${runnerHeight} | runner.rotation = ${settings.rotation}`);
             Logger.info(`window.width = ${width} | window.height = ${height}`);
+
             Logger.finish('metrics');
         }
 
@@ -294,8 +295,9 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
         if(log) {
             Logger.info('setting runner style');
         }
-        runnerWindow.webContents.send('metrics', metrics);
-        runnerWindow.webContents.send('style', runnerStyle);
+        runnerWindow.webContents.send('css--runner-metrics', metrics);
+        runnerWindow.webContents.send('css--runner-custom', runnerStyle);
+
         settingsWindow.webContents.send('style-global', globalStyle);
         if(log) {
             Logger.info(`setting runner hotkey to ${settings.hotkey.toUpperCase()}`);

@@ -1,5 +1,6 @@
 import {Component, AfterViewInit, NgZone} from "@angular/core";
 import {CommandResponse} from "../../../app/api/command-response";
+import {SystemService} from "../shared/system/system.service";
 
 const {ipcRenderer} = require('electron');
 
@@ -22,47 +23,13 @@ export class RunnerComponent implements AfterViewInit {
     private loading:boolean = false;
 
     ngAfterViewInit(): void {
-        ipcRenderer.removeAllListeners('style');
-        ipcRenderer.removeAllListeners('metrics');
-        ipcRenderer.removeAllListeners('style-runner');
         ipcRenderer.removeAllListeners('command-response');
 
-        ipcRenderer.on('style', (event:any, arg:string) => {
-
-            let style = document.getElementById('runner-style');
-            if (style === null) {
-                style = document.createElement('style');
-                style.setAttribute("id", "runner-style");
-
-                document.head.appendChild(style);
-            }
-
-            style.innerHTML = arg;
-        });
-        ipcRenderer.on('style-runner', (event:any, arg:string) => {
-
-            let style = document.getElementById('runner-theme');
-            if (style === null) {
-                style = document.createElement('style');
-                style.setAttribute("id", "runner-theme");
-
-                document.head.appendChild(style);
-            }
-
-            style.innerHTML = arg;
-        });
-        ipcRenderer.on('metrics', (event:any, arg:string) => {
-
-            let style = document.getElementById('metrics');
-            if (style === null) {
-                style = document.createElement('style');
-                style.setAttribute("id", 'metrics');
-
-                document.head.appendChild(style);
-            }
-
-            style.innerHTML = arg;
-        });
+        this.system.handleStyleMessage(
+            'css--runner-custom',
+            'css--runner-theme',
+            'css--runner-metrics'
+        );
 
         ipcRenderer.on('command-response', (event:any, response:CommandResponse) => this.zone.run(() => this.onCommandResponse(response)));
 
@@ -95,6 +62,10 @@ export class RunnerComponent implements AfterViewInit {
 
     onCommandResponse(response:CommandResponse) {
         this.loading = false;
+
+        this.input = '';
+        this.command = '';
+
         this.debug = response.debug;
     }
 
@@ -119,7 +90,7 @@ export class RunnerComponent implements AfterViewInit {
         this.split = !this.split;
     }
 
-    constructor(private zone:NgZone) {
+    constructor(private zone:NgZone, private system:SystemService) {
     }
 
 }
