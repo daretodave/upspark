@@ -25,7 +25,18 @@ export class RunnerSplitComponent implements AfterViewInit {
     constructor() {
     }
 
-    onKeyDown(arg:KeyboardEvent):boolean {
+    onInputKeyUp(arg:KeyboardEvent) {
+        if(arg.key !== 'Enter' || !this.command.trim().length) {
+            return;
+        }
+        this.submit();
+    }
+
+    submit() {
+        this.onCommand.emit(`${this.command}:${this.argument}`);
+    }
+
+    onInputKeyDown(arg:KeyboardEvent):boolean {
         if(arg.key === ':') {
             arg.preventDefault();
             arg.stopPropagation();
@@ -37,13 +48,15 @@ export class RunnerSplitComponent implements AfterViewInit {
         return true;
     }
 
-    onEnter(command:string, argument:string) {
-        if(!command) {
+    onArgumentKeyUp(event:KeyboardEvent) {
+        if(event.key !== "Enter" || !event.ctrlKey) {
+            return;
+        }
+        if(!this.command) {
             this.ngAfterViewInit();
             return;
         }
-
-        this.onCommand.emit(`${command}:${argument}`);
+        this.submit();
     }
 
     onArgumentChange(update:string) {

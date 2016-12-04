@@ -1,6 +1,5 @@
 <div id="runner-split">
     <input id="runner-split-input" type="text" class="plain" (ngModelChange)="onCommandChange($event)"
-           (keydown)="onKeyDown($event)" [ngModel]="command" #runnerInput>
 
     <div id="runner-split-lower">
 
@@ -9,7 +8,6 @@
                    [ngModel]="argument"
                    (ngModelChange)="onArgumentChange($event)"
                    #runnerArgument
-                   (keyup.enter)="onEnter(runnerInput.value, runnerArgument.value)">
     </textarea>
 
         <div id="runner-split-output" [innerHTML]="output"></div>
