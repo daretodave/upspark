@@ -15,7 +15,10 @@ export class RunnerComponent implements AfterViewInit {
     private argument:string = '';
     private command:string = '';
     private input:string = '';
+    private title:string = '';
+    private log:string[] = [];
     private split:boolean = false;
+    private loading:boolean = false;
 
     ngAfterViewInit(): void {
         ipcRenderer.removeAllListeners('style');

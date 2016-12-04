@@ -10,4 +10,22 @@
         <up-runner-split *ngIf="split" [(command)]="command" (commandChange)="onCommandChange($event)" (argumentChange)="onArgumentChange($event)" [(argument)]="argument" [(output)]="output"></up-runner-split>
     </div>
     <div id="runner-debug" [innerHTML]="debug"></div>
+    <div id="runner-splash" *ngIf="loading">
+        <div class="splash">
+            <div class="splash__title" *ngIf="title">
+                <div class="splash__title__text" [innerHTML]="title"></div>
+            </div>
+            <div class="splash__info" *ngIf="log.length" >
+                <div class="splash__info__debug">
+                    <div class="splash__info__debug__element" *ngFor="let element of log" [innerHTML]="element"></div>
+                </div>
+            </div>
+            <div class="splash__loader" [class.blank]="!log.length && !title">
+                <div class="splash__loader__aligner">
+                    <div class="splash__loader__icon"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
