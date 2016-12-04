@@ -16,6 +16,7 @@ export class RunnerBasicComponent implements AfterViewInit {
     @Output() onCommand:EventEmitter<string> = new EventEmitter<string>();
 
     @Input() input: string;
+    @Input() loading: boolean;
     @Output() inputChange: EventEmitter<string> = new EventEmitter<string>();
 
     ngAfterViewInit() {
@@ -23,6 +24,10 @@ export class RunnerBasicComponent implements AfterViewInit {
     }
 
     onEnter(value:string) {
+        if(!value.trim().length) {
+            return;
+        }
+
         this.onCommand.emit(value);
     }
 

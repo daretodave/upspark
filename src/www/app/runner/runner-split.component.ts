@@ -21,6 +21,7 @@ export class RunnerSplitComponent implements AfterViewInit {
     @Input() command: string;
     @Output() commandChange: EventEmitter<string> = new EventEmitter<string>();
     @Input() output: string;
+    @Input() loading: boolean;
 
     constructor() {
     }

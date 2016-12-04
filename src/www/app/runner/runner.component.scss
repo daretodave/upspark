@@ -19,13 +19,20 @@
     background-size: 30px 30px;
     opacity: 1;
     transition: all .4s linear;
+    &.loading {
+      transition: filter .3s linear, transform .7s linear .3s;
+      filter: sepia(100%);
+      transform: rotate(180deg);
+    }
+
     &:hover {
         cursor: pointer;
     }
     &.split {
         filter: invert(.8);
-        transform: rotate(10deg);
+        transform: rotate(90deg);
     }
+
 }
 #runner-path {
     margin-top: 26px;
@@ -65,7 +72,13 @@ body {
   right: 0;
   bottom: 0;
   z-index: 10;
-  background: rgba(0, 0, 0, .4);
+  opacity: 0;
+  background-color: black;
+
+  animation-duration: 2s;
+  animation-fill-mode: forwards;
+  animation-delay: .5s;
+  animation-name: loading;
 }
 
 .splash {
@@ -162,6 +175,21 @@ body {
   color:green;}
   100% {background: red;
   color: red;}
+}
+
+@keyframes loading {
+  0% {
+    filter: blur(6px);
+    opacity: .2;
+  }
+  50% {
+    filter: blur(3px);
+    opacity: .8;
+  }
+  100% {
+    filter: blur(0px);
+    opacity: .8;
+  }
 }
 
 @keyframes bars {

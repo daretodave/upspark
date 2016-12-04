@@ -1,13 +1,13 @@
 <div id="runner">
     <div id="runner__path">
-        <div id="runner-image" [class.split]="split" (click)="toggle()">
+        <div id="runner-image" [class.split]="split" [class.loading]="loading" (click)="toggle()">
         </div>
         <div id="runner-path">
         </div>
     </div>
     <div id="runner__container">
-        <up-runner-basic *ngIf="!split" [(input)]="input" (inputChange)="onBasicInputChange($event)"></up-runner-basic>
-        <up-runner-split *ngIf="split" [(command)]="command" (commandChange)="onCommandChange($event)" (argumentChange)="onArgumentChange($event)" [(argument)]="argument" [(output)]="output"></up-runner-split>
+        <up-runner-basic *ngIf="!split" [loading]="loading" [(input)]="input" (inputChange)="onBasicInputChange($event)" (onCommand)="onCommand($event)"></up-runner-basic>
+        <up-runner-split *ngIf="split" [loading]="loading" [(command)]="command" (commandChange)="onCommandChange($event)" (argumentChange)="onArgumentChange($event)" [(argument)]="argument" [(output)]="output" (onCommand)="onCommand($event)"></up-runner-split>
     </div>
     <div id="runner-debug" [innerHTML]="debug"></div>
     <div id="runner-splash" *ngIf="loading">

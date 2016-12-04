@@ -79,6 +79,15 @@ export class RunnerComponent implements AfterViewInit {
         this.argument = argument;
     }
 
+    onCommand(value:string) {
+        if(this.loading || !value ) {
+            return;
+        }
+        this.loading = true;
+
+        ipcRenderer.send('command', value);
+    }
+
     onCommandChange(value:string) {
         let input:string = `${value}`;
         if(this.argument) {
@@ -98,7 +107,6 @@ export class RunnerComponent implements AfterViewInit {
 
     toggle(): void {
         this.split = !this.split;
-        console.log(this.input);
     }
 
     constructor() {
