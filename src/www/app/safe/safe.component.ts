@@ -27,7 +27,6 @@ export class SafeComponent  implements AfterViewInit {
 
         ipcRenderer.on('style-safe', (event:any, arg:string) => {
 
-            console.log('test');
             let style = document.getElementById('safe-style');
             if (style === null) {
                 style = document.createElement('style');

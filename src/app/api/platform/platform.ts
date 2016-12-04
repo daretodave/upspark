@@ -5,6 +5,7 @@ import {Util} from "../util";
 import {Command} from "../command";
 import * as _ from 'lodash';
 import {Renderer} from "../modules/renderer";
+import {CommandResponse} from "../command-response";
 
 const util = require('util');
 const tryRequire = require('try-require');
@@ -83,4 +84,17 @@ export class Platform {
     public __context: (path:string) => void = this.setContext.bind(this);
     public require: (path:string) => void = this.include.bind(this);
 
+    public exec(cmd: string): Promise<CommandResponse> {
+
+        let executor = (resolve: (value: CommandResponse | PromiseLike<CommandResponse>) => void, reject: (reason: any) => void) => {
+            let response:CommandResponse = new CommandResponse();
+
+            setTimeout(function() {
+                response.debug = cmd;
+                resolve(response);
+            }, 5000);
+        };
+
+        return new Promise<CommandResponse>(executor);
+    }
 }

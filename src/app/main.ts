@@ -12,6 +12,7 @@ import {Logger} from "./system/logger/logger";
 import {LogTranslator} from "./system/logger/log-translator";
 import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
 import {Platform} from "./api/platform/platform";
+import {CommandResponse} from "./api/command-response";
 
 const path = require('path');
 const electron = require('electron');
@@ -109,6 +110,29 @@ let init = () => {
 
 };
 
+
+let command = (cmd:string) => {
+    Logger.start("command");
+    if(!cmd) {
+        let err:string = 'no command provided';
+
+        runnerWindow.webContents.send('command-response', CommandResponse.error(err));
+        Logger.finish('command', err);
+        return;
+    }
+
+    platform
+        .exec(cmd)
+        .then((response:CommandResponse) => {
+            runnerWindow.webContents.send('command-response', response);
+            Logger.info(response);
+            Logger.finish('command');
+       }).catch((err:any) => {
+            runnerWindow.webContents.send('command-response', CommandResponse.error(err));
+            Logger.finish('command', err);
+        });
+};
+
 let reload = () => {
     Logger.start('reload');
     Promise.all([
@@ -121,15 +145,16 @@ let reload = () => {
     .catch(e => Logger.finish('reload', e.getMessage()));
 };
 
-function rotate(cx:number, cy:number, x:number, y:number, angle:number) {
-    let radians = angle * Math.PI / 180;
+let rotate = (cx:number, cy:number, x:number, y:number, angle:number)  : number[] => {
 
-    const cos = Math.cos(radians),
-        sin = Math.sin(radians),
-        ox = x - cx,
-        oy = y - cy,
-        nx = (cos * ox) + (sin * oy) + cx,
-        ny = (sin * ox) + (cos * oy) + cy;
+    const radians:number = angle * Math.PI / 180,
+            cos:number = Math.cos(radians),
+            sin:number = Math.sin(radians),
+            ox:number = x - cx,
+            oy:number = y - cy,
+            nx:number = (cos * ox) + (sin * oy) + cx,
+            ny:number = (sin * ox) + (cos * oy) + cy;
+
     return [Math.round(nx), Math.round(ny)];
 }
 
@@ -912,6 +937,8 @@ let initRunner = () => {
 
     runnerWindow = new BrowserWindow(options);
     runnerWindow.loadURL(www('runner'));
+
+    ipcMain.on('command', (event:any, arg:string) => command(arg));
 
     runnerWindow.on('show', () => {
         tray.setHighlightMode('always')

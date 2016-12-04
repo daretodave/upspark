@@ -1,4 +1,5 @@
-import {Component, AfterViewInit} from "@angular/core";
+import {Component, AfterViewInit, NgZone} from "@angular/core";
+import {CommandResponse} from "../../../app/api/command-response";
 
 const {ipcRenderer} = require('electron');
 
@@ -24,6 +25,7 @@ export class RunnerComponent implements AfterViewInit {
         ipcRenderer.removeAllListeners('style');
         ipcRenderer.removeAllListeners('metrics');
         ipcRenderer.removeAllListeners('style-runner');
+        ipcRenderer.removeAllListeners('command-response');
 
         ipcRenderer.on('style', (event:any, arg:string) => {
 
@@ -61,6 +63,9 @@ export class RunnerComponent implements AfterViewInit {
 
             style.innerHTML = arg;
         });
+
+        ipcRenderer.on('command-response', (event:any, response:CommandResponse) => this.zone.run(() => this.onCommandResponse(response)));
+
     }
 
     onBasicInputChange(value:string) {
@@ -88,6 +93,11 @@ export class RunnerComponent implements AfterViewInit {
         ipcRenderer.send('command', value);
     }
 
+    onCommandResponse(response:CommandResponse) {
+        this.loading = false;
+        this.debug = response.debug;
+    }
+
     onCommandChange(value:string) {
         let input:string = `${value}`;
         if(this.argument) {
@@ -109,7 +119,7 @@ export class RunnerComponent implements AfterViewInit {
         this.split = !this.split;
     }
 
-    constructor() {
+    constructor(private zone:NgZone) {
     }
 
 }
