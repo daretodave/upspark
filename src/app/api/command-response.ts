@@ -1,5 +1,6 @@
 export class CommandResponse {
 
+    public id:string;
     public debug:string;
     public error:boolean;
 

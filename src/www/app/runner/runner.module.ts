@@ -6,11 +6,13 @@ import {RunnerBasicComponent} from "./runner-basic.component";
 import {RunnerSplitComponent} from "./runner-split.component";
 import {FormsModule} from "@angular/forms";
 import {SystemService} from "../shared/system/system.service";
+import {CommandModule} from "./command/command.module";
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
+        CommandModule,
         RunnerRoutingModule
     ],
     declarations: [

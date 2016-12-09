@@ -6,14 +6,25 @@ const {ipcRenderer} = require('electron');
 @Injectable()
 export class SystemService {
 
-    constructor(private zone:NgZone) {
+    constructor(private _ngZone:NgZone) {
     }
 
-    public onMessage(message:string, listener: (event: SystemEvent) => any, ...args:string[]) {
+    public subscribeToBroadcast(message:string, listener: (event: SystemEvent) => any, arg?: (string|boolean), ...args:string[]) {
+        const self:SystemService = this;
+
+        let zoned:boolean = false;
+        if (arg !== null) {
+            if((typeof arg) !== 'string') {
+                zoned = !!arg;
+            } else {
+                args.unshift(<string>arg);
+            }
+        }
+
         ipcRenderer.removeAllListeners(message);
         ipcRenderer.on(message, function(ipcEvent:any) {
-            let attachment:Map<string, any> = new Map<string, any>();
-            let contents:any[] = Array.from(arguments);
+            const contents:any[] = Array.from(arguments);
+            const attachment:Map<string, any> = new Map<string, any>();
 
             args.forEach((arg:string, index:number) => {
                  if(index > contents.length) {
@@ -23,17 +34,22 @@ export class SystemService {
                  attachment.set(arg, contents[index+1]);
             });
 
-            let event:SystemEvent = new SystemEvent(attachment, ipcEvent);
+            let event:SystemEvent = new SystemEvent(attachment, ipcEvent, contents.length > 1 ? contents[1] : null);
+            if(zoned) {
+                self._ngZone.run(() => listener(event))
+            } else {
+                listener(event);
+            }
 
-            listener(event);
         });
     }
 
-    public handleStyleMessage(...event:string[]) {
+    public handleStyleBroadcast(...event:string[]) {
         event.forEach((message) => {
-            this.onMessage(message, (styleUpdate:SystemEvent) => {
+            this.subscribeToBroadcast(message, (styleUpdate:SystemEvent) => {
                 let id:string = `dynamic-css-for-${message}`;
                 let style = document.getElementById(id);
+
                 if (style === null) {
                     style = document.createElement('style');
                     style.setAttribute("id", id);

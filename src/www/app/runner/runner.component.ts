@@ -1,6 +1,8 @@
 import {Component, AfterViewInit, NgZone} from "@angular/core";
 import {CommandResponse} from "../../../app/api/command-response";
 import {SystemService} from "../shared/system/system.service";
+import {SystemEvent} from "../shared/system/system-event";
+import {CommandTask} from "../../../app/api/command-task";
 
 const {ipcRenderer} = require('electron');
 
@@ -23,15 +25,14 @@ export class RunnerComponent implements AfterViewInit {
     private loading:boolean = false;
 
     ngAfterViewInit(): void {
-        ipcRenderer.removeAllListeners('command-response');
 
-        this.system.handleStyleMessage(
+        this.system.handleStyleBroadcast(
             'css--runner-custom',
             'css--runner-theme',
             'css--runner-metrics'
         );
 
-        ipcRenderer.on('command-response', (event:any, response:CommandResponse) => this.zone.run(() => this.onCommandResponse(response)));
+        this.system.subscribeToBroadcast('command-task-create', event => this.onCommandResponse(event.value), true);
 
     }
 

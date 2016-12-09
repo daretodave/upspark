@@ -9,6 +9,7 @@
         <up-runner-basic *ngIf="!split" [loading]="loading" [(input)]="input" (inputChange)="onBasicInputChange($event)" (onCommand)="onCommand($event)"></up-runner-basic>
         <up-runner-split *ngIf="split" [loading]="loading" [(command)]="command" (commandChange)="onCommandChange($event)" (argumentChange)="onArgumentChange($event)" [(argument)]="argument" [(output)]="output" (onCommand)="onCommand($event)"></up-runner-split>
     </div>
+    <up-command-list></up-command-list>
     <div id="runner-debug" [innerHTML]="debug"></div>
     <div id="runner-splash" *ngIf="loading">
         <div class="splash">
