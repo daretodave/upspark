@@ -1,59 +1,49 @@
-import {Upspark} from "../upspark";
-import {ApiModule} from "../modules/api-module";
-import {Safe} from "../modules/safe";
 import {Util} from "../util";
-import {Command} from "../command";
 import * as _ from 'lodash';
-import {Renderer} from "../modules/renderer";
-import {CommandResponse} from "../command-response";
-
 const util = require('util');
 const tryRequire = require('try-require');
-const modules:Map<string, ApiModule> = new Map<string, ApiModule>();
-
-function register(...apiModules: { new(...args:any[]): ApiModule }[]):Platform {
-    apiModules.forEach((module: { new(...args:any[]): ApiModule }) => {
-        let resolve:ApiModule = new module();
-
-        modules.set(resolve.package(), resolve);
-    });
-    return this;
-}
-
-register(
-    Safe,
-    Renderer
-);
-
+const apiModules:any = {
+  safe: require('raw!../modules/safe.js')
+};
 const excludes:string[] = require('builtin-modules');
+const _process = process;
 
-modules.forEach((value:ApiModule, path:string) => excludes.push(path));
-
-export {excludes};
+export {excludes, apiModules};
 
 export class Platform {
 
-    public upspark:Upspark;
+    process:any;
 
     constructor(public reference:any) {
-        this.upspark = new Upspark(this);
+        this.process = _process;
     }
 
     public getMessage():string {
         let commands:any[] = [];
         let message:string[] = [];
+        let sandbox:any = this["upspark"];
 
-        this.upspark.commands.forEach((value:Command, command:string) => {
-            let resolve:any = {};
-            resolve.context = value.context;
-            resolve.command = command;
-            if(!Util.isFunction(value.executor)) {
-                resolve.message = ` = '${value.executor}'`;
-            } else {
-                resolve.message = `(${Util.getArgumentNames(value.executor).join(', ')})`;
+        for(let command in sandbox.commands) {
+
+            if(!sandbox.commands.hasOwnProperty(command)) {
+                continue;
             }
+
+            let mapping:any = sandbox.commands[command];
+            let resolve:any = {};
+
+            resolve.context = mapping.context;
+            resolve.command = command;
+
+            if(!Util.isFunction(mapping.processor)) {
+                resolve.message = ` = '${mapping.processor}'`;
+            } else {
+                resolve.message = `(${Util.getArgumentNames(mapping.processor).join(', ')})`;
+            }
+
             commands.push(resolve);
-        });
+        }
+
         commands = _.sortBy(commands, ['context', 'command']);
 
         message.push("commands");
@@ -63,38 +53,14 @@ export class Platform {
         return message.join("\n");
     }
 
-    private setContext(path:string) {
-        this.upspark.context = path;
-    }
+    public require: (path:string) => void = Platform.include.bind(this);
 
-    private include(path:string) {
+    private static include(path:string) {
         if(!excludes.includes(path)) {
             throw `Could not find module ${path}`;
-        }
-
-        if(modules.has(path)) {
-            let module:ApiModule = modules.get(path);
-
-            module.upspark = this.upspark;
-            return module;
         }
         return tryRequire(path);
     }
 
-    public __context: (path:string) => void = this.setContext.bind(this);
-    public require: (path:string) => void = this.include.bind(this);
 
-    public exec(cmd: string): Promise<CommandResponse> {
-
-        let executor = (resolve: (value: CommandResponse | PromiseLike<CommandResponse>) => void, reject: (reason: any) => void) => {
-            let response:CommandResponse = new CommandResponse();
-
-            setTimeout(function() {
-                response.debug = cmd;
-                resolve(response);
-            }, 5000);
-        };
-
-        return new Promise<CommandResponse>(executor);
-    }
 }

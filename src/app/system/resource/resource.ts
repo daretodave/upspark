@@ -12,7 +12,7 @@ export class Resource {
 
     private resources:Map<string, ResourceHandle<any>>;
 
-    constructor(public root: string) {
+    constructor(public root: string, public platform:string) {
         this.resources = new Map<string, ResourceHandle<any>>();
     }
 

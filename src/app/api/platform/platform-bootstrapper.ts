@@ -3,7 +3,7 @@ import {PlatformPackage, DEFAULT_MAIN} from "./platform-package";
 import {Logger} from "../../system/logger/logger";
 import * as path from 'path';
 import * as fs from 'fs';
-import {Platform, excludes} from "./platform";
+import {Platform, excludes, apiModules} from "./platform";
 import methodOf = require("lodash/methodOf");
 
 const babel = require('babel-core');
@@ -11,7 +11,8 @@ const MemoryFS = require("memory-fs");
 const webpack = require('webpack');
 const vm = require('vm');
 const template:string = require('./platform-template.txt');
-
+const wrapper:string = require('raw!./__platform.js');
+const platformExecutor:string = require('raw!./platform-executor.js');
 
 export class PlatformBootstrapper {
 
@@ -19,6 +20,14 @@ export class PlatformBootstrapper {
     private pendingReference:any = {};
 
     constructor(private resources:Resource) {
+        for(const apiModule in apiModules) {
+            if(!apiModules.hasOwnProperty(apiModule)) {
+                continue;
+            }
+            this.memory.writeFileSync(`/__internal__${apiModule}.js`, apiModules[apiModule]);
+        }
+
+
         const statOrig = this.memory.stat.bind(this.memory);
         const readFileOrig = this.memory.readFile.bind(this.memory);
 
@@ -32,6 +41,7 @@ export class PlatformBootstrapper {
             });
         };
         this.memory.readFile = function (path:any, cb:any) {
+            console.log(path);
             readFileOrig(path, function (err:any, result:any) {
                 if (err) {
                     return fs.readFile(path, cb);
@@ -72,7 +82,6 @@ export class PlatformBootstrapper {
                 }
 
                 Logger.info(`transpiling ${name} | ${data.length} bytes`);
-
                 let options:any = {};
                 options.presets = [];
                 options.presets.push("latest");
@@ -80,7 +89,7 @@ export class PlatformBootstrapper {
                 let contextSwitch:string = `
                     (function(location, context) {
                         context(location);
-                    })('${location}', __context);
+                    })('${location}', upspark.contextShift);
                 `;
 
                 try {
@@ -164,6 +173,12 @@ export class PlatformBootstrapper {
 
             config.resolve = {};
             config.resolve.root = path.join(context, 'node_modules');
+            config.resolve.alias = {};
+
+            for(const apiModule in apiModules) {
+                config.resolve.alias[`upspark/${apiModule}`] = `/__internal__${apiModule}.js`;
+            }
+
             config.resolve.extenstions = [];
             config.resolve.extenstions.push('');
             config.resolve.extenstions.push('.js');
@@ -172,7 +187,7 @@ export class PlatformBootstrapper {
             config.resolve.modulesDirectories = [];
             config.resolve.modulesDirectories.push(path.join(context, 'node_modules'));
 
-            excludes.forEach((include:string) => config.externals[include] = `require('${include}')`);
+            excludes.forEach((include:string) => config.externals[include] = `upspark.requireInternalNodeModule('${include}')`);
 
             config.externals['__context'] = '__context';
 
@@ -195,6 +210,7 @@ export class PlatformBootstrapper {
                 }
 
                 let code = output.readFileSync("/platform.bundle.js").toString();
+
                 Logger.info(`webpacked | ${code.length} bytes`);
 
                 resolve(code);
@@ -269,6 +285,7 @@ export class PlatformBootstrapper {
                     this.exists(main, original),
                     path.join(main, '../'),
                     path.basename(main)
+
                 ]);
 
             })
@@ -293,6 +310,7 @@ export class PlatformBootstrapper {
             .then((values:any[]) => {
                 return this.webpack(values[2], values[3], values[0]);
             })
+
             .then((source:string) => {
                 let platform: Platform = new Platform(this.pendingReference);
 
@@ -305,6 +323,10 @@ export class PlatformBootstrapper {
                         .line('SOURCE::WEBPACKED')
                         .line();
 
+                let internalNodeModuleInsert:string = excludes.map((external) => `internalNodeModules.push("${external}");`).join("");
+
+                source = `${wrapper}${internalNodeModuleInsert}${source}${platformExecutor}`;
+
                 try {
                     vm.runInNewContext(source, platform);
                     this.pendingReference = {};
@@ -314,7 +336,13 @@ export class PlatformBootstrapper {
 
                 Logger.info(platform);
 
-                resolve(platform);
+                return Promise.all([
+                    this.savePlatformForWorker(source),
+                    platform
+                ])
+            })
+            .then((values:any[]) => {
+                resolve(values[1]);
             })
             .catch((e) => {
                 //Logger.finish('platform');
@@ -326,4 +354,20 @@ export class PlatformBootstrapper {
         return new Promise<Platform>(executor);
     }
 
+    private savePlatformForWorker(source: string):Promise<string> {
+        Logger.info("saving platform as worker");
+
+        let executor = (resolve: (value?: string | PromiseLike<string>) => void, reject: (reason?: any) => void) => {
+            fs.writeFile(this.resources.platform, source, (err:NodeJS.ErrnoException) => {
+               if(err) {
+                   reject(err);
+                   return;
+               }
+               resolve(source);
+
+               Logger.info('saved platform');
+            });
+        };
+        return new Promise<string>(executor);
+    }
 }

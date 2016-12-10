@@ -1,5 +1,5 @@
 /// <reference path="../typings/index.d.ts" />
-import {Resource} from './system/resource';
+import {Resource} from "./system/resource";
 import {Settings} from "./window/runner/settings";
 import {RunnerStyle} from "./window/runner-style";
 import {GlobalStyle} from "./window/global-style";
@@ -13,6 +13,7 @@ import {LogTranslator} from "./system/logger/log-translator";
 import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
 import {Platform} from "./api/platform/platform";
 import {CommandResponse} from "./api/command-response";
+import {Executor} from "./system/executor";
 
 const path = require('path');
 const electron = require('electron');
@@ -29,12 +30,15 @@ let resources:Resource;
 let safe: Safe;
 let bootstrapper: PlatformBootstrapper;
 let platform: Platform;
+let executor:Executor;
 
 let init = () => {
 
+    let external:string = path.join(app.getPath('appData'), 'upspark');
 
-    safe = new Safe(path.join(app.getPath('appData'), 'upspark'), 'aes-256-ctr');
-    resources = new Resource(path.join(app.getPath('home'), '.upspark'));
+    safe = new Safe(external, 'aes-256-ctr');
+    resources = new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js'));
+    executor = new Executor(resources.platform);
 
     bootstrapper = new PlatformBootstrapper(resources);
     bootstrapper.attach();
@@ -50,7 +54,6 @@ let init = () => {
         Logger
             .attach(log, 200, () => resources.save('log', false))
             .start('boot');
-
         return Promise.all([
             resources.load('settings'),
             resources.load('runner-style'),
@@ -68,6 +71,8 @@ let init = () => {
         let settings: Settings = values[0];
 
         platform = values[3];
+
+        executor.execute('hello:world');
 
         if(settings.theme.global || settings.theme.runner) {
             Logger.start('theme');
@@ -121,16 +126,16 @@ let command = (cmd:string) => {
         return;
     }
 
-    platform
-        .exec(cmd)
-        .then((response:CommandResponse) => {
-            runnerWindow.webContents.send('command-response', response);
-            Logger.info(response);
-            Logger.finish('command');
-       }).catch((err:any) => {
-            runnerWindow.webContents.send('command-response', CommandResponse.error(err));
-            Logger.finish('command', err);
-        });
+    // platform
+    //     .exec(cmd)
+    //     .then((response:CommandResponse) => {
+    //         runnerWindow.webContents.send('command-response', response);
+    //         Logger.info(response);
+    //         Logger.finish('command');
+    //    }).catch((err:any) => {
+    //         runnerWindow.webContents.send('command-response', CommandResponse.error(err));
+    //         Logger.finish('command', err);
+    //     });
 };
 
 let reload = () => {
