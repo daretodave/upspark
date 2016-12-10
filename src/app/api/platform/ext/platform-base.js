@@ -15,6 +15,19 @@ upspark.requireInternalNodeModule = function(path) {
     return require(path);
 };
 
+upspark.log = function(message, error) {
+    process.send({
+        type: 'log',
+        message: message,
+        error: error
+    });
+    return upspark;
+};
+
+upspark.error = function (message) {
+    return upspark.log(message, true);
+};
+
 upspark.on = function(argument, split, processor) {
     if(!argument) {
         return;

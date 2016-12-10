@@ -1,8 +1,5 @@
 import {Component, AfterViewInit, NgZone} from "@angular/core";
-import {CommandResponse} from "../../../app/api/command-response";
 import {SystemService} from "../shared/system/system.service";
-import {SystemEvent} from "../shared/system/system-event";
-import {CommandTask} from "../../../app/api/command-task";
 
 const {ipcRenderer} = require('electron');
 
@@ -25,15 +22,11 @@ export class RunnerComponent implements AfterViewInit {
     private loading:boolean = false;
 
     ngAfterViewInit(): void {
-
         this.system.handleStyleBroadcast(
             'css--runner-custom',
             'css--runner-theme',
             'css--runner-metrics'
         );
-
-        this.system.subscribeToBroadcast('command-task-create', event => this.onCommandResponse(event.value), true);
-
     }
 
     onBasicInputChange(value:string) {
@@ -53,22 +46,13 @@ export class RunnerComponent implements AfterViewInit {
     }
 
     onCommand(value:string) {
-        if(this.loading || !value ) {
+        if(this.loading || !value) {
             return;
         }
-        this.loading = true;
 
-        ipcRenderer.send('command', value);
+        this.command = this.input = this.debug = this.argument = '';
     }
 
-    onCommandResponse(response:CommandResponse) {
-        this.loading = false;
-
-        this.input = '';
-        this.command = '';
-
-        this.debug = response.debug;
-    }
 
     onCommandChange(value:string) {
         let input:string = `${value}`;
@@ -91,7 +75,7 @@ export class RunnerComponent implements AfterViewInit {
         this.split = !this.split;
     }
 
-    constructor(private zone:NgZone, private system:SystemService) {
+    constructor(private system:SystemService) {
     }
 
 }

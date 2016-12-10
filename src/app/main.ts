@@ -12,8 +12,7 @@ import {Logger} from "./system/logger/logger";
 import {LogTranslator} from "./system/logger/log-translator";
 import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
 import {Platform} from "./api/platform/platform";
-import {CommandResponse} from "./api/command-response";
-import {Executor} from "./system/executor";
+import {PlatformExecutor} from "./api/platform/platform-executor";
 
 const path = require('path');
 const electron = require('electron');
@@ -30,7 +29,7 @@ let resources:Resource;
 let safe: Safe;
 let bootstrapper: PlatformBootstrapper;
 let platform: Platform;
-let executor:Executor;
+let executor:PlatformExecutor;
 
 let init = () => {
 
@@ -38,7 +37,7 @@ let init = () => {
 
     safe = new Safe(external, 'aes-256-ctr');
     resources = new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js'));
-    executor = new Executor(resources.platform);
+    executor = new PlatformExecutor(resources.platform);
 
     bootstrapper = new PlatformBootstrapper(resources);
     bootstrapper.attach();
@@ -120,8 +119,10 @@ let command = (cmd:string) => {
     Logger.start("command");
     if(!cmd) {
         let err:string = 'no command provided';
+        runnerWindow.webContents.send('command-response', {
+            error: err
+        });
 
-        runnerWindow.webContents.send('command-response', CommandResponse.error(err));
         Logger.finish('command', err);
         return;
     }

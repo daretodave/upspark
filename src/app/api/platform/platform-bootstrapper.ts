@@ -11,8 +11,8 @@ const MemoryFS = require("memory-fs");
 const webpack = require('webpack');
 const vm = require('vm');
 const template:string = require('./platform-template.txt');
-const wrapper:string = require('raw!./__platform.js');
-const platformExecutor:string = require('raw!./platform-executor.js');
+const wrapper:string = require('raw!./ext/platform-base.js');
+const platformExecutor:string = require('raw!./ext/platform-worker.js');
 
 export class PlatformBootstrapper {
 
@@ -41,7 +41,6 @@ export class PlatformBootstrapper {
             });
         };
         this.memory.readFile = function (path:any, cb:any) {
-            console.log(path);
             readFileOrig(path, function (err:any, result:any) {
                 if (err) {
                     return fs.readFile(path, cb);
@@ -325,7 +324,7 @@ export class PlatformBootstrapper {
 
                 let internalNodeModuleInsert:string = excludes.map((external) => `internalNodeModules.push("${external}");`).join("");
 
-                source = `${wrapper}${internalNodeModuleInsert}${source}${platformExecutor}`;
+                source = `${wrapper}${internalNodeModuleInsert}${source}`;
 
                 try {
                     vm.runInNewContext(source, platform);
@@ -333,6 +332,8 @@ export class PlatformBootstrapper {
                 } catch(err) {
                     reject(err);
                 }
+
+                source = `${source}${platformExecutor}`;
 
                 Logger.info(platform);
 

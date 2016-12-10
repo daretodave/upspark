@@ -2,12 +2,12 @@ import {Util} from "../util";
 import * as _ from 'lodash';
 const util = require('util');
 const tryRequire = require('try-require');
-const apiModules:any = {
-  safe: require('raw!../modules/safe.js')
-};
-const excludes:string[] = require('builtin-modules');
 const _process = process;
 
+const excludes:string[] = require('builtin-modules');
+const apiModules:any = {
+    safe: require('raw!../modules/safe.js')
+};
 export {excludes, apiModules};
 
 export class Platform {

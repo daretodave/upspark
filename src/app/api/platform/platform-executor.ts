@@ -1,9 +1,8 @@
-import {ExecutorEvent} from "./executor-event";
 import {ChildProcess} from "child_process";
 const {fork} = require('child_process');
 const Guid = require('guid');
 
-export class Executor {
+export class PlatformExecutor {
 
     private pool:Map<string, ChildProcess>;
 
