@@ -1,4 +1,4 @@
-<div class="command" [class.command--error]="command.error">
+<div class="command" [class.command--hover]="command.hover">
     <div class="command__title" [class.command__title--complete]="command.completed && !command.error" [class.command__title--error]="command.error">{{command.title}}</div>
     <div class="command__response">
         <div *ngIf="command.error" class="command__response__error" [innerHTML]="command.error">

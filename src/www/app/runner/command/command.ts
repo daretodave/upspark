@@ -8,6 +8,8 @@ export class Command {
         this.error = '';
         this.output = '';
         this.completed = false;
+        this.lastInteraction = -1;
+        this.stale = false;
     }
 
     progress:number;
@@ -17,5 +19,8 @@ export class Command {
     output:string;
     completed:boolean;
     update:number;
+    lastInteraction:number;
+    hover: boolean;
+    stale:boolean;
 
 }

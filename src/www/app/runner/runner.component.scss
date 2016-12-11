@@ -1,3 +1,20 @@
+@mixin scroll($size, $foreground-color, $background-color: mix($foreground-color, white,  50%)) {
+  // For Google Chrome
+  ::-webkit-scrollbar {
+    width:  $size;
+    height: $size;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: $foreground-color;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: $background-color;
+  }
+
+}
+
 #runner {
     width: 100%;
     height: 100%;
@@ -6,6 +23,7 @@
     background: rgba(0, 0, 0, .7);
     position: relative;
     padding: 20px;
+    @include scroll(.4em, rgb(147, 147, 147));
 }
 #runner__path {
     display: flex;
@@ -201,3 +219,4 @@ body {
     height: 5em;
   }
 }
+

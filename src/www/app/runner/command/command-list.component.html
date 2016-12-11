@@ -1,5 +1,5 @@
 <div class="command-list">
 
-    <up-command *ngFor="let command of (commands | commandSort)" [command]="command"></up-command>
+    <up-command (onCommandDetach)="onCommandDetachRequest($event)" *ngFor="let command of (commands | commandSort)" [command]="command"></up-command>
 
 </div>

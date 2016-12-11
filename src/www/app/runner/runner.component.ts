@@ -41,6 +41,9 @@ export class RunnerComponent implements OnInit {
     private loading:boolean = false;
     private commands:Command[];
 
+    onCommandRequestDetach(id:string) {
+    }
+
     onBasicInputChange(value:string) {
         let blocks:string[] = value.split(":", 2);
         let command:string = '';
