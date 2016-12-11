@@ -17,7 +17,6 @@ const platformExecutor:string = require('raw!./ext/platform-worker.js');
 export class PlatformBootstrapper {
 
     private memory:any = new MemoryFS();
-    private pendingReference:any = {};
 
     constructor(private resources:Resource) {
         for(const apiModule in apiModules) {
@@ -26,7 +25,6 @@ export class PlatformBootstrapper {
             }
             this.memory.writeFileSync(`/__internal__${apiModule}.js`, apiModules[apiModule]);
         }
-
 
         const statOrig = this.memory.stat.bind(this.memory);
         const readFileOrig = this.memory.readFile.bind(this.memory);
@@ -52,14 +50,13 @@ export class PlatformBootstrapper {
     }
 
     public attach() {
-        this.resources.attach('package.json', PlatformPackage);
     }
 
     private error(...args:any[]): string {
         return `Upspark had an issue starting up the platform.\n${args.join('\n')}`;
     }
 
-    private loadIntoMemory(file:string, memory:any, base:string, reference:any): Promise<any> {
+    private loadIntoMemory(file:string, memory:any, base:string): Promise<any> {
         let name:string = path.basename(file);
         let location:string = file.replace(base, '/');
         let isJSON:boolean = path.extname(file).toUpperCase() === '.JSON';
@@ -109,7 +106,7 @@ export class PlatformBootstrapper {
         return new Promise<any>(executor);
     }
 
-    private stat(file:string, memory:any, base:string, reference:any): Promise<any> {
+    private stat(file:string, memory:any, base:string): Promise<any> {
         Logger.info(`collecting stat on ${path.basename(file)}`);
 
         let executor = (resolve: (value?: any) => void, reject: (reason?: any) => void) => {
@@ -122,9 +119,9 @@ export class PlatformBootstrapper {
                 let extension:string = path.extname(file).toUpperCase();
 
                 if(stats.isDirectory()) {
-                    this.collect(file, memory, base, reference).then(resolve).catch(reject);
+                    this.collect(file, memory, base).then(resolve).catch(reject);
                 } else if(extension === ".JS" || extension === ".JSON") {
-                    this.loadIntoMemory(file, memory, base, reference).then(resolve).catch(reject);
+                    this.loadIntoMemory(file, memory, base).then(resolve).catch(reject);
                 } else {
                     resolve(true);
                 }
@@ -134,7 +131,7 @@ export class PlatformBootstrapper {
         return new Promise<any>(executor);
     }
 
-    private collect(dir:string, memory:any, base:string, reference:any): Promise<any> {
+    private collect(dir:string, memory:any, base:string): Promise<any> {
         Logger.info(`walking resource tree at ${dir}`);
 
         let executor = (resolve: (value?: any) => void, reject: (reason?:any) => void) => {
@@ -148,7 +145,7 @@ export class PlatformBootstrapper {
                     if(file === 'node_modules') {
                         return true;
                     }
-                    return this.stat(path.join(dir, file), memory, base, reference)
+                    return this.stat(path.join(dir, file), memory, base)
                 })).then(resolve).catch(reject);
             });
         };
@@ -248,7 +245,7 @@ export class PlatformBootstrapper {
         return new Promise<boolean>(executor);
     }
 
-    reload(): Promise<Platform>  {
+    load(): Promise<Platform>  {
         let executor = (resolve: (value:Platform) => void, reject: (reason?: any) => void) => {
 
             this.resources
@@ -301,7 +298,7 @@ export class PlatformBootstrapper {
 
                 return Promise.all([
                     this.memory,
-                    this.collect(path, this.memory, path, this.pendingReference),
+                    this.collect(path, this.memory, path),
                     path,
                     entry,
                 ]);
@@ -311,7 +308,7 @@ export class PlatformBootstrapper {
             })
 
             .then((source:string) => {
-                let platform: Platform = new Platform(this.pendingReference);
+                let platform: Platform = new Platform(process);
 
                 Logger.info('testing+resolve platform')
                         .line()
@@ -328,7 +325,6 @@ export class PlatformBootstrapper {
 
                 try {
                     vm.runInNewContext(source, platform);
-                    this.pendingReference = {};
                 } catch(err) {
                     reject(err);
                 }
@@ -343,12 +339,18 @@ export class PlatformBootstrapper {
                 ])
             })
             .then((values:any[]) => {
+                this.memory = null;
+
+                Logger.info('releasing resources');
+
                 resolve(values[1]);
             })
             .catch((e) => {
                 //Logger.finish('platform');
                 reject(e ? (e.stack || e) : this.error());
-                Logger.info('release any resources');
+
+                this.memory = null;
+                Logger.info('releasing resources');
             });
         };
 

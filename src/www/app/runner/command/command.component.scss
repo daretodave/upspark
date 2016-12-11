@@ -8,9 +8,9 @@ up-command {
   flex-grow: 1;
   align-items: center;
   border-left: 2px solid transparent;;
-  animation: slide-up 200ms ease-in 0ms 1 normal forwards;
+  //animation: slide-up 200ms ease-in 0ms 1 normal forwards;
   &.command--hover {
-    border-left: 2px dotted white;
+    background: rgba(0, 0, 0, 0.46);
   }
 }
 @keyframes slide-up {
@@ -27,12 +27,14 @@ up-command {
 }
 
 .command__title {
-  background: rgba(147, 147, 147, 0.15);
+  //background: rgba(147, 147, 147, 0.15);
   color: rgba(255, 255, 255, 0.61);
   padding: 5px;
   font-size: .9em;
   font-family: sans-serif;
-  min-width: 130px;
+  width: 100px;
+  overflow-x:auto;
+
   text-shadow: #0a0a0a 1px 1px 1px;
 
   border-bottom: 1px solid rgba(255, 255, 0, 0.31);
@@ -55,9 +57,6 @@ up-command {
   color: white;
   strong {
     border-bottom: 2px dotted dodgerblue;
-    font-weight: normal;
-    font-family: sans-serif;
-    letter-spacing: 2px;
   }
 }
 .command__title {

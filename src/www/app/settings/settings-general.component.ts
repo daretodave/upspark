@@ -36,9 +36,9 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.resetMetrics();
 
         ipcRenderer.removeAllListeners('display-updated');
-        ipcRenderer.removeAllListeners('settings-metrics-reload');
-        ipcRenderer.removeAllListeners('settings-display-reload');
-        ipcRenderer.removeAllListeners('settings-hotkey-reload');
+        ipcRenderer.removeAllListeners('settings-metrics-load');
+        ipcRenderer.removeAllListeners('settings-display-load');
+        ipcRenderer.removeAllListeners('settings-hotkey-load');
 
         ipcRenderer.on('display-updated', () => {
             console.log('system.displays updated');
@@ -47,7 +47,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
             });
         });
 
-        ipcRenderer.on('settings-metrics-reload', () => {
+        ipcRenderer.on('settings-metrics-load', () => {
             this.zone.run(() => {
                 this.resetMetrics();
 
@@ -66,14 +66,14 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
             });
         });
 
-        ipcRenderer.on('settings-display-reload', () => {
+        ipcRenderer.on('settings-display-load', () => {
             this.zone.run(() => {
                 this.settings.screen = this.settingsService.getSetting<number>('screen');
                 this.settingsService.setScreens(this.settings);
             });
         });
 
-        ipcRenderer.on('settings-hotkey-reload', () => {
+        ipcRenderer.on('settings-hotkey-load', () => {
             this.zone.run(() => {
                 this.settingsService.setHotkey(this.settings);
 

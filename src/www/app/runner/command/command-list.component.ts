@@ -18,6 +18,9 @@ export class CommandListComponent implements  AfterViewInit {
     }
 
     cleanStaleData() {
+        if(!this.commands) {
+            return;
+        }
         this.commands.forEach((command:Command) => {
 
         })

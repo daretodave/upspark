@@ -15,6 +15,7 @@ import {Platform} from "./api/platform/platform";
 import {PlatformExecutor} from "./api/platform/platform-executor";
 import {Command} from "../www/app/runner/command/command";
 import {CommandStateChange} from "./api/platform/command-state-change";
+import {PlatformPackage} from "./api/platform/platform-package";
 
 const path = require('path');
 const electron = require('electron');
@@ -29,7 +30,6 @@ let quit:boolean = false;
 
 let resources:Resource;
 let safe: Safe;
-let bootstrapper: PlatformBootstrapper;
 let platform: Platform;
 let executor:PlatformExecutor;
 
@@ -41,13 +41,12 @@ let init = () => {
     resources = new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js'));
     executor = new PlatformExecutor(resources.platform);
 
-    bootstrapper = new PlatformBootstrapper(resources);
-    bootstrapper.attach();
-
     resources.attach('settings.json', Settings);
     resources.attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
     resources.attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);
     resources.attach('global.css', GlobalStyle, new TextTranslator(), 'global-style', ResourceMissingPolicy.DEFAULT);
+    resources.attach('package.json', PlatformPackage);
+
 
     resources.load('log')
     .then((log:Log) => {
@@ -60,7 +59,7 @@ let init = () => {
             resources.load('runner-style'),
             resources.load('global-style'),
 
-            bootstrapper.reload(),
+            new PlatformBootstrapper(resources).load(),
 
             safe.init()
         ]);
@@ -710,7 +709,7 @@ let initSettings = () => {
 
         adhereSettings().then(() => {
             resources.save('settings');
-            event.sender.send('settings-metrics-reload');
+            event.sender.send('settings-metrics-load');
         });
 
 
@@ -725,7 +724,7 @@ let initSettings = () => {
 
         adhereSettings().then(() => {
             resources.save('settings');
-            event.sender.send('settings-display-reload');
+            event.sender.send('settings-display-load');
         });
 
 
@@ -740,7 +739,7 @@ let initSettings = () => {
 
         adhereSettings().then(() => {
             resources.save('settings');
-            event.sender.send('settings-hotkey-reload');
+            event.sender.send('settings-hotkey-load');
         });
 
 
