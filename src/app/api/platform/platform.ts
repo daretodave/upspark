@@ -18,6 +18,11 @@ export class Platform {
         this.process = _process;
     }
 
+    public exists(command:string): boolean {
+        let sandbox:any = this["upspark"];
+        return sandbox.commands.hasOwnProperty(command);
+    }
+
     public getMessage():string {
         let commands:any[] = [];
         let message:string[] = [];

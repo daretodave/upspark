@@ -1,20 +1,4 @@
-(function(arg) {
-
-    if(!arg) {
-        throw Error('No command to execute');
-    }
-
-    var title  = arg, input, parameters;
-    var blocks = arg.split(":", 2);
-
-    if(blocks.length > 1) {
-        title = blocks[0];
-        if (blocks[1].length) {
-            input = blocks[1];
-        }
-    } else if(blocks.length === 1) {
-        title = blocks[0];
-    }
+(function(title, input) {
 
     if(!title) {
         throw Error('No command to execute');
@@ -25,14 +9,12 @@
         throw Error(`The command '${title}' was not found`);
     }
 
+    var parameters = [];
     if(input) {
         parameters = input.split(command.split);
     }
 
-    process.send({
-        type: 'log',
-        message: 'executing \'' + arg + '\''
-    });
+    upspark.__log('executing ' + title);
 
     getResolution(command.processor, parameters, function(result) {
         process.send({

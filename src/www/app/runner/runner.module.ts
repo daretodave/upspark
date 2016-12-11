@@ -7,6 +7,8 @@ import {RunnerSplitComponent} from "./runner-split.component";
 import {FormsModule} from "@angular/forms";
 import {SystemService} from "../shared/system/system.service";
 import {CommandModule} from "./command/command.module";
+import {CommandService} from "./command/command.service";
+import {CommandSortPipe} from "./command/command-sort.pipe";
 
 @NgModule({
     imports: [
@@ -21,7 +23,9 @@ import {CommandModule} from "./command/command.module";
         RunnerSplitComponent
     ],
     providers: [
-        SystemService
+        SystemService,
+        CommandService,
+        CommandSortPipe
     ]
 })
 export class RunnerModule {}

@@ -1,4 +1,5 @@
-import {Component} from "@angular/core";
+import {Component, Input} from "@angular/core";
+import {Command} from "./command";
 
 require('./command.component.scss');
 
@@ -7,5 +8,7 @@ require('./command.component.scss');
     templateUrl: 'command.component.html'
 })
 export class CommandComponent {
+
+    @Input() command:Command;
 
 }

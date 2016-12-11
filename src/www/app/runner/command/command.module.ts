@@ -3,6 +3,8 @@ import {NgModule} from "@angular/core";
 import {CommandService} from "./command.service";
 import {CommandListComponent} from "./command-list.component";
 import {CommandComponent} from "./command.component";
+import {CommandSortPipe} from "./command-sort.pipe";
+
 
 @NgModule({
     imports: [
@@ -10,14 +12,16 @@ import {CommandComponent} from "./command.component";
     ],
     declarations: [
         CommandListComponent,
-        CommandComponent
+        CommandComponent,
+        CommandSortPipe
     ],
     exports: [
         CommandListComponent,
-        CommandComponent
+        CommandComponent,
     ],
     providers: [
-        CommandService
+        CommandService,
+        CommandSortPipe
     ]
 })
 export class CommandModule {}

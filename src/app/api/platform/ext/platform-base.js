@@ -15,17 +15,19 @@ upspark.requireInternalNodeModule = function(path) {
     return require(path);
 };
 
-upspark.log = function(message, error) {
+upspark.__log = function(message, error) {
     process.send({
-        type: 'log',
+        type: 'command-log',
+        logType: error ? 'log-error' : 'log-info',
+        internal: true,
         message: message,
         error: error
     });
     return upspark;
 };
 
-upspark.error = function (message) {
-    return upspark.log(message, true);
+upspark.__error = function (message) {
+    return upspark.__log(message, true);
 };
 
 upspark.on = function(argument, split, processor) {
@@ -54,6 +56,7 @@ function isFunction(functionToCheck) {
 }
 
 function getResolution(entity, parameters, callback, errCallback) {
+    console.log(entity);
     if(!entity) {
         return callback(null);
     }

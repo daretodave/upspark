@@ -9,6 +9,11 @@ export class SystemService {
     constructor(private _ngZone:NgZone) {
     }
 
+    public send(message:string, ...args:any[]) {
+        args.unshift(message);
+        ipcRenderer.send.apply(null, args)
+    }
+
     public subscribeToBroadcast(message:string, listener: (event: SystemEvent) => any, arg?: (string|boolean), ...args:string[]) {
         const self:SystemService = this;
 

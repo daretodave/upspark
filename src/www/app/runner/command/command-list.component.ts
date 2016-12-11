@@ -1,4 +1,5 @@
-import {AfterViewInit, Component} from "@angular/core";
+import {AfterViewInit, Component, Input} from "@angular/core";
+import {Command} from "./command";
 
 require('./command-list.component.scss');
 
@@ -7,6 +8,8 @@ require('./command-list.component.scss');
     templateUrl: 'command-list.component.html'
 })
 export class CommandListComponent implements  AfterViewInit {
+
+    @Input() commands:Command[];
 
     ngAfterViewInit() {
     }

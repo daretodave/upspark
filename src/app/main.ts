@@ -13,6 +13,8 @@ import {LogTranslator} from "./system/logger/log-translator";
 import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
 import {Platform} from "./api/platform/platform";
 import {PlatformExecutor} from "./api/platform/platform-executor";
+import {Command} from "../www/app/runner/command/command";
+import {CommandStateChange} from "./api/platform/command-state-change";
 
 const path = require('path');
 const electron = require('electron');
@@ -71,8 +73,6 @@ let init = () => {
 
         platform = values[3];
 
-        executor.execute('hello:world');
-
         if(settings.theme.global || settings.theme.runner) {
             Logger.start('theme');
         }
@@ -112,31 +112,6 @@ let init = () => {
     .then(() => Logger.finish('boot'))
     .catch((e) => Logger.finish('boot', e));
 
-};
-
-
-let command = (cmd:string) => {
-    Logger.start("command");
-    if(!cmd) {
-        let err:string = 'no command provided';
-        runnerWindow.webContents.send('command-response', {
-            error: err
-        });
-
-        Logger.finish('command', err);
-        return;
-    }
-
-    // platform
-    //     .exec(cmd)
-    //     .then((response:CommandResponse) => {
-    //         runnerWindow.webContents.send('command-response', response);
-    //         Logger.info(response);
-    //         Logger.finish('command');
-    //    }).catch((err:any) => {
-    //         runnerWindow.webContents.send('command-response', CommandResponse.error(err));
-    //         Logger.finish('command', err);
-    //     });
 };
 
 let reload = () => {
@@ -946,7 +921,17 @@ let initRunner = () => {
     runnerWindow = new BrowserWindow(options);
     runnerWindow.loadURL(www('runner'));
 
-    ipcMain.on('command', (event:any, arg:string) => command(arg));
+    ipcMain.on('command-run', (event:any, arg:Command) => {
+        if(!platform.exists(arg.title)) {
+            let error:string = `The command <strong>${arg.title}</strong> could not be found`;
+            event.sender.send('command-state-change', new CommandStateChange(arg, {
+                error: error
+            }));
+            Logger.error(error);
+            return;
+        }
+        executor.execute(arg, (update:CommandStateChange) =>  event.sender.send('command-state-change', update));
+    });
 
     runnerWindow.on('show', () => {
         tray.setHighlightMode('always')

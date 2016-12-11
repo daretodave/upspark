@@ -1,5 +1,9 @@
-import {Component, AfterViewInit, NgZone} from "@angular/core";
+import {Component, AfterViewInit, NgZone, OnInit} from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
+import {CommandService} from "./command/command.service";
+import {Command} from "./command/command";
+import {CommandStateChange} from "../../../app/api/platform/command-state-change";
+import {SystemEvent} from "../shared/system/system-event";
 
 const {ipcRenderer} = require('electron');
 
@@ -9,7 +13,22 @@ require('./runner.component.scss');
     selector: 'up-runner',
     templateUrl: 'runner.component.html',
 })
-export class RunnerComponent implements AfterViewInit {
+export class RunnerComponent implements OnInit {
+    ngOnInit() {
+        this.system.handleStyleBroadcast(
+            'css--runner-custom',
+            'css--runner-theme',
+            'css--runner-metrics'
+        );
+
+        this.system.subscribeToBroadcast(
+            'command-state-change',
+            (event:SystemEvent) => this.commandService.onStateChange(event.value),
+            true
+        );
+
+        this.commands = this.commandService.getCommands();
+    }
 
     private output:string = '';
     private debug:string = '';
@@ -20,14 +39,7 @@ export class RunnerComponent implements AfterViewInit {
     private log:string[] = [];
     private split:boolean = false;
     private loading:boolean = false;
-
-    ngAfterViewInit(): void {
-        this.system.handleStyleBroadcast(
-            'css--runner-custom',
-            'css--runner-theme',
-            'css--runner-metrics'
-        );
-    }
+    private commands:Command[];
 
     onBasicInputChange(value:string) {
         let blocks:string[] = value.split(":", 2);
@@ -49,6 +61,7 @@ export class RunnerComponent implements AfterViewInit {
         if(this.loading || !value) {
             return;
         }
+        this.commandService.execute(this.command, this.argument);
 
         this.command = this.input = this.debug = this.argument = '';
     }
@@ -75,7 +88,7 @@ export class RunnerComponent implements AfterViewInit {
         this.split = !this.split;
     }
 
-    constructor(private system:SystemService) {
+    constructor(private system:SystemService, private commandService:CommandService) {
     }
 
 }
