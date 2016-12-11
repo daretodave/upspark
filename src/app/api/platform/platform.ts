@@ -12,7 +12,7 @@ export {excludes, apiModules};
 
 export class Platform {
 
-    constructor(private process:any) {
+    constructor(public process:any) {
     }
 
     public exists(command:string): boolean {

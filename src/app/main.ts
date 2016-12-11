@@ -924,7 +924,9 @@ let initRunner = () => {
         if(!platform.exists(arg.title)) {
             let error:string = `The command <strong>${arg.title}</strong> could not be found`;
             event.sender.send('command-state-change', new CommandStateChange(arg, {
-                error: error
+                error: error,
+                completed: true,
+                updated: Date.now()
             }));
             Logger.error(error);
             return;

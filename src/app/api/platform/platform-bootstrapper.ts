@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {Platform, excludes, apiModules} from "./platform";
 import methodOf = require("lodash/methodOf");
+import MemoryUsage = NodeJS.MemoryUsage;
 
 const babel = require('babel-core');
 const MemoryFS = require("memory-fs");
@@ -15,6 +16,11 @@ const wrapper:string = require('raw!./ext/platform-base.js');
 const platformExecutor:string = require('raw!./ext/platform-worker.js');
 
 export class PlatformBootstrapper {
+
+    private release() {
+        Logger.info(`releasing resources`);
+        this.memory = null;
+    }
 
     private memory:any = new MemoryFS();
 
@@ -339,9 +345,7 @@ export class PlatformBootstrapper {
                 ])
             })
             .then((values:any[]) => {
-                this.memory = null;
-
-                Logger.info('releasing resources');
+                this.release();
 
                 resolve(values[1]);
             })
@@ -349,8 +353,7 @@ export class PlatformBootstrapper {
                 //Logger.finish('platform');
                 reject(e ? (e.stack || e) : this.error());
 
-                this.memory = null;
-                Logger.info('releasing resources');
+                this.release();
             });
         };
 
