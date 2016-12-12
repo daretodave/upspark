@@ -22,6 +22,7 @@ export class CommandListComponent implements  AfterViewInit {
             return;
         }
 
+        let action:boolean = false;
         this.commands.forEach((command:Command) => {
             if(command.stale || !command.completed) {
                 return;
@@ -30,7 +31,12 @@ export class CommandListComponent implements  AfterViewInit {
             if(command.hover || command.lastInteraction === -1) {
                 command.lastInteraction = tick;
             } else if((tick - command.lastInteraction) >= 5) {
-                command.stale = true;
+                if(action) {
+                    command.lastInteraction = tick - 2;
+                } else {
+                    command.stale = true;
+                    action = true;
+                }
             }
         })
     }
