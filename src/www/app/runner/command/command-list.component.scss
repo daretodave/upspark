@@ -1,5 +1,12 @@
 up-command-list {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 45%;
+  position: relative;
+  height: 40%;
+}
+.command-list {
+  position:absolute;
+  bottom:0;
+  right:0;
+  left:0;
+  overflow-y:auto;
+  max-height:100%;
 }
