@@ -1,8 +1,9 @@
 import {Util} from "../util";
 import * as _ from 'lodash';
+import {Logger} from "../../system/logger/logger";
+import Process = NodeJS.Process;
 const util = require('util');
 const tryRequire = require('try-require');
-const _process = process;
 
 const excludes:string[] = require('builtin-modules');
 const apiModules:any = {
@@ -12,30 +13,32 @@ export {excludes, apiModules};
 
 export class Platform {
 
-    constructor(public process:any) {
+    private commands:any[];
+
+    constructor(public process:Process) {
     }
 
-    public exists(command:string): boolean {
-        let sandbox:any = this["upspark"];
-        return sandbox.commands.hasOwnProperty(command);
+    public hasCommandMapped(command:string): boolean {
+        return this.commands.hasOwnProperty(command);
     }
 
     public getMessage():string {
         let commands:any[] = [];
         let message:string[] = [];
-        let sandbox:any = this["upspark"];
 
-        for(let command in sandbox.commands) {
-
-            if(!sandbox.commands.hasOwnProperty(command)) {
+        for(let title in this.commands) {
+            if(!this.commands.hasOwnProperty(title)) {
                 continue;
             }
-
-            let mapping:any = sandbox.commands[command];
+            let mapping = this.commands[title];
             let resolve:any = {};
 
             resolve.context = mapping.context;
-            resolve.command = command;
+            resolve.command = title;
+
+            if(mapping.split) {
+                resolve.command += `[${mapping.split}]`;
+            }
 
             if(!Util.isFunction(mapping.processor)) {
                 resolve.message = ` = '${mapping.processor}'`;
@@ -46,16 +49,23 @@ export class Platform {
             commands.push(resolve);
         }
 
-        commands = _.sortBy(commands, ['context', 'command']);
-
         message.push("commands");
 
+        commands = _.sortBy(commands, ['context', 'command']);
         commands.forEach((command:any) => message.push(`@[${command.context}]\t\t${command.command}${command.message}`));
 
         return message.join("\n");
     }
 
+    __log(message:string, isError:boolean) {
+        Logger[isError ? 'error' : 'info'](message);
+    }
+    postInit(commands:any[]) {
+        this.commands = commands;
+    }
+
     public require: (path:string) => void = Platform.include.bind(this);
+    public __postInit: (command:any[]) => void = this.postInit.bind(this);
 
     private static include(path:string) {
         if(!excludes.includes(path)) {

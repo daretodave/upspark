@@ -921,7 +921,7 @@ let initRunner = () => {
     runnerWindow.loadURL(www('runner'));
 
     ipcMain.on('command-run', (event:any, arg:Command) => {
-        if(!platform.exists(arg.title)) {
+        if(!platform.hasCommandMapped(arg.title)) {
             let error:string = `The command <strong>${arg.title}</strong> could not be found`;
             event.sender.send('command-state-change', new CommandStateChange(arg, {
                 error: error,

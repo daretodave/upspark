@@ -1,22 +1,39 @@
 (function(title, input) {
-
-    if(!title) {
-        throw Error('No command to execute');
+    if(arguments.length === 0) {
+        upspark['__internal'].fatal('no command to execute');
+        return;
+    }
+    if(!upspark['util'].isString(title)) {
+        upspark['__internal'].log(`command name was not a string | defaulting to name.toString`);
+        title = title.toString();
     }
 
-    var command = commands[title];
+    let log = function(message) {
+        upspark['__internal'].log(`EXEC | ${title} | ${message}`);
+    };
+
+    log('executing');
+
+    let command = upspark['__internal'].commands[title],
+        parameters = [];
     if (!command) {
-        throw Error(`The command '${title}' was not found`);
+        upspark['__internal'].fatal(`The command '${title}' was not found`);
+        return;
     }
 
-    var parameters = [];
     if(input) {
+        if(!upspark['util'].isString(input)) {
+            input = input.toString();
+            log(' ~ input provided was not string | defaulting to input.toString');
+        }
+        let delimiter = input.length > 50 ? '\n' : ' = ';
+        log(`~ input${delimiter}${input}`);
+
         parameters = input.split(command.split);
     }
 
-    upspark.__log('executing ' + title);
-
-    getResolution(command.processor, parameters, function(result) {
+    upspark['__internal']
+    .resolve(command.processor, parameters, function(result) {
         process.send({
             type: 'command-result',
             response: result

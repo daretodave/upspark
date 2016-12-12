@@ -5,6 +5,7 @@ import {LoggerBlock} from "./logger-block";
 import {Printer} from "./printer";
 
 import * as util from 'util';
+import {isNullOrUndefined} from "util";
 
 declare const APP_VERSION:string;
 
@@ -38,11 +39,12 @@ export class Logger  {
 
         let self:any = this;
         return self;
+
     }
 
     private static clean: (arg:any) => any = (arg:any) => {
-        if(arg === null) {
-            return '[NULL]';
+        if(isNullOrUndefined(arg)) {
+            return '';
         }
         if(arg["getMessage"]) {
             return arg.getMessage();

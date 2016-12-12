@@ -91,7 +91,7 @@ export class PlatformBootstrapper {
                 let contextSwitch:string = `
                     (function(location, context) {
                         context(location);
-                    })('${location}', upspark.contextShift);
+                    })('${location}', upspark['__internal'].onContextSwitch);
                 `;
 
                 try {
@@ -189,7 +189,7 @@ export class PlatformBootstrapper {
             config.resolve.modulesDirectories = [];
             config.resolve.modulesDirectories.push(path.join(context, 'node_modules'));
 
-            excludes.forEach((include:string) => config.externals[include] = `upspark.requireInternalNodeModule('${include}')`);
+            excludes.forEach((include:string) => config.externals[include] = `upspark['__internal'].require('${include}')`);
 
             config.externals['__context'] = '__context';
 
@@ -325,17 +325,24 @@ export class PlatformBootstrapper {
                         .line('SOURCE::WEBPACKED')
                         .line();
 
-                let internalNodeModuleInsert:string = excludes.map((external) => `internalNodeModules.push("${external}");`).join("");
+                let internalNodeModuleInsert:string = excludes.map((external) => `upspark['__internal'].modules.push("${external}");`).join("");
 
                 source = `${wrapper}${internalNodeModuleInsert}${source}`;
 
                 try {
-                    vm.runInNewContext(source, platform);
+                    vm.runInNewContext(
+                        `${source}__postInit(upspark['__internal'].commands)`,
+                        platform
+                    );
                 } catch(err) {
                     reject(err);
                 }
 
-                source = `${source}${platformExecutor}`;
+                source =
+                `${source}
+                upspark['__internal'].loaded = true;
+                upspark['__internal'].onContextSwitch('RUNTIME');
+                ${platformExecutor}`;
 
                 Logger.info(platform);
 

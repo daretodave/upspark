@@ -16,7 +16,12 @@ export class PlatformExecutor {
         const process = fork(this.platform, [command.title, command.argument]);
 
         process.on('close', (code:number) => {
-            Logger.info(`#command-finish [${command.title}] > exit code = ${code}`);
+            this.pool.delete(command.id);
+
+            if(!command.completed) {
+                Logger.info(`#command '${command.title}' process has finished [] > exit code = ${code}`);
+                command.completed = true;
+            }
 
             update(new CommandStateChange(command, {
                 completed: true
@@ -29,16 +34,20 @@ export class PlatformExecutor {
 
             if (message.type === 'command-result') {
                 let separation:string = message.response.length > 50 ? '\n' : ' = ';
-                Logger.info(`#command-result [${command.title}]${separation}${message.response}`);
+
+                Logger.info(`#command '${command.title}' result ${separation}${message.response}`);
 
                 update(new CommandStateChange(command, {
                     error: message.error ? message.response : '',
                     output: message.response,
+                    completed: true
                 }));
+
+                command.completed = true;
 
             } else if(message.type === 'command-log') {
                 let separation:string = message.message.length > 50 ? '\n' : ' = ';
-                Logger.append(message.error, `#command-message [${command.title}]${separation}${message.message}`);
+                Logger[message.error ? "error" : "info"](`#command '${command.title}'${separation}${message.message}`)
 
                 if(!message.internal) {
                     let state: CommandStateChange = new CommandStateChange(command);
