@@ -60,8 +60,8 @@ export class RunnerComponent implements OnInit {
         this.argument = argument;
     }
 
-    onCommand(value:string) {
-        if(this.loading || !value) {
+    onCommand() {
+        if(this.loading || !this.command.trim()) {
             return;
         }
         this.commandService.execute(this.command, this.argument);

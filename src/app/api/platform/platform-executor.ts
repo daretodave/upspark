@@ -18,14 +18,13 @@ export class PlatformExecutor {
         process.on('close', (code:number) => {
             this.pool.delete(command.id);
 
+            update(new CommandStateChange(command, {
+                completed: true
+            }));
             if(!command.completed) {
                 Logger.info(`#command '${command.title}' process has finished [] > exit code = ${code}`);
                 command.completed = true;
             }
-
-            update(new CommandStateChange(command, {
-                completed: true
-            }));
         });
         process.on('message', (message:any) => {
             if(!message.type) {
@@ -35,7 +34,7 @@ export class PlatformExecutor {
             if (message.type === 'command-result') {
                 let separation:string = message.response.length > 50 ? '\n' : ' = ';
 
-                Logger.info(`#command '${command.title}' result ${separation}${message.response}`);
+                Logger.info(`#command '${command.title}'${separation}${message.response}`);
 
                 update(new CommandStateChange(command, {
                     error: message.error ? message.response : '',
@@ -46,7 +45,7 @@ export class PlatformExecutor {
                 command.completed = true;
 
             } else if(message.type === 'command-log') {
-                let separation:string = message.message.length > 50 ? '\n' : ' = ';
+                let separation:string = message.message.length > 50 ? '\n' : ' | ';
                 Logger[message.error ? "error" : "info"](`#command '${command.title}'${separation}${message.message}`)
 
                 if(!message.internal) {

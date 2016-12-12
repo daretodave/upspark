@@ -39,6 +39,7 @@ upspark.util.isPrimitive = (function(primitives) {
 upspark['__internal'] = {};
 upspark['__internal'].commands = {};
 upspark['__internal'].loaded = false;
+upspark['__internal'].worker = false;
 upspark['__internal'].context = 'INIT';
 upspark['__internal'].modules = [];
 upspark['__internal'].fatal = function(error) {
@@ -128,7 +129,7 @@ upspark.on = function(argument, split, processor) {
     }
 
     let log = function(message) {
-        if(upspark['__internal'] === 'RUNTIME') {
+        if(upspark['__internal'].worker) {
             return;
         }
         upspark['__internal'].log(`upspark.on | ${message}`);
@@ -164,6 +165,12 @@ upspark.on = function(argument, split, processor) {
 
         }
     }
+    let parameters = false;
+    if(upspark.util.isFunction(processor)) {
+        parameters = upspark.util.parameters(processor);
+    }
+
+    log(`mapped  '${argument}' '${parameters ? ('to a function' + (parameters.length ? '(' + parameters.join(", ") + ')': '')) : 'as ' + processor}`);
 
     upspark['__internal'].commands[argument] = {
         processor: processor,

@@ -9,7 +9,7 @@
     }
 
     let log = function(message) {
-        upspark['__internal'].log(`EXEC | ${title} | ${message}`);
+        upspark['__internal'].log(`${message}`);
     };
 
     log('executing');
@@ -27,7 +27,7 @@
             log(' ~ input provided was not string | defaulting to input.toString');
         }
         let delimiter = input.length > 50 ? '\n' : ' = ';
-        log(`~ input${delimiter}${input}`);
+        log(` ~ input${delimiter}${input}`);
 
         parameters = input.split(command.split);
     }

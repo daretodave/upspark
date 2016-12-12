@@ -316,7 +316,7 @@ export class PlatformBootstrapper {
             .then((source:string) => {
                 let platform: Platform = new Platform(process);
 
-                Logger.info('testing+resolve platform')
+                Logger.info('testing platform')
                         .line()
                         .line('SOURCE::WEBPACKED')
                         .line()
@@ -326,23 +326,24 @@ export class PlatformBootstrapper {
                         .line();
 
                 let internalNodeModuleInsert:string = excludes.map((external) => `upspark['__internal'].modules.push("${external}");`).join("");
-
-                source = `${wrapper}${internalNodeModuleInsert}${source}`;
+                let header:string = `${wrapper}${internalNodeModuleInsert}`;
 
                 try {
                     vm.runInNewContext(
-                        `${source}__postInit(upspark['__internal'].commands)`,
+                        `${header}${source}__postInit(upspark['__internal'].commands)`,
                         platform
                     );
                 } catch(err) {
                     reject(err);
                 }
 
-                source =
-                `${source}
-                upspark['__internal'].loaded = true;
-                upspark['__internal'].onContextSwitch('RUNTIME');
-                ${platformExecutor}`;
+                source = `
+                    ${header}
+                    upspark['__internal'].worker = true;
+                    ${source}
+                    upspark['__internal'].loaded = true;
+                    ${platformExecutor}
+                `;
 
                 Logger.info(platform);
 
@@ -368,7 +369,7 @@ export class PlatformBootstrapper {
     }
 
     private savePlatformForWorker(source: string):Promise<string> {
-        Logger.info("saving platform as worker");
+        Logger.info(`saving worker script | ${this.resources.platform}`);
 
         let executor = (resolve: (value?: string | PromiseLike<string>) => void, reject: (reason?: any) => void) => {
             fs.writeFile(this.resources.platform, source, (err:NodeJS.ErrnoException) => {
@@ -378,7 +379,7 @@ export class PlatformBootstrapper {
                }
                resolve(source);
 
-               Logger.info('saved platform');
+               Logger.info('saved  worker');
             });
         };
         return new Promise<string>(executor);
