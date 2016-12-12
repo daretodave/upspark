@@ -1,13 +1,13 @@
 up-command {
   display: flex;
   position: relative;
+  overflow:hidden;
+  margin-top: 5px;
+
 }
 .command {
   display: flex;
-  margin-top: 5px;
-  flex-grow: 1;
-  align-items: center;
-  border-left: 2px solid transparent;;
+  //flex-grow: 1;
   //animation: slide-up 200ms ease-in 0ms 1 normal forwards;
   &:not(.command--stale).command--hover {
     .command__title {
@@ -82,6 +82,7 @@ $background-indicator-loading: #fdba2c;
   font-size: .9em;
   font-family: sans-serif;
   width: 100px;
+  margin-right: 20px;
 
   text-shadow: #0a0a0a 1px 1px 1px;
 
@@ -94,8 +95,8 @@ $background-indicator-loading: #fdba2c;
   width: 300px;
 }
 .command__response {
+  align-self:flex-end;
   font-size: .9em;
-  margin-left: 20px;
   color: white;
   strong {
     border-bottom: 2px dotted dodgerblue;

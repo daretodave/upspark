@@ -15,11 +15,11 @@ require('./command-list.component.scss');
         trigger('slide', [
             transition('void => *', [
                 style({transform: 'translateX(-100%)'}),
-                animate(300, style({transform: 'translateX(0)'}))
+                animate(200, style({transform: 'translateX(0)'}))
             ]),
             transition('* => void', [
-                style({transform: 'translateX(0)'}),
-                animate(300, style({transform: 'translateX(100%)'}))
+                style({height: '*'}),
+                animate(100, style({height: 0}))
             ])
         ])
     ]
@@ -38,8 +38,8 @@ export class CommandListComponent implements  AfterViewInit {
             return;
         }
 
-        let action:boolean = false;
-        let commands:Command[] = _.sortBy(this.commands, 'update').reverse();
+        let action:number = 0;
+        let commands:Command[] = _.reverse( _.sortBy(this.commands, 'update'));
 
         commands.forEach((command:Command) => {
             if(command.stale || !command.completed) {
@@ -49,10 +49,10 @@ export class CommandListComponent implements  AfterViewInit {
                 command.lastInteraction = tick;
             } else if((tick - command.lastInteraction) >= 5) {
                 if(action) {
-                    command.lastInteraction = tick - 2;
+                    command.lastInteraction = tick - (2 - action++);
                 } else {
                     command.stale = true;
-                    action = true;
+                    action = 1;
                 }
             }
         })

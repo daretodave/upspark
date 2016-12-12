@@ -1,5 +1,5 @@
 <div class="command" [class.command--hover]="command.hover">
-    <div class="command__title">
+    <div class="command__title" *ngIf="command.siblings > 1" [@slide]>
         <div class="command__title__text">{{command.title}}</div>
 
         <div class="command__title__indicator"

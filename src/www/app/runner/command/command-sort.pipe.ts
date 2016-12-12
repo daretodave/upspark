@@ -11,17 +11,12 @@ const _ = require('lodash');
 export class CommandSortPipe {
     transform(array: Array<Command>, property?: string): Array<Command> {
         array = array.filter((command:Command) => !command.stale);
+        array = _.sortBy(array, property || 'update').reverse();
+        array = array.map((command:Command) => {
+            command.siblings = Math.max(command.siblings, array.length);
+            return command;
+        });
 
-        if(property === 'log') {
-            array.sort((a: Command, b: Command) => {
-                const logsA: number[] = _.sortBy(<CommandLog[]>a.log, ['time']).map((entry: CommandLog) => entry.time);
-                const logsB: number[] = _.sortBy(<CommandLog[]>b.log, ['time']).map((entry: CommandLog) => entry.time);
-
-                return (logsA.pop() || 0) - (logsB.pop() || 0);
-            });
-            return array;
-        }
-
-        return _.sortBy(array, property || 'update').reverse();
+        return array;
     }
 }

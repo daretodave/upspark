@@ -9,6 +9,7 @@ export class Command {
         this.output = '';
         this.completed = false;
         this.lastInteraction = -1;
+        this.siblings = 0;
         this.stale = false;
     }
 
@@ -23,5 +24,6 @@ export class Command {
     lastInteraction:number;
     hover: boolean;
     stale:boolean;
+    siblings: number;
 
 }
