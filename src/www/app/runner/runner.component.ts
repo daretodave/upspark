@@ -45,7 +45,7 @@ export class RunnerComponent implements OnInit {
     }
 
     onBasicInputChange(value:string) {
-        let blocks:string[] = value.split(":", 2);
+        let blocks:string[] = value.split(":");
         let command:string = '';
         let argument:string = '';
 
@@ -53,7 +53,7 @@ export class RunnerComponent implements OnInit {
             command = blocks[0];
         }
         if(blocks.length > 1) {
-            argument = blocks[1];
+            argument = blocks.slice(1).join(":");
         }
 
         this.command = command;
