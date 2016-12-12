@@ -22,6 +22,6 @@ export class CommandSortPipe {
             return array;
         }
 
-        return _.sortBy(array, property || 'time').reverse();
+        return _.sortBy(array, property || 'update').reverse();
     }
 }

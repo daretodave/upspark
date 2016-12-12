@@ -1,12 +1,9 @@
-import {Component, AfterViewInit, NgZone, OnInit, ViewChild} from "@angular/core";
+import {Component, OnInit, ViewChild} from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
 import {CommandService} from "./command/command.service";
 import {Command} from "./command/command";
-import {CommandStateChange} from "../../../app/api/platform/command-state-change";
 import {SystemEvent} from "../shared/system/system-event";
 import {CommandListComponent} from "./command/command-list.component";
-
-const {ipcRenderer} = require('electron');
 
 require('./runner.component.scss');
 

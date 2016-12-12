@@ -12,7 +12,7 @@ let config = {};
 (function(output) {
 
     output.path = Helpers.path('dist');
-    output.publicPath = 'http://localhost:8080';
+    output.publicPath = 'http://localhost:8080/';
     output.filename = '[name].js';
     output.chunkFilename = '[id].chunk.js';
 
@@ -41,6 +41,8 @@ let config = {};
 
     server.historyApiFallback = true;
     server.stats = 'minimal';
+    server.inline = true;
+    server.hot = true;
 
 })(config.devServer = {});
 
@@ -49,7 +51,6 @@ config = merge(
     config
 );
 
-config.devtool = 'cheap-module-eval-source-map';
-config.target  = electron(config);
+config.entry['bundle'].unshift("webpack-dev-server/client?http://localhost:8080/", "webpack/hot/dev-server");
 
 export default config;

@@ -82,11 +82,7 @@ export const launch = () => {
         log(config.tag, `www`);
     });
 
-    let options = {};
-
-    options.stats = 'minimal';
-    options.hot = true;
-    options.inline = true;
+    let options = config.webpack.www.development.devServer;
 
     let server = new WebpackDevServer(
         compiler,

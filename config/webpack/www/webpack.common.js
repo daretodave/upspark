@@ -4,10 +4,12 @@ import Webpack from 'webpack';
 import HtmlPlugin from 'html-webpack-plugin';
 import {name, version} from '../../../package.json';
 
-let {ProvidePlugin, DefinePlugin} = Webpack;
+let {ProvidePlugin, DefinePlugin, ExternalsPlugin} = Webpack;
 let {CommonsChunkPlugin} = Webpack.optimize;
 
 let config = {};
+
+config.target = 'electron-renderer';
 
 (function(module, loaders) {
 
@@ -73,7 +75,7 @@ let config = {};
 
     // Inject app dependencies into the html
     let html = (function(config) {
-        config.template = Helpers.path('src', 'www', 'index.html');
+        config.template = Helpers.path('src', 'www', 'index.ejs');
         config.filename = 'index.html';
         config.chunks   = www;
 
@@ -105,27 +107,11 @@ let config = {};
 
 (function(entry) {
 
-    entry['bundle'] = Helpers.path('src', 'www', 'index.ts');
-    entry['include/vendors'] = Helpers.path('src', 'www', 'lib', 'vendors.ts');
-    entry['include/polyfills'] = Helpers.path('src', 'www', 'lib', 'polyfills.ts');
+    entry['bundle'] = [Helpers.path('src', 'www', 'index.ts')];
+    entry['include/vendors'] = [Helpers.path('src', 'www', 'lib', 'vendors.ts')];
+    entry['include/polyfills'] = [Helpers.path('src', 'www', 'lib', 'polyfills.ts')];
 
 })(config.entry = {});
-
-// established 'globals' to assist compile step
-(function(externals) {
-
-    externals.electron = Helpers.imported('electron');
-    externals.net = Helpers.imported('net');
-    externals.shell = Helpers.imported('shell');
-    externals.remote = Helpers.imported('remote');
-    externals.app = Helpers.imported('app');
-    externals.ipc = Helpers.imported('ipc');
-    externals.fs = Helpers.imported('fs');
-    externals.buffer = Helpers.imported('buffer');
-
-    externals.system = externals.file ='{}';
-
-})(config.externals = {});
 
 // module resolution
 (function(resolve, alias, extensions, modules) {

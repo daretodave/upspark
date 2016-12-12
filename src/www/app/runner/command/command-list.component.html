@@ -1,5 +1,5 @@
 <div class="command-list">
 
-    <up-command *ngFor="let command of (commands | commandSort)" [command]="command"></up-command>
+    <up-command *ngFor="let command of (commands | commandSort)" [@slide] [command]="command"></up-command>
 
 </div>

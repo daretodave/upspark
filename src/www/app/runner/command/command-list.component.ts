@@ -1,12 +1,28 @@
-import {AfterViewInit, Component, Input, ElementRef, NgZone} from "@angular/core";
+import {
+    AfterViewInit, Component, Input, ElementRef, NgZone, transition, animate, style, state,
+    trigger
+} from "@angular/core";
 import {Command} from "./command";
 import {Observable} from "rxjs";
+import * as _ from 'lodash';
 
 require('./command-list.component.scss');
 
 @Component({
     selector: 'up-command-list',
-    templateUrl: 'command-list.component.html'
+    templateUrl: 'command-list.component.html',
+    animations: [
+        trigger('slide', [
+            transition('void => *', [
+                style({transform: 'translateX(-100%)'}),
+                animate(300, style({transform: 'translateX(0)'}))
+            ]),
+            transition('* => void', [
+                style({transform: 'translateX(0)'}),
+                animate(300, style({transform: 'translateX(100%)'}))
+            ])
+        ])
+    ]
 })
 export class CommandListComponent implements  AfterViewInit {
 
@@ -23,11 +39,12 @@ export class CommandListComponent implements  AfterViewInit {
         }
 
         let action:boolean = false;
-        this.commands.forEach((command:Command) => {
+        let commands:Command[] = _.sortBy(this.commands, 'update').reverse();
+
+        commands.forEach((command:Command) => {
             if(command.stale || !command.completed) {
                 return;
             }
-
             if(command.hover || command.lastInteraction === -1) {
                 command.lastInteraction = tick;
             } else if((tick - command.lastInteraction) >= 5) {
