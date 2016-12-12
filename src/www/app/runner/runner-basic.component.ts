@@ -24,10 +24,6 @@ export class RunnerBasicComponent implements AfterViewInit {
     }
 
     onEnter(value:string) {
-        if(!value.trim().length) {
-            return;
-        }
-
         this.onCommand.emit(value);
     }
 

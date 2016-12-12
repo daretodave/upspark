@@ -1,9 +1,10 @@
-import {Component, AfterViewInit, NgZone, OnInit} from "@angular/core";
+import {Component, AfterViewInit, NgZone, OnInit, ViewChild} from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
 import {CommandService} from "./command/command.service";
 import {Command} from "./command/command";
 import {CommandStateChange} from "../../../app/api/platform/command-state-change";
 import {SystemEvent} from "../shared/system/system-event";
+import {CommandListComponent} from "./command/command-list.component";
 
 const {ipcRenderer} = require('electron');
 
@@ -41,8 +42,7 @@ export class RunnerComponent implements OnInit {
     private loading:boolean = false;
     private commands:Command[];
 
-    onCommandRequestDetach(id:string) {
-    }
+    @ViewChild("commandList") commandList:CommandListComponent;
 
     onBasicInputChange(value:string) {
         let blocks:string[] = value.split(":");
@@ -64,6 +64,8 @@ export class RunnerComponent implements OnInit {
         if(this.loading || !this.command.trim()) {
             return;
         }
+        this.commandList.scrollToTop();
+
         this.commandService.execute(this.command, this.argument);
 
         this.command = this.input = this.debug = this.argument = '';

@@ -9,20 +9,10 @@ up-command {
   align-items: center;
   border-left: 2px solid transparent;;
   //animation: slide-up 200ms ease-in 0ms 1 normal forwards;
-  &.command--hover {
-    background: rgba(0, 0, 0, 0.46);
-  }
-}
-@keyframes slide-up {
-  0% {
-    transform: translateY(100px) ;
-    height: 0;
-    opacity: .5;
-  }
-  100% {
-    transform: translateY(0);
-    height: auto;
-    opacity: 1;
+  &:not(.command--stale).command--hover {
+    .command__title {
+      background: rgba(0, 0, 0, 0.21);
+    }
   }
 }
 

@@ -19,6 +19,7 @@ export class Command {
     output:string;
     completed:boolean;
     update:number;
+
     lastInteraction:number;
     hover: boolean;
     stale:boolean;
