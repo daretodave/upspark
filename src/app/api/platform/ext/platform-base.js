@@ -170,7 +170,7 @@ upspark.on = function(argument, split, processor) {
         parameters = upspark.util.parameters(processor);
     }
 
-    log(`mapped  '${argument}' '${parameters ? ('to a function' + (parameters.length ? '(' + parameters.join(", ") + ')': '')) : 'as ' + processor}`);
+    log(`mapped  '${argument}' ${parameters ? ('to a function' + (parameters.length ? '(' + parameters.join(", ") + ')': '')) : 'as ' + processor}`);
 
     upspark['__internal'].commands[argument] = {
         processor: processor,
@@ -178,4 +178,3 @@ upspark.on = function(argument, split, processor) {
         context: upspark['__internal'].context
     };
 };
-

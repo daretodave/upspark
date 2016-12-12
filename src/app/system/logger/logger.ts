@@ -5,7 +5,6 @@ import {LoggerBlock} from "./logger-block";
 import {Printer} from "./printer";
 
 import * as util from 'util';
-import {isNullOrUndefined} from "util";
 
 declare const APP_VERSION:string;
 
@@ -42,8 +41,14 @@ export class Logger  {
 
     }
 
+    private static sanitize(content:string):string {
+        content = content.replace( /(<([^>]+)>)/ig, '');
+
+        return content;
+    }
+
     private static clean: (arg:any) => any = (arg:any) => {
-        if(isNullOrUndefined(arg)) {
+        if(typeof arg === 'undefined' || arg === null) {
             return '';
         }
         if(arg["getMessage"]) {
@@ -54,6 +59,9 @@ export class Logger  {
                 showHidden: true,
                 depth: null
             });
+        }
+        if(typeof arg === 'string') {
+            arg = Logger.sanitize(arg);
         }
         return arg;
     };

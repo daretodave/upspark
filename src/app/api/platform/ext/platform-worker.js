@@ -24,12 +24,11 @@
     if(input) {
         if(!upspark['util'].isString(input)) {
             input = input.toString();
-            log(' ~ input provided was not string | defaulting to input.toString');
+            log('input provided was not string | defaulting to input.toString');
         }
-        let delimiter = input.length > 50 ? '\n' : ' = ';
-        log(` ~ input${delimiter}${input}`);
-
         parameters = input.split(command.split);
+
+        log(`[${parameters.join(", ")}]`);
     }
 
     upspark['__internal']
@@ -46,4 +45,4 @@
         });
     });
 
-})(process.argv[2]);
+})(process.argv[2], process.argv[3]);

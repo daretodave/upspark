@@ -48,8 +48,7 @@ export class Platform {
 
             commands.push(resolve);
         }
-
-        message.push("commands");
+        message.push("mappings");
 
         commands = _.sortBy(commands, ['context', 'command']);
         commands.forEach((command:any) => message.push(`@[${command.context}]\t\t${command.command}${command.message}`));

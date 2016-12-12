@@ -132,6 +132,7 @@ export class PlatformBootstrapper {
                     resolve(true);
                 }
             });
+
         };
 
         return new Promise<any>(executor);
@@ -315,7 +316,6 @@ export class PlatformBootstrapper {
 
             .then((source:string) => {
                 let platform: Platform = new Platform(process);
-
                 Logger.info('testing platform')
                         .line()
                         .line('SOURCE::WEBPACKED')
