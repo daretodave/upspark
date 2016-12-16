@@ -38,24 +38,27 @@ export class CommandListComponent implements  AfterViewInit {
             return;
         }
 
-        let action:number = 0;
-        let commands:Command[] = _.reverse( _.sortBy(this.commands, 'update'));
+        let action:boolean = false;
+        let commands:Command[] = _.sortBy(this.commands, 'update');
 
-        commands.forEach((command:Command) => {
-            if(command.stale || !command.completed) {
-                return;
+        for(let i = 0, length = commands.length; i < length; i++) {
+            let command:Command = commands[i];
+            if (command.stale || action) {
+                continue;
             }
+
             if(command.hover || command.lastInteraction === -1) {
                 command.lastInteraction = tick;
-            } else if((tick - command.lastInteraction) >= 5) {
-                if(action) {
-                    command.lastInteraction = tick - (2 - action++);
-                } else {
-                    command.stale = true;
-                    action = 1;
-                }
+                continue;
             }
-        })
+
+            if((tick - command.lastInteraction) < 5) {
+                continue;
+            }
+
+            action = true;
+            command.stale = true;
+        }
     }
 
     scrollToTop() {
