@@ -45,7 +45,7 @@ export class CommandListComponent implements  AfterViewInit {
 
         for(let i = 0, length = commands.length; i < length; i++) {
             let command:Command = commands[i];
-            if (command.stale || command.isNavigatedTo || action) {
+            if (command.stale || !command.completed || command.isNavigatedTo || action) {
                 continue;
             }
 

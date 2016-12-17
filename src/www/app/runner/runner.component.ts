@@ -145,10 +145,9 @@ export class RunnerComponent implements OnInit {
     }
 
     onCommand() {
-        if (this.loading || !this.command.trim()) {
+        if (this.loading || (!this.command.trim() && !this.argument.trim())) {
             return;
         }
-
 
         this.commandList.scrollToTop();
 

@@ -18,7 +18,7 @@ export class CommandService {
     }
 
     execute(title:string, args:string, originalInput:string) {
-        const command:Command = new Command(raw(), originalInput, title.trim(), args);
+        const command:Command = new Command(raw(), originalInput, title, args);
 
         this.commands.push(command);
         if (this.cursor+1 === this.commands.length) {
@@ -33,6 +33,8 @@ export class CommandService {
     }
 
     onStateChange(update:CommandStateChange) {
+
+        console.log(update);
 
         let command:Command = this.commands.find((entry:Command) => entry.id === update.id);
         if (!command) {

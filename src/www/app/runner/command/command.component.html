@@ -5,16 +5,19 @@
         <div class="command__selector__pointer"></div>
     </div>
 
-    <div class="command__title" *ngIf="command.siblings > 1 || command.isNavigatedTo" [@slide]>
-        <div class="command__title__text">{{command.title}}</div>
+    <div class="command__title"
+         *ngIf="command.siblings > 1 || command.isNavigatedTo || (!command.error && !command.output)" [@slide]>
+        <div class="command__title__text">{{command.isSystemCommand ? (command.argument.toUpperCase()) :
+            command.title}}
+        </div>
 
         <div class="command__title__indicator"
              [class.command__title__indicator--intermediate]="!command.completed && command.progress < 0"
              [class.command__title__indicator--success]="command.completed && !command.error"
              [class.command__title__indicator--error]="command.completed && command.error">
             <div class="command__title__indicator__progress"
-                 *ngIf="!command.completed && command.progress"
-                [style.width]="command.progress+'%'"></div>
+                 *ngIf="!command.completed && command.progress > -1"
+                 [style.width]="command.progress+'%'"></div>
 
             <div class="command__title__indicator__bar"></div>
             <div class="command__title__indicator__bar"></div>

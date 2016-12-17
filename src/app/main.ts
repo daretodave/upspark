@@ -16,6 +16,8 @@ import {PlatformExecutor} from "./api/platform/platform-executor";
 import {Command} from "../www/app/runner/command/command";
 import {CommandStateChange} from "./api/platform/command-state-change";
 import {PlatformPackage} from "./api/platform/platform-package";
+import {InternalCommand} from "./internal/internal-command";
+import {InternalCommandExecutor} from "./internal/internal-command-executor";
 
 const path = require('path');
 const electron = require('electron');
@@ -32,6 +34,7 @@ let resources:Resource;
 let safe: Safe;
 let platform: Platform;
 let executor:PlatformExecutor;
+let internalCommandExecutor:InternalCommandExecutor;
 
 let init = () => {
 
@@ -39,7 +42,9 @@ let init = () => {
 
     safe = new Safe(external, 'aes-256-ctr');
     resources = new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js'));
+
     executor = new PlatformExecutor(resources.platform);
+    internalCommandExecutor = new InternalCommandExecutor(safe, resources);
 
     resources.attach('settings.json', Settings);
     resources.attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
@@ -921,6 +926,12 @@ let initRunner = () => {
     runnerWindow.loadURL(www('runner'));
 
     ipcMain.on('command-run', (event:any, arg:Command) => {
+
+        if(arg.isSystemCommand) {
+            internalCommandExecutor.execute(event.sender, arg);
+            return;
+        }
+
         if(!platform.hasCommandMapped(arg.title)) {
             let error:string = `The command <strong>${arg.title}</strong> could not be found`;
             event.sender.send('command-state-change', new CommandStateChange(arg, {
