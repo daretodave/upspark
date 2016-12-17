@@ -13,13 +13,13 @@ export {excludes, apiModules};
 
 export class Platform {
 
-    private commands:any[];
+    private commands:any;
 
     constructor(public process:Process) {
     }
 
     public size():number {
-        return this.commands.length;
+        return Object.keys(this.commands).length;
     }
 
     public hasCommandMapped(command:string): boolean {

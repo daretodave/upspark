@@ -4,39 +4,40 @@ import {Platform} from "../../api/platform/platform";
 import {Logger} from "../../system/logger/logger";
 import reject = require("lodash/reject");
 
-const types: string[] = [
-    "ALL",
-    "SAFE",
-    "SETTINGS",
-    "COMMANDS"
-];
+declare type ReloadAction = [string, (command:Reload) => any];
 
-const actions:Map<string, (command:Reload) => any> = new Map<string, (command:Reload) => any>();
+const actions = new Map([
+    ["ALL",      (command) => command.reloadAll()]      as ReloadAction,
+    ["COMMANDS", (command) => command.reloadCommands()] as ReloadAction
+]);
 
-actions.set("COMMANDS", (command:Reload) => command.reloadCommands());
-actions.set("ALL", (command:Reload) => command.reloadCommands());
-
-const parameters:string = Array
+const parameters:string =
+    Array
     .from(actions)
-    .map((action, index) => action[0].toLowerCase())
+    .map((action, index) => action[0])
+    .sort()
     .reduce((left:string, right:string):string => {
         return left + `\n\t\t\t<li>${right}</li>`;
     }, '');
 
 export class Reload extends InternalCommand {
 
-
     constructor() {
         super();
+    }
 
+    reloadAll() {
+        this.reloadCommands();
     }
 
     reloadCommands() {
         new PlatformBootstrapper(this.host.hooks.getResources())
             .load()
             .then((platform: Platform) => {
-                this.host.hooks.onPlatformUpdate(platform)
-                this.resolve(`${platform.size()} command${platform.size() === 1 ? '' : 's'} discovered.`);
+                let size:number = platform.size();
+
+                this.host.hooks.onPlatformUpdate(platform);
+                this.resolve(`<strong>${size}</strong> command${size === 1 ? '' : 's'} ha${size===1?'s' : 've'} been mapped.`);
             })
             .catch(this.reject);
     }
@@ -45,8 +46,10 @@ export class Reload extends InternalCommand {
 
         const tag: string = arg.toUpperCase().trim();
         if (!actions.has(tag)) {
-            this.reject(`<strong>${tag}</strong> is not a valid argument for a reload task. <br><br>\n\n` +
-                `\t\tAvailable arguments are &hyphen;<ul>${parameters}</blockquote></ul>\n`);
+            this.reject(
+                `<strong>${tag}</strong> is not a valid argument for a reload task. <br><br>\n\n` +
+                `\t\tAvailable arguments are &hyphen;<ul>${parameters}</blockquote></ul>\n`
+            );
             return;
         }
 
