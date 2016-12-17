@@ -81,8 +81,8 @@ $background-indicator-loading: #fdba2c;
   padding: 5px;
   font-size: .9em;
   font-family: sans-serif;
-  width: 100px;
-  margin-right: 20px;
+  max-width: 100px;
+  margin-right: 5px;
 align-self: center;
   text-shadow: #0a0a0a 1px 1px 1px;
 
@@ -103,9 +103,7 @@ align-self: center;
     font-weight: 100;
   }
 }
-.command__title {
 
-}
 .command__selector {
   display: flex;
   align-self:center;
