@@ -28,7 +28,6 @@ export class Reload extends InternalCommand {
                 .catch(this.reject);
         } else {
 
-            this.reject(`The name <strong>${arg}</strong> is not a known resource group.<br><br>Available resource group titles include "${types.join(`", "`)}".`)
         }
 
     }
