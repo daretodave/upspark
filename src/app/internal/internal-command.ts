@@ -1,15 +1,29 @@
 import {Command} from "../../www/app/runner/command/command";
-import {Resource} from "../system/resource/resource";
-import {Safe} from "../system/safe";
+import {InternalCommandExecutor} from "./internal-command-executor";
 export abstract class InternalCommand {
 
-    public resolve: (value?: string | PromiseLike<string>) => void;
-    public reject: (reason?: string) => void;
+    protected __resolve: (value?: string | PromiseLike<string>) => void;
+    protected __reject: (reason?: string) => void;
 
-    public broadcast() {
+    public sender:any;
+    public command:Command;
+
+    public host:InternalCommandExecutor;
+
+    public broadcast(updates:any, completed:boolean) {
+        InternalCommandExecutor.publishUpdate(this.sender, this.command, updates, completed)
     }
 
-    constructor(public sender:any, public command: Command, public resources:Resource, public safe:Safe) {
+    public resolve(output:string) {
+        this.broadcast({output}, true);
+
+        this.resolve(output);
+    }
+
+    public reject(error:string) {
+        this.broadcast({error}, true);
+
+        this.__reject(error);
     }
 
     public execute(): Promise<string> {
@@ -20,12 +34,13 @@ export abstract class InternalCommand {
         }
 
         let executor = (resolve: (value?: string | PromiseLike<string>) => void, reject: (reason?: string) => void) => {
-            self.resolve = resolve;
-            self.reject = reject;
+            self.__resolve = resolve;
+            self.__resolve = reject;
             self.onExecute.apply(self, args);
 
             self.onExecute()
         };
+
         return new Promise<string>(executor);
     }
 
