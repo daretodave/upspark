@@ -5,6 +5,7 @@ import {
 import {Command} from "./command";
 import {Observable} from "rxjs";
 import * as _ from "lodash";
+import {CommandService} from "./command.service";
 
 require('./command-list.component.scss');
 
@@ -32,7 +33,7 @@ export class CommandListComponent implements  AfterViewInit {
     private commandContainerJQuerySelector: JQuery;
     private lockedCommand:Command;
 
-    constructor(private element:ElementRef, private zone:NgZone) {
+    constructor(private element:ElementRef, private commandService:CommandService, private zone:NgZone) {
     }
 
     cleanStaleData(tick:number) {
@@ -45,11 +46,12 @@ export class CommandListComponent implements  AfterViewInit {
 
         for(let i = 0, length = commands.length; i < length; i++) {
             let command:Command = commands[i];
+
             if (command.stale || !command.completed || command.isNavigatedTo || action) {
                 continue;
             }
 
-            if(command.hover || command.lastInteraction === -1) {
+            if(this.commandService.isNavigating()|| command.hover || command.lastInteraction === -1) {
                 command.lastInteraction = tick;
                 continue;
             }

@@ -70,16 +70,31 @@ export class RunnerComponent implements OnInit {
         this.argument = argument;
     }
 
-    onRunnerKeyDown(event: KeyboardEvent) {
-        if (this.loading || !event.altKey) {
-            return;
+    onRunnerKeyDown(event: KeyboardEvent) :boolean {
+        if (this.loading
+            || (this.split
+            && this.splitRunner.isArgumentFocused()
+            && !event.altKey)) {
+            return true;
         }
 
-        let isUpArrow: boolean = event.code === "ArrowUp";
-        if (isUpArrow || event.code === "ArrowDown") {
+        let isLeftArrow: boolean = event.code === "ArrowLeft",
+            isRightArrow: boolean = event.code === "ArrowRight",
+            isUpArrow: boolean = event.code === "ArrowUp",
+            isDownArrow:boolean = event.code === "ArrowDown";
+
+        if(!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
+            return true;
+        }
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        event.stopPropagation();
+
+        if (isUpArrow || isDownArrow) {
             const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
             if (reset) {
-                this.resetCommandList(fromCursor, true);
+                this.resetCommandList(fromCursor, true, true);
 
             } else if (command !== null) {
                 if (fromPristine) {
@@ -92,41 +107,30 @@ export class RunnerComponent implements OnInit {
                 this.argument = command.argument;
                 this.input = command.originalInput;
             }
-            return;
-        }
-
-        let isLeftArrow: boolean = event.code === "ArrowLeft",
-            isRightArrow: boolean = event.code === "ArrowRight";
-
-        if (isLeftArrow && !event.ctrlKey) {
-            this.resetCommandList(this.commandService.getCursor());
-            return;
-        }
-
-        if (isRightArrow && !event.ctrlKey) {
-            this.resetCachedCommandList();
-            return;
-        }
-
-        if ((isLeftArrow || isRightArrow) && event.ctrlKey) {
+        } else if ((isLeftArrow || isRightArrow) && event.ctrlKey) {
             this.split = !this.split;
+        }  else if (isLeftArrow) {
+            this.resetCommandList(this.commandService.getCursor(), event.altKey);
+        } else if (isRightArrow && event.altKey) {
+            this.resetCachedCommandList();
         }
 
+        return false;
     }
 
-    resetCommandList(cursor: number, overrideCurrentState:boolean = false) {
+    resetCommandList(cursor: number, resetCachedCommand:boolean, overrideCurrentState:boolean = false) {
         if (!overrideCurrentState && !this.commandService.isNavigating()) {
             return;
         }
 
         this.cachedCursor = cursor;
 
-        if (this.cachedCommandSnippet != null) {
+        if (this.cachedCommandSnippet != null && resetCachedCommand) {
             this.command = this.cachedCommandSnippet.command;
             this.argument = this.cachedCommandSnippet.argument;
             this.input = this.cachedCommandSnippet.input;
-            this.cachedCommandSnippet = null;
         }
+        this.cachedCommandSnippet = null;
 
         this.commandList.scrollToTop();
 

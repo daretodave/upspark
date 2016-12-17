@@ -41,4 +41,8 @@ export class CommandComponent {
         this.command.hover = false;
     }
 
+    getTitle(command:Command) {
+        return command.isSystemCommand ? (command.argument.split("|")[0].toUpperCase()) : command.title;
+    }
+
 }

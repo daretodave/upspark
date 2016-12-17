@@ -15,10 +15,12 @@ export class Command {
         this.siblings = 0;
         this.stale = false;
         this.isNavigatedTo = false;
+        this.tag = 'wow';
     }
 
     argument:string;
     title:string;
+    tag:string;
     progress:number;
     log:CommandLog[];
     init:number;

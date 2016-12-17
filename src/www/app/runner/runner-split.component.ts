@@ -37,8 +37,8 @@ export class RunnerSplitComponent implements AfterViewInit {
         this.onCommand.emit(`${this.command}:${this.argument}`);
     }
 
-    isCommandInputFocused():boolean {
-        return this.runnerInput.nativeElement === document.activeElement;
+    isArgumentFocused():boolean {
+        return this.runnerArgument.nativeElement === document.activeElement;
     }
 
     onInputKeyDown(arg:KeyboardEvent):boolean {
