@@ -7,7 +7,7 @@
 
     <div class="command__title"
          *ngIf="command.siblings > 1 || command.isNavigatedTo || (!command.error && !command.output)" [@slide]>
-        <div class="command__title__text">{{command.isSystemCommand ? (command.argument.toUpperCase()) :
+        <div class="command__title__text">{{command.isSystemCommand ? (command.argument.split("|")[0].toUpperCase()) :
             command.title}}
         </div>
 

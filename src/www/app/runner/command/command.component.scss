@@ -83,7 +83,7 @@ $background-indicator-loading: #fdba2c;
   font-family: sans-serif;
   width: 100px;
   margin-right: 20px;
-
+align-self: center;
   text-shadow: #0a0a0a 1px 1px 1px;
 
 
@@ -95,7 +95,7 @@ $background-indicator-loading: #fdba2c;
   width: 300px;
 }
 .command__response {
-  align-self:flex-end;
+  align-self:center;
   font-size: .9em;
   color: white;
   strong {

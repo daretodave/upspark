@@ -1,4 +1,7 @@
-<div id="runner" (keydown)="onRunnerKeyDown($event)">
+<div id="runner" (keydown)="onRunnerKeyDown($event)"
+     [class.runner--terminal]="mode === modeTerminal"
+     [class.runner--internal]="mode === modeInternal"
+     [class.runner--normal]="mode === modeNormal">
     <div id="runner__path">
         <div id="runner-image" [class.split]="split" [class.loading]="loading" (click)="toggle()">
         </div>
@@ -6,8 +9,11 @@
         </div>
     </div>
     <div id="runner__container">
-        <up-runner-basic *ngIf="!split" [loading]="loading" [(input)]="input" (inputChange)="onBasicInputChange($event)" (onCommand)="onCommand($event)"></up-runner-basic>
-        <up-runner-split #splitRunner *ngIf="split" [loading]="loading" [(command)]="command" (commandChange)="onCommandChange($event)" (argumentChange)="onArgumentChange($event)" [(argument)]="argument" [(output)]="output" (onCommand)="onCommand($event)"></up-runner-split>
+        <up-runner-basic *ngIf="!split" [loading]="loading" [(input)]="input" (inputChange)="onBasicInputChange($event)"
+                         (onCommand)="onCommand($event)"></up-runner-basic>
+        <up-runner-split #splitRunner *ngIf="split" [loading]="loading" [(command)]="command"
+                         (commandChange)="onCommandChange($event)" (argumentChange)="onArgumentChange($event)"
+                         [(argument)]="argument" [(output)]="output" (onCommand)="onCommand($event)"></up-runner-split>
     </div>
     <up-command-list #commandList [commands]="commands"></up-command-list>
     <div id="runner-debug" *ngIf="debug" [innerHTML]="debug"></div>
@@ -16,7 +22,7 @@
             <div class="splash__title" *ngIf="title">
                 <div class="splash__title__text" [innerHTML]="title"></div>
             </div>
-            <div class="splash__info" *ngIf="log.length" >
+            <div class="splash__info" *ngIf="log.length">
                 <div class="splash__info__debug">
                     <div class="splash__info__debug__element" *ngFor="let element of log" [innerHTML]="element"></div>
                 </div>

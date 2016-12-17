@@ -7,6 +7,7 @@ import {CommandListComponent} from "./command/command-list.component";
 import {RunnerSplitComponent} from "./runner-split.component";
 import {CommandSnippet} from "./command/command-snippet";
 import {CommandListNavigation} from "./command/command-list-navigation";
+import {RunnerMode} from "./runner-mode";
 
 require('./runner.component.scss');
 
@@ -43,6 +44,12 @@ export class RunnerComponent implements OnInit {
     private commands: Command[];
     private cachedCommandSnippet: CommandSnippet;
     private cachedCursor: number = -1;
+
+    private mode:RunnerMode = RunnerMode.NORMAL;
+
+    private modeNormal:RunnerMode = RunnerMode.NORMAL;
+    private modeTerminal:RunnerMode = RunnerMode.TERMINAL;
+    private modeInternal:RunnerMode = RunnerMode.INTERNAL;
 
     @ViewChild("commandList") commandList: CommandListComponent;
     @ViewChild("splitRunner") splitRunner: RunnerSplitComponent;
@@ -121,7 +128,6 @@ export class RunnerComponent implements OnInit {
             this.cachedCommandSnippet = null;
         }
 
-        this.commandList.lock(null);
         this.commandList.scrollToTop();
 
         this.commandService.resetNavigation();
@@ -149,8 +155,11 @@ export class RunnerComponent implements OnInit {
             return;
         }
 
+        this.cachedCommandSnippet = null;
+
         this.commandList.scrollToTop();
 
+        this.commandService.resetNavigation();
         this.commandService.execute(this.command, this.argument, this.input);
 
         this.command = this.input = this.debug = this.argument = '';

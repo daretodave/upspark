@@ -16,7 +16,6 @@ import {PlatformExecutor} from "./api/platform/platform-executor";
 import {Command} from "../www/app/runner/command/command";
 import {CommandStateChange} from "./api/platform/command-state-change";
 import {PlatformPackage} from "./api/platform/platform-package";
-import {InternalCommand} from "./internal/internal-command";
 import {InternalCommandExecutor} from "./internal/internal-command-executor";
 
 const path = require('path');
@@ -44,7 +43,15 @@ let init = () => {
     resources = new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js'));
 
     executor = new PlatformExecutor(resources.platform);
-    internalCommandExecutor = new InternalCommandExecutor(safe, resources);
+    internalCommandExecutor = new InternalCommandExecutor({
+        onPlatformUpdate(updatedPlatform:Platform) {
+            platform = updatedPlatform;
+            Logger.info(platform);
+        },
+        getResources(): Resource {
+            return resources;
+        }
+    });
 
     resources.attach('settings.json', Settings);
     resources.attach('upspark.log', Log, new LogTranslator(new Date()), 'log');

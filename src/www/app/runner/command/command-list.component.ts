@@ -54,7 +54,7 @@ export class CommandListComponent implements  AfterViewInit {
                 continue;
             }
 
-            if((tick - command.lastInteraction) < 5) {
+            if((tick - command.lastInteraction) < 7) {
                 continue;
             }
 
