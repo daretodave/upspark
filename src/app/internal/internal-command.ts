@@ -16,6 +16,10 @@ export abstract class InternalCommand {
         InternalCommandExecutor.publishUpdate(this, updates, completed);
     }
 
+    public send(message:string, ...args:any[]) {
+        return this.sender.send.apply(this.sender, [message].concat(args));
+    }
+
     public execute(): Promise<string> {
         let self: InternalCommand = this;
 
