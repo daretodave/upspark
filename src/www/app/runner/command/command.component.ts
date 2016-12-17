@@ -16,6 +16,16 @@ require('./command.component.scss');
                 style({transform: 'translateX(0)', "margin-right": '*'}),
                 animate(100, style({transform: 'translateX(-100px)', "margin-right": '-100px'}))
             ])
+        ]),
+        trigger('expand', [
+            transition('void => *', [
+                style({width: '0', "margin-right": '0'}),
+                animate(100, style({width: '*', "margin-right": '*'}))
+            ]),
+            transition('* => void', [
+                style({width: '*', "margin-right": '*'}),
+                animate(100, style({width: '0', "margin-right": '0'}))
+            ])
         ])
     ]
 })

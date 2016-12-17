@@ -1,10 +1,10 @@
 import {
-    AfterViewInit, Component, Input, ElementRef, NgZone, transition, animate, style, state,
-    trigger
+    AfterViewInit, Component, Input, ElementRef, NgZone, transition, animate, style, trigger,
+    ViewChild, AnimationTransitionEvent
 } from "@angular/core";
 import {Command} from "./command";
 import {Observable} from "rxjs";
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 require('./command-list.component.scss');
 
@@ -27,8 +27,10 @@ require('./command-list.component.scss');
 export class CommandListComponent implements  AfterViewInit {
 
     @Input() commands:Command[];
+    @ViewChild('commandContainer') commandContainer: ElementRef;
 
-    private container:JQuery;
+    private commandContainerJQuerySelector: JQuery;
+    private lockedCommand:Command;
 
     constructor(private element:ElementRef, private zone:NgZone) {
     }
@@ -43,7 +45,7 @@ export class CommandListComponent implements  AfterViewInit {
 
         for(let i = 0, length = commands.length; i < length; i++) {
             let command:Command = commands[i];
-            if (command.stale || action) {
+            if (command.stale || command.isNavigatedTo || action) {
                 continue;
             }
 
@@ -56,23 +58,67 @@ export class CommandListComponent implements  AfterViewInit {
                 continue;
             }
 
-            action = true;
-            command.stale = true;
+            action = command.stale = true;
         }
+    }
+
+    scroll(scrollTop:number) {
+        this.commandContainerJQuerySelector.stop().animate({
+            scrollTop
+        }, 600);
     }
 
     scrollToTop() {
-        if(!this.container.scrollTop()) {
+        this.lock(null);
+
+        if(this.commandContainerJQuerySelector.scrollTop() === 0) {
             return;
         }
 
-        this.container.stop().animate({
-            scrollTop: 0
-        }, 200, 'swing');
+        this.scroll(0);
+    }
+
+    scrollTo(command:Command) {
+        let element:JQuery = $('#command-status--' + command.id);
+
+        let elementHeight:number = element.height();
+        let elementOffset:number = element.position().top + this.commandContainerJQuerySelector.scrollTop();
+
+        let containerHeight:number =  (<HTMLElement> this.element.nativeElement).offsetHeight;
+
+        let scrollTop:number = elementOffset;
+        if (elementHeight < containerHeight) {
+            scrollTop -= containerHeight/2 - elementHeight/2;
+        }
+
+        this.scroll(scrollTop);
+    }
+
+    lock(command:Command) {
+        this.lockedCommand = command;
+
+        if(!command) {
+            return;
+        }
+
+        let element:JQuery = $('#command-status--' + command.id);
+        if (element.is(":visible")) {
+            this.scrollTo(command);
+            return;
+        }
+
+    }
+
+    onCommandAnimationFinish(event:AnimationTransitionEvent) {
+        if(event.toState !== null || this.lock === null) {
+            return;
+        }
+
+        this.lock(this.lockedCommand);
     }
 
     ngAfterViewInit() {
-        this.container = $(this.element.nativeElement);
+        this.commandContainerJQuerySelector = $(this.commandContainer.nativeElement);
 
         let callback: (tick:number) => any = this.cleanStaleData.bind(this);
 

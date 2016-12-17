@@ -1,7 +1,7 @@
 import {CommandLog} from "./command-log";
 export class Command {
 
-    constructor(public id:string, public title:string, public argument:string) {
+    constructor(public id:string, public originalInput:string, public title:string, public argument:string) {
         this.log = [];
         this.progress = -1;
         this.init = this.update = Date.now();
@@ -11,6 +11,7 @@ export class Command {
         this.lastInteraction = -1;
         this.siblings = 0;
         this.stale = false;
+        this.isNavigatedTo = false;
     }
 
     progress:number;
@@ -25,5 +26,6 @@ export class Command {
     hover: boolean;
     stale:boolean;
     siblings: number;
+    isNavigatedTo: boolean;
 
 }

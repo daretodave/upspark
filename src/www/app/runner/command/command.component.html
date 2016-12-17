@@ -1,5 +1,11 @@
 <div class="command" [class.command--hover]="command.hover">
-    <div class="command__title" *ngIf="command.siblings > 1" [@slide]>
+
+    <div class="command__selector" *ngIf="command.isNavigatedTo" [@expand]>
+        <div class="command__selector__line"></div>
+        <div class="command__selector__pointer"></div>
+    </div>
+
+    <div class="command__title" *ngIf="command.siblings > 1 || command.isNavigatedTo" [@slide]>
         <div class="command__title__text">{{command.title}}</div>
 
         <div class="command__title__indicator"

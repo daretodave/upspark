@@ -1,6 +1,8 @@
 <div id="runner-split">
     <input id="runner-split-input" type="text" class="plain" (ngModelChange)="onCommandChange($event)"
-           (keyup.enter)="onInputKeyUp($event)" (keydown)="onInputKeyDown($event)" [ngModel]="command" #runnerInput [disabled]="loading">
+           (keyup.enter)="onInputKeyUp($event)"
+           (keydown)="onInputKeyDown($event)"
+           [ngModel]="command" #runnerInput [disabled]="loading">
 
     <div id="runner-split-lower">
 

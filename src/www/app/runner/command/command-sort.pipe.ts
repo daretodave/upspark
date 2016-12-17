@@ -10,7 +10,7 @@ const _ = require('lodash');
 })
 export class CommandSortPipe {
     transform(array: Array<Command>, property?: string): Array<Command> {
-        array = array.filter((command:Command) => !command.stale);
+        array = array.filter((command:Command) => !command.stale || command.isNavigatedTo);
         array = _.sortBy(array, property || 'update').reverse();
         array = array.map((command:Command) => {
             command.siblings = Math.max(command.siblings, array.length);
