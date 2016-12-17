@@ -53,10 +53,31 @@ export class CommandService {
 
     }
 
-    navigate(up: boolean):CommandListNavigation {
-        let result:CommandListNavigation = new CommandListNavigation();
+    goToCursor(target:number):CommandListNavigation {
+        let commands:Command[] = _.sortBy(this.commands, 'update');
+        let result:CommandListNavigation = new CommandListNavigation(this.cursor);
 
-        if(this.commands.length < 2) {
+        result.fromPristine = this.cursor === this.commands.length;
+
+        this.cursor = target;
+
+        let command:Command =  commands[this.cursor];
+
+        result.fromHidden = command.stale;
+        result.navigate = true;
+        result.command = command;
+
+        command.isNavigatedTo = true;
+        command.stale = false;
+        command.lastInteraction = -1;
+
+        return result;
+    }
+
+    navigate(up: boolean):CommandListNavigation {
+        let result:CommandListNavigation = new CommandListNavigation(this.cursor);
+
+        if(this.commands.length < 1) {
             return result;
         }
         result.fromPristine = this.cursor === this.commands.length;
@@ -108,5 +129,9 @@ export class CommandService {
         }
 
         this.cursor = this.commands.length;
+    }
+
+    getCursor():number {
+        return this.cursor;
     }
 }

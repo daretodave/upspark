@@ -42,6 +42,7 @@ export class RunnerComponent implements OnInit {
     private loading: boolean = false;
     private commands: Command[];
     private cachedCommandSnippet: CommandSnippet;
+    private cachedCursor: number = -1;
 
     @ViewChild("commandList") commandList: CommandListComponent;
     @ViewChild("splitRunner") splitRunner: RunnerSplitComponent;
@@ -69,16 +70,9 @@ export class RunnerComponent implements OnInit {
 
         let isUpArrow: boolean = event.code === "ArrowUp";
         if (isUpArrow || event.code === "ArrowDown") {
-            const {reset, command, fromPristine} = this.commandService.navigate(!isUpArrow);
+            const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
             if (reset) {
-
-                this.commandList.scrollToTop();
-
-                if (this.cachedCommandSnippet != null) {
-                    this.command = this.cachedCommandSnippet.command;
-                    this.argument = this.cachedCommandSnippet.argument;
-                    this.input = this.cachedCommandSnippet.input;
-                }
+                this.resetCommandList(fromCursor, true);
 
             } else if (command !== null) {
                 if (fromPristine) {
@@ -94,21 +88,68 @@ export class RunnerComponent implements OnInit {
             return;
         }
 
-        let isLeftArrow: boolean = event.code === "ArrowLeft";
-        if (isLeftArrow || event.code === "ArrowRight") {
-            if (this.commandService.isNavigating()) {
-                this.commandService.resetNavigation();
-            } else {
-                this.split = !this.split;
-            }
+        let isLeftArrow: boolean = event.code === "ArrowLeft",
+            isRightArrow: boolean = event.code === "ArrowRight";
+
+        if (isLeftArrow && !event.ctrlKey) {
+            this.resetCommandList(this.commandService.getCursor());
+            return;
         }
 
+        if (isRightArrow && !event.ctrlKey) {
+            this.resetCachedCommandList();
+            return;
+        }
+
+        if ((isLeftArrow || isRightArrow) && event.ctrlKey) {
+            this.split = !this.split;
+        }
+
+    }
+
+    resetCommandList(cursor: number, overrideCurrentState:boolean = false) {
+        if (!overrideCurrentState && !this.commandService.isNavigating()) {
+            return;
+        }
+
+        this.cachedCursor = cursor;
+
+        if (this.cachedCommandSnippet != null) {
+            this.command = this.cachedCommandSnippet.command;
+            this.argument = this.cachedCommandSnippet.argument;
+            this.input = this.cachedCommandSnippet.input;
+            this.cachedCommandSnippet = null;
+        }
+
+        this.commandList.lock(null);
+        this.commandList.scrollToTop();
+
+        this.commandService.resetNavigation();
+    }
+
+    resetCachedCommandList() {
+        if(this.cachedCursor === -1 || this.commandService.isNavigating()) {
+            return;
+        }
+        const {command} =this.commandService.goToCursor(this.cachedCursor);
+
+        this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
+
+        this.commandList.lock(command);
+
+        this.command = command.title;
+        this.argument = command.argument;
+        this.input = command.originalInput;
+
+        this.cachedCursor = -1;
     }
 
     onCommand() {
         if (this.loading || !this.command.trim()) {
             return;
         }
+
+
         this.commandList.scrollToTop();
 
         this.commandService.execute(this.command, this.argument, this.input);
