@@ -159,12 +159,20 @@ export class RunnerComponent implements OnInit {
             return;
         }
 
+        let isNavigating:boolean = this.commandService.isNavigating();
+
         this.cachedCommandSnippet = null;
 
-        this.commandList.scrollToTop();
+        if(isNavigating) {
+            this.commandList.scrollToTop();
+            this.commandService.resetNavigation();
+        }
 
-        this.commandService.resetNavigation();
         this.commandService.execute(this.command, this.argument, this.input);
+
+        if(isNavigating) {
+            this.commandService.navigate(true);
+        }
 
         this.command = this.input = this.debug = this.argument = '';
     }

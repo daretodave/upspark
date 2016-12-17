@@ -8,8 +8,8 @@
     <div class="command__title"
          *ngIf="command.siblings > 1 || command.isNavigatedTo || (!command.error && !command.output)" [@slide]>
         <div class="command__title__text">
-            {{getTitle(command)}}
-            <div class="command__title__text__tag" *ngIf="command.tag" [innerHTML]="command.tag">
+            <div class="command__title__text__main">{{getTitle(command)}}</div>
+            <div class="command__title__text__tag" *ngIf="command.tag" [innerHTML]="command.tag" [@expand]>
             </div>
         </div>
 

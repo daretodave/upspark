@@ -13,6 +13,7 @@ export class CommandStateChange extends Command {
         this.error = base.error;
         this.output = base.output;
         this.completed = base.completed;
+        this.tag = base.tag;
 
         this.update = Date.now();
 

@@ -12,7 +12,7 @@ export abstract class InternalCommand {
 
     public host:InternalCommandExecutor;
 
-    public broadcast(updates:any, completed:boolean) {
+    public broadcast(updates:any, completed:boolean = false) {
         InternalCommandExecutor.publishUpdate(this, updates, completed);
     }
 

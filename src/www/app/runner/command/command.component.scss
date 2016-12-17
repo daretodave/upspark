@@ -2,7 +2,6 @@ up-command {
   display: flex;
   position: relative;
   overflow:hidden;
-  margin-top: 5px;
 
 }
 .command {
@@ -74,16 +73,27 @@ $background-indicator-loading: #fdba2c;
 
 .command__title__text {
   overflow-x:auto;
+  display: flex;
+}
+.command__title__text__tag {
+  padding-left: 5px;
+  margin-left: 5px;
+  font-size: 70%;
+  text-transform: uppercase;
+  align-self: flex-end;
+  padding-bottom: 3px;
+  padding-top: 3px;
+  border-left: 1px dotted rgba(8, 61, 150, 0.9);
 }
 .command__title {
   //background: rgba(147, 147, 147, 0.15);
   color: rgba(255, 255, 255, 0.61);
   padding: 5px;
-  font-size: .9em;
+  font-size: 1em;
   font-family: sans-serif;
-  max-width: 100px;
+  max-width: 200px;
   margin-right: 5px;
-align-self: center;
+ align-self: flex-start;
   text-shadow: #0a0a0a 1px 1px 1px;
 
 
@@ -95,9 +105,10 @@ align-self: center;
   width: 300px;
 }
 .command__response {
-  align-self:center;
+  align-self: flex-start;
   font-size: .9em;
   color: white;
+  padding: 8px 0;
   strong {
     border-bottom: 2px dotted dodgerblue;
     font-weight: 100;

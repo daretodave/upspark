@@ -18,6 +18,10 @@ export class Platform {
     constructor(public process:Process) {
     }
 
+    public size():number {
+        return this.commands.length;
+    }
+
     public hasCommandMapped(command:string): boolean {
         return this.commands.hasOwnProperty(command);
     }

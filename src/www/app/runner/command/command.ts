@@ -15,7 +15,7 @@ export class Command {
         this.siblings = 0;
         this.stale = false;
         this.isNavigatedTo = false;
-        this.tag = 'wow';
+        this.tag = '';
     }
 
     argument:string;
