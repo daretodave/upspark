@@ -32,12 +32,10 @@ export class Reload extends InternalCommand {
 
     reloadCommands() {
         new PlatformBootstrapper(this.host.hooks.getResources())
-            .load()
+            .load(this)
             .then((platform: Platform) => {
-                let size:number = platform.size();
-
                 this.host.hooks.onPlatformUpdate(platform);
-                this.resolve(`<strong>${size}</strong> command${size === 1 ? '' : 's'} ha${size===1?'s' : 've'} been mapped.`);
+                this.resolve(`SUCCESS`);
             })
             .catch(this.reject);
     }
@@ -58,7 +56,6 @@ export class Reload extends InternalCommand {
         this.broadcast({tag});
 
         actions.get(tag)(this);
-
     }
 
 }

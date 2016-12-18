@@ -39,6 +39,7 @@ export class CommandStateChange extends Command {
 
                 this.appendToLog.push(entry);
             }
+            property = 'log';
         }
         if(dirty) {
             this.changes['updated'] = Date.now();

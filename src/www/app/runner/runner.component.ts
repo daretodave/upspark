@@ -22,7 +22,6 @@ export class RunnerComponent implements OnInit {
             'css--runner-theme',
             'css--runner-metrics'
         );
-
         this.system.subscribeToBroadcast(
             'command-state-change',
             (event: SystemEvent) => this.commandService.onStateChange(event.value),

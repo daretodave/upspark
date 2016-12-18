@@ -1,6 +1,8 @@
 import {Command} from "../../www/app/runner/command/command";
 import {InternalCommandExecutor} from "./internal-command-executor";
-export abstract class InternalCommand {
+import {ProgressEventHandler} from "../model/progress-event-handler";
+import {ProgressEvent} from "../model/progress-event";
+export abstract class InternalCommand implements ProgressEventHandler {
 
     protected resolve: (value?: string | PromiseLike<string>) => void;
     protected reject: (reason?: string) => void;
@@ -11,6 +13,10 @@ export abstract class InternalCommand {
     public args:string[];
 
     public host:InternalCommandExecutor;
+
+    public onProgressUpdate(event: ProgressEvent) {
+        this.broadcast(ProgressEvent.asChangeset(event));
+    }
 
     public broadcast(updates:any, completed:boolean = false) {
         InternalCommandExecutor.publishUpdate(this, updates, completed);

@@ -33,9 +33,6 @@ export class CommandService {
     }
 
     onStateChange(update:CommandStateChange) {
-
-        console.log(update);
-
         let command:Command = this.commands.find((entry:Command) => entry.id === update.id);
         if (!command) {
             return;
@@ -46,12 +43,18 @@ export class CommandService {
                 continue;
             }
 
+
+
             if(change === 'log' && update.appendToLog.length) {
                 command.log.push.apply(command.log, update.appendToLog);
+                continue;
             }
+
 
             command[change] = update.changes[change];
         }
+
+        console.log(command);
 
     }
 

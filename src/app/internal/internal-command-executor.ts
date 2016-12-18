@@ -20,18 +20,18 @@ export class InternalCommandExecutor {
         if(completed) {
             updates.progress = 100;
             updates.completed = true;
+        }
 
-            if(updates.output) {
-                let log:string = `:command '${runner.title}'`;
-                let output:string = updates.output;
-                if (output.length > 50) {
-                    log = `\n${output}`;
-                } else {
-                    log = ` = ${output}`;
-                }
-
-                Logger.info(`:command '${runner.title}'${log}`);
+        if(updates.output && updates.completed) {
+            let log:string = `:command '${runner.title}'`;
+            let output:string = updates.output;
+            if (output.length > 50) {
+                log = `\n${output}`;
+            } else {
+                log = ` = ${output}`;
             }
+
+            Logger.info(`:command '${runner.title}'${log}`);
         }
 
         runner.sender.send('command-state-change', new CommandStateChange(runner.command, updates));
