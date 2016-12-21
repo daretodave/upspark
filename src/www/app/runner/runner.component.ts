@@ -1,13 +1,12 @@
-import {Component, OnInit, ViewChild} from "@angular/core";
+import {Component, OnInit, ViewChild, ContentChildren, QueryList, ElementRef, ViewChildren} from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
 import {CommandService} from "./command/command.service";
-import {Command} from "./command/command";
 import {SystemEvent} from "../shared/system/system-event";
 import {CommandListComponent} from "./command/command-list.component";
-import {RunnerSplitComponent} from "./runner-split.component";
 import {CommandSnippet} from "./command/command-snippet";
-import {CommandListNavigation} from "./command/command-list-navigation";
-import {RunnerMode} from "./runner-mode";
+import {RunnerInput} from "./runner-input";
+import {RunnerArgument} from "./runner-argument";
+import {RunnerArgumentComponent} from "./runner-argument.component";
 
 require('./runner.component.scss');
 
@@ -27,56 +26,36 @@ export class RunnerComponent implements OnInit {
             (event: SystemEvent) => this.commandService.onStateChange(event.value),
             true
         );
+        this.runnerInput.nativeElement.focus();
 
-        this.commands = this.commandService.getCommands();
+
     }
 
-    private output: string = '';
-    private debug: string = '';
-    private argument: string = '';
-    private command: string = '';
-    private input: string = '';
-    private title: string = '';
-    private log: string[] = [];
-    private split: boolean = false;
-    private loading: boolean = false;
-    private commands: Command[];
+    private input:RunnerInput = new RunnerInput();
     private cachedCommandSnippet: CommandSnippet;
     private cachedCursor: number = -1;
 
-    private mode:RunnerMode = RunnerMode.NORMAL;
+    @ViewChildren('argument')
+    private argumentList: QueryList<RunnerArgumentComponent>;
+    @ViewChild("runnerInput")
+    private runnerInput: ElementRef;
+    @ViewChild("commandList")
+    private commandList: CommandListComponent;
 
-    private modeNormal:RunnerMode = RunnerMode.NORMAL;
-    private modeTerminal:RunnerMode = RunnerMode.TERMINAL;
-    private modeInternal:RunnerMode = RunnerMode.INTERNAL;
-
-    @ViewChild("commandList") commandList: CommandListComponent;
-    @ViewChild("splitRunner") splitRunner: RunnerSplitComponent;
-
-    onBasicInputChange(value: string) {
-        let blocks: string[] = value.split(":");
-        let command: string = '';
-        let argument: string = '';
-
-        if (blocks.length) {
-            command = blocks[0];
-        }
-        if (blocks.length > 1) {
-            argument = blocks.slice(1).join(":");
-        }
-
-        this.command = command;
-        this.argument = argument;
+    onRunnerInputKeyDown(event: KeyboardEvent):boolean {
+       if(event.code === "Semicolon") {
+           console.log(this.argumentList.first);
+           if(!this.argumentList.first) {
+               this.input.arguments.push(new RunnerArgument());
+           } else {
+               this.argumentList.first.focus();
+           }
+           return false;
+       }
+       return true;
     }
 
     onRunnerKeyDown(event: KeyboardEvent) :boolean {
-        if (this.loading
-            || (this.split
-            && this.splitRunner.isArgumentFocused()
-            && !event.altKey)) {
-            return true;
-        }
-
         let isLeftArrow: boolean = event.code === "ArrowLeft",
             isRightArrow: boolean = event.code === "ArrowRight",
             isUpArrow: boolean = event.code === "ArrowUp",
@@ -97,18 +76,16 @@ export class RunnerComponent implements OnInit {
 
             } else if (command !== null) {
                 if (fromPristine) {
-                    this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
+                   // this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
                 }
 
                 this.commandList.lock(command);
 
-                this.command = command.title;
-                this.argument = command.argument;
-                this.input = command.originalInput;
+                //this.command = command.title;
+                //this.argument = command.argument;
+                //this.input = command.originalInput;
             }
-        } else if ((isLeftArrow || isRightArrow) && event.ctrlKey) {
-            this.split = !this.split;
-        }  else if (isLeftArrow) {
+        } else if (isLeftArrow) {
             this.resetCommandList(this.commandService.getCursor(), event.altKey);
         } else if (isRightArrow && event.altKey) {
             this.resetCachedCommandList();
@@ -125,9 +102,9 @@ export class RunnerComponent implements OnInit {
         this.cachedCursor = cursor;
 
         if (this.cachedCommandSnippet != null && resetCachedCommand) {
-            this.command = this.cachedCommandSnippet.command;
-            this.argument = this.cachedCommandSnippet.argument;
-            this.input = this.cachedCommandSnippet.input;
+            //this.command = this.cachedCommandSnippet.command;
+            //this.argument = this.cachedCommandSnippet.argument;
+            //this.input = this.cachedCommandSnippet.input;
         }
         this.cachedCommandSnippet = null;
 
@@ -142,21 +119,21 @@ export class RunnerComponent implements OnInit {
         }
         const {command} =this.commandService.goToCursor(this.cachedCursor);
 
-        this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
+//        this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
 
         this.commandList.lock(command);
 
-        this.command = command.title;
-        this.argument = command.argument;
-        this.input = command.originalInput;
+        //this.command = command.title;
+        //this.argument = command.argument;
+        //this.input = command.originalInput;
 
         this.cachedCursor = -1;
     }
 
     onCommand() {
-        if (this.loading || (!this.command.trim() && !this.argument.trim())) {
-            return;
-        }
+        // if (this.loading || (!this.command.trim() && !this.argument.trim())) {
+        //     return;
+        // }
 
         let isNavigating:boolean = this.commandService.isNavigating();
 
@@ -167,36 +144,13 @@ export class RunnerComponent implements OnInit {
             this.commandService.resetNavigation();
         }
 
-        this.commandService.execute(this.command, this.argument, this.input);
+        //this.commandService.execute(this.command, this.argument, this.input);
 
         if(isNavigating) {
             this.commandService.navigate(true);
         }
 
-        this.command = this.input = this.debug = this.argument = '';
-    }
-
-
-    onCommandChange(value: string) {
-        let input: string = `${value}`;
-        if (this.argument) {
-            input += `:${this.argument}`;
-
-        }
-        this.input = input;
-    }
-
-    onArgumentChange(value: string) {
-        let input: string = `${this.command}`;
-        if (value) {
-            input += `:${value}`;
-
-        }
-        this.input = input;
-    }
-
-    toggle(): void {
-        this.split = !this.split;
+        //this.command = this.input = this.debug = this.argument = '';
     }
 
     constructor(private system: SystemService, private commandService: CommandService) {

@@ -5,7 +5,7 @@ export class CommandStateChange extends Command {
     public appendToLog:CommandLog[] = [];
 
     constructor(base:Command, changes:any = {}) {
-        super(base.id, base.originalInput, base.title, base.argument);
+        super(base.id, base.title, base.argument);
 
         this.progress = base.progress;
         this.log = base.log;

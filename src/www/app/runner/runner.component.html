@@ -1,38 +1,15 @@
-<div id="runner" (keydown)="onRunnerKeyDown($event)"
-     [class.runner--terminal]="mode === modeTerminal"
-     [class.runner--internal]="mode === modeInternal"
-     [class.runner--normal]="mode === modeNormal">
+<div id="runner" (keydown)="onRunnerKeyDown($event)">
     <div id="runner__path">
-        <div id="runner-image" [class.split]="split" [class.loading]="loading" (click)="toggle()">
+        <div id="runner-image">
         </div>
         <div id="runner-path">
         </div>
     </div>
     <div id="runner__container">
-        <up-runner-basic *ngIf="!split" [loading]="loading" [(input)]="input" (inputChange)="onBasicInputChange($event)"
-                         (onCommand)="onCommand($event)"></up-runner-basic>
-        <up-runner-split #splitRunner *ngIf="split" [loading]="loading" [(command)]="command"
-                         (commandChange)="onCommandChange($event)" (argumentChange)="onArgumentChange($event)"
-                         [(argument)]="argument" [(output)]="output" (onCommand)="onCommand($event)"></up-runner-split>
-    </div>
-    <up-command-list #commandList [commands]="commands"></up-command-list>
-    <div id="runner-debug" *ngIf="debug" [innerHTML]="debug"></div>
-    <div id="runner-splash" *ngIf="loading">
-        <div class="splash">
-            <div class="splash__title" *ngIf="title">
-                <div class="splash__title__text" [innerHTML]="title"></div>
-            </div>
-            <div class="splash__info" *ngIf="log.length">
-                <div class="splash__info__debug">
-                    <div class="splash__info__debug__element" *ngFor="let element of log" [innerHTML]="element"></div>
-                </div>
-            </div>
-            <div class="splash__loader" [class.blank]="!log.length && !title">
-                <div class="splash__loader__aligner">
-                    <div class="splash__loader__icon"></div>
-                </div>
-            </div>
-
+        <div class="runner-input__container">
+            <input id="runner-input" [class.runner-input--args]="input.arguments.length !== 0" #runnerInput ([ngModel])="input.command" class="plain" (keydown)="onRunnerInputKeyDown($event)">
         </div>
+        <up-runner-argument #argument *ngFor="let argument of input.arguments" [argument]="argument"></up-runner-argument>
     </div>
+    <up-command-list #commandList></up-command-list>
 </div>

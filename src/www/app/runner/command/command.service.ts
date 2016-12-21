@@ -17,8 +17,8 @@ export class CommandService {
     constructor(private system:SystemService) {
     }
 
-    execute(title:string, args:string, originalInput:string) {
-        const command:Command = new Command(raw(), originalInput, title, args);
+    execute(title:string, args:string[]) {
+        const command:Command = new Command(raw(), title, args);
 
         this.commands.push(command);
         if (this.cursor+1 === this.commands.length) {
@@ -42,19 +42,12 @@ export class CommandService {
             if(!update.changes.hasOwnProperty(change)) {
                 continue;
             }
-
-
-
             if(change === 'log' && update.appendToLog.length) {
                 command.log.push.apply(command.log, update.appendToLog);
                 continue;
             }
-
-
             command[change] = update.changes[change];
         }
-
-        console.log(command);
 
     }
 

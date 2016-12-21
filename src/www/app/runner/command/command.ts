@@ -1,10 +1,9 @@
 import {CommandLog} from "./command-log";
 export class Command {
 
-    constructor(public id:string, public originalInput:string, title:string, argument:string) {
+    constructor(public id:string, title:string, argument:string[]) {
         this.title = title ? title.trim() : '';
         this.argument = argument;
-        this.isSystemCommand = argument.trim().length && !title.length;
         this.log = [];
         this.progress = -1;
         this.init = this.update = Date.now();
@@ -18,7 +17,7 @@ export class Command {
         this.tag = '';
     }
 
-    argument:string;
+    argument:string[];
     title:string;
     tag:string;
     progress:number;

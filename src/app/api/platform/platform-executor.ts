@@ -13,7 +13,7 @@ export class PlatformExecutor {
     }
 
     public execute(command:Command, update:(change:CommandStateChange) => any) {
-        const process = fork(this.platform, [command.title, command.argument]);
+        const process = fork(this.platform, [command.title].concat(command.argument));
 
         process.on('close', (code:number) => {
             this.pool.delete(command.id);

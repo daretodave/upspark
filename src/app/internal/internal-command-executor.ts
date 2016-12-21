@@ -8,23 +8,24 @@ import {InternalCommand} from "./internal-command";
 import {InternalCommandHooks} from "./internal-command-hooks";
 export class InternalCommandExecutor {
 
-    private commands: Map<string, {new (...args:any[]):InternalCommand }> = new Map<string, {new (...args:any[]):InternalCommand }>();
+    private commands: Map<string, {new (...args: any[]): InternalCommand }> = new Map<string, {new (...args: any[]): InternalCommand }>();
 
-    constructor(public hooks:InternalCommandHooks) {
+    constructor(public hooks: InternalCommandHooks) {
         this.commands.set('RELOAD', Reload);
     }
 
-    static publishUpdate(runner:{sender:any, command:Command, title:string, host?:InternalCommandExecutor}, updates:any, completed:boolean = false):Command {
+
+    public static publishUpdate(runner: {sender: any, command: Command, title: string, host?: InternalCommandExecutor}, updates: any, completed: boolean = false): Command {
         updates.update = Date.now();
 
-        if(completed) {
+        if (completed) {
             updates.progress = 100;
             updates.completed = true;
         }
 
-        if(updates.output && updates.completed) {
-            let log:string = `:command '${runner.title}'`;
-            let output:string = updates.output;
+        if (updates.output && updates.completed) {
+            let log: string = `:command '${runner.title}'`;
+            let output: string = updates.output;
             if (output.length > 50) {
                 log = `\n${output}`;
             } else {
@@ -36,7 +37,7 @@ export class InternalCommandExecutor {
 
         runner.sender.send('command-state-change', new CommandStateChange(runner.command, updates));
 
-        if(updates.error) {
+        if (updates.error) {
             Logger.error(`${runner.host ? `:command '${runner.title}' | ` : ''}${updates.error}`);
         }
 
@@ -44,46 +45,38 @@ export class InternalCommandExecutor {
     }
 
 
-    execute(sender:any, command: Command):Promise<any> {
-        let title:string = command.argument;
-        let args:string[] = title.split("|");
+    execute(sender: any, command: Command): Promise<any> {
+        const {title, argument} = command;
 
-        if (args.length > 1) {
-            title = args.splice(0, 1)[0];
-        } else {
-            args = [];
-        }
-        title = title.trim().toUpperCase();
-
-        let constructor:{new (...args:any[]):InternalCommand } = this.commands.get(title);
+        let constructor: {new (...args: any[]): InternalCommand } = this.commands.get(title);
         if (!constructor) {
-            let error:string = `The internal command <strong>${title}</strong> could not be found`;
+            let error: string = `The internal command <strong>${title}</strong> could not be found`;
 
             InternalCommandExecutor.publishUpdate({sender, command, title}, {error}, true);
             return Promise.reject(error);
         }
 
         Logger.info(`:command '${title}' | executing`);
-        if(args.length) {
-            Logger.info(`:command '${title}' | ${args.join(",")}`);
+        if (argument.length) {
+            Logger.info(`:command '${title}' | ${argument.join(",")}`);
         }
 
-        let runner:InternalCommand = new constructor();
+        let runner: InternalCommand = new constructor();
 
         runner.title = title;
-        runner.args = args;
+        runner.args = argument;
         runner.command = command;
         runner.sender = sender;
         runner.host = this;
 
         return runner
             .execute()
-            .then((output:string) => {
+            .then((output: string) => {
                 InternalCommandExecutor.publishUpdate(runner, {output}, true)
             })
-            .catch((error:any) => {
+            .catch((error: any) => {
                 error = error || 'There was an issue during execution.';
-                if(error.hasOwnProperty('message')) {
+                if (error.hasOwnProperty('message')) {
                     error = error.message;
                 }
 

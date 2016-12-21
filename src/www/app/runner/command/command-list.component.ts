@@ -1,6 +1,6 @@
 import {
     AfterViewInit, Component, Input, ElementRef, NgZone, transition, animate, style, trigger,
-    ViewChild, AnimationTransitionEvent
+    ViewChild, AnimationTransitionEvent, OnInit
 } from "@angular/core";
 import {Command} from "./command";
 import {Observable} from "rxjs";
@@ -25,13 +25,17 @@ require('./command-list.component.scss');
         ])
     ]
 })
-export class CommandListComponent implements  AfterViewInit {
+export class CommandListComponent implements  AfterViewInit, OnInit {
 
-    @Input() commands:Command[];
     @ViewChild('commandContainer') commandContainer: ElementRef;
 
     private commandContainerJQuerySelector: JQuery;
     private lockedCommand:Command;
+    private commands:Command[];
+
+    ngOnInit() {
+        this.commands = this.commandService.getCommands();
+    }
 
     constructor(private element:ElementRef, private commandService:CommandService, private zone:NgZone) {
     }
