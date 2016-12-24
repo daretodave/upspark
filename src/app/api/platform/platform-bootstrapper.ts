@@ -13,8 +13,14 @@ const MemoryFS = require("memory-fs");
 const webpack = require('webpack');
 const vm = require('vm');
 const template:string = require('./platform-template.txt');
-const wrapper:string = require('raw!./ext/platform-base.js');
-const platformExecutor:string = require('raw!./ext/platform-worker.js');
+const platformScripts:{[key: string]: string} = {
+    api:  [
+        require('raw!./ext/platform-utils.js'),
+        require('raw!./ext/platform-models.js'),
+        require('raw!./ext/platform-internal.js')
+    ].join(''),
+    executor: require('raw!./ext/platform-worker.js')
+};
 
 export class PlatformBootstrapper {
 
@@ -331,7 +337,7 @@ export class PlatformBootstrapper {
                         .line();
 
                 let internalNodeModuleInsert:string = excludes.map((external) => `upspark['__internal'].modules.push("${external}");`).join("");
-                let header:string = `${wrapper}${internalNodeModuleInsert}`;
+                let header:string = `${platformScripts["api"]}${internalNodeModuleInsert}`;
 
                 try {
                     vm.runInNewContext(
@@ -347,7 +353,7 @@ export class PlatformBootstrapper {
                     upspark['__internal'].worker = true;
                     ${source}
                     upspark['__internal'].loaded = true;
-                    ${platformExecutor}
+                    ${platformScripts["executors"]}
                 `;
 
                 Logger.info(platform);

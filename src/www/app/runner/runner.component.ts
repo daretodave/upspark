@@ -27,8 +27,6 @@ export class RunnerComponent implements OnInit {
             true
         );
         this.runnerInput.nativeElement.focus();
-
-
     }
 
     private input:RunnerInput = new RunnerInput();

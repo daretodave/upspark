@@ -1,40 +1,4 @@
-let upspark = {};
-
-upspark.util = {};
-upspark.util.parameters = function(func) {
-    let source = func.toString().replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg, '');
-    return source.slice(source.indexOf('(')+1, source.indexOf(')')).match(/([^\s,]+)/g) || [];
-};
-upspark.util.isUndefined = function(argument) {
-  return typeof argument === 'undefined';
-};
-upspark.util.isNull = function(argument) {
-    return argument === null;
-};
-upspark.util.isNullOrUndefined = function(argument) {
-    return arguments.length === 0 || upspark.util.isUndefined(argument) || upspark.util.isNull(argument);
-};
-upspark.util.isString = function(argument) {
-    return typeof argument === 'string';
-};
-upspark.util.isArray = function(argument, atLength) {
-    return Array.isArray(argument) ?
-            (arguments.length === 1 ?
-               true : (atLength < 0 ?
-                argument.length >= Math.abs(atLength) : arguments.length === atLength)) : false;
-};
-upspark.util.isFunction = (function(sample) {
-    return function(argument) {
-        return sample.toString.call(argument) === '[object Function]';
-    };
-})({});
-upspark.util.isPrimitive = (function(primitives) {
-    return function(argument, ignoreFunctions) {
-      return argument === null
-          || !ignoreFunctions && typeof argument === 'function'
-          || primitives.indexOf(typeof argument) !== -1;
-    };
-})(["boolean", "number", "string", "symbol", "undefined"]);
+let upspark = upspark || {};
 
 upspark['__internal'] = {};
 upspark['__internal'].commands = {};
@@ -123,7 +87,7 @@ upspark['__internal'].resolve = function(entity, parameters, callback, errCallba
     .catch(errCallback);
 };
 
-upspark.on = function(argument, split, processor) {
+upspark.on = upspark.command = function(argument, processor, options) {
     if(upspark.util.isNullOrUndefined(argument)) {
         upspark['__internal'].fatal(`Can not assign a command to a null or undefined argument`);
     }
@@ -143,28 +107,7 @@ upspark.on = function(argument, split, processor) {
     argument = argument.trim();
 
     log(`mapping '${argument}'`);
-    if(arguments.length === 1) {
-        processor = argument;
-        split = "|";
-        log(` ~ no processor provided. defaulting to command name.`);
 
-    } else if(arguments.length === 2) {
-        processor = split;
-        split = "|";
-
-    } else {
-        if(upspark.util.isNullOrUndefined(split)) {
-            split = '|';
-            log(` ~ provided split parameter was null or undefined. defaulting to pipe.`);
-
-        } else {
-            if(!upspark.util.isString(split)) {
-                split = argument.toString();
-            }
-            log(` ~ '${split}' provided as split argument parameter`);
-
-        }
-    }
     let parameters = false;
     if(upspark.util.isFunction(processor)) {
         parameters = upspark.util.parameters(processor);
