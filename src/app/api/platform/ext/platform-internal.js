@@ -42,50 +42,7 @@ upspark['__internal'].log = function(message, error) {
 upspark['__internal'].error = function (message) {
     return upspark['__internal'].log(message, true);
 };
-upspark['__internal'].resolve = function(entity, parameters, callback, errCallback, depth) {
-    depth = depth ? depth+1 : 0;
-
-    if(upspark.util.isPrimitive(entity, true) || (upspark.util.isArray(entity, 0))) {
-        callback(entity);
-        return;
-    }
-    if(upspark.util.isFunction(entity)) {
-        entity = entity.apply(upspark, parameters);
-
-        upspark['__internal'].resolve(entity, parameters, callback, errCallback, depth);
-        return;
-    }
-
-    Promise
-    .all(upspark.util.isArray(entity) ? entity : [entity])
-    .then(function(results) {
-        let tree = {};
-        let count = 0;
-
-        let handler = function(result) {
-            tree[results.indexOf(result)] = result;
-            count += 1;
-
-            if(count === results.length) {
-                let leafs = Object.values(tree);
-                if(leafs.length === 0) {
-                    callback(null);
-                } else if (leafs.length === 1) {
-                    callback(leafs[0]);
-                } else {
-                    callback(upspark.util.inspect(leafs, {
-
-                    }));
-                }
-            }
-        };
-
-        results.forEach(function(result) {
-            upspark['__internal'].resolve(result, parameters, handler, handler, depth);
-        });
-    })
-    .catch(errCallback);
-};
+upspark['__internal'].resolve = upspark.util.resolve.bind;
 
 upspark.on = upspark.command = function(argument, processor, options) {
     if(upspark.util.isNullOrUndefined(argument)) {
@@ -110,7 +67,12 @@ upspark.on = upspark.command = function(argument, processor, options) {
 
     let parameters = false;
     if(upspark.util.isFunction(processor)) {
-        parameters = upspark.util.parameters(processor);
+        parameters = upspark.util.parameters(processor).map((name) => {
+            let argument = Object.create(PlatformCommand);
+            argument.name = name;
+
+            return argument;
+        });
     }
 
     log(`mapped  '${argument}' ${parameters ? ('to a function' + (parameters.length ? '(' + parameters.join(", ") + ')': '')) : 'as ' + processor}`);

@@ -31,8 +31,7 @@
         log(`[${parameters.join(", ")}]`);
     }
 
-    upspark['__internal']
-    .resolve(command.processor, parameters, function(result) {
+    upspark['__internal'].resolve(null)(command.processor, parameters, function(result) {
         process.send({
             type: 'command-result',
             response: result
