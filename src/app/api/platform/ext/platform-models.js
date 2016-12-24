@@ -50,8 +50,8 @@ let PlatformPredicateDigest = {
 
         }
         if (this.results.total === predicates.length
-            ||  this.results[negate ? 'fails' : 'passes'] === this.results.target
-            || (this.predicates.length - this.results.total) > (this.results.target-this.results[negate ? 'fails' : 'passes'])) {
+            || this.results[negate ? 'fails' : 'passes'] === this.results.target
+            || (this.predicates.length - this.results.total) > (this.results.target - this.results[negate ? 'fails' : 'passes'])) {
 
             if (this.results[negate ? 'fails' : 'passes'] < this.results.target) {
                 this.callbacks.reject(this.resolutions);
@@ -167,12 +167,31 @@ PlatformConsumer.conditionalConsumerFromArguments = function (action, examples, 
 
     return consumer;
 };
-PlatformConsumer.buildCommandPredicateLink = function (predicateStack, self, handler) {
+PlatformConsumer.buildCommandPredicateLink = function (stack, command, handler) {
 
     let operation = function () {
+        let resolve = {};
+        let options = {};
 
+        Object.keys(handler.resolve).forEach(function (key, index) {
+            let providedArgument = index > arguments.length - 1 ? undefined : arguments[index];
 
-        return this;
+            resolve[key] = handler.resolve[key].init(providedArgument, options);
+        });
+
+        Object.keys(resolve).forEach(function (key, index) {
+            if (handler.resolve[key]["validator"]) {
+                handler.resolve[key]["validator"](resolve[key]);
+            }
+        });
+
+        stack.push(function () {
+            let resolution = handler.collector.apply(command, arguments);
+
+            return handler.predicate(options, resolution, resolve);
+        });
+
+        return command;
     };
 
     let matches = function (count, tests, negate) {
@@ -184,21 +203,19 @@ PlatformConsumer.buildCommandPredicateLink = function (predicateStack, self, han
         );
         let predicate = digest.bind(digest);
 
-        predicateStack.push(predicate);
-        return this;
+        stack.push(predicate);
+        return command;
     };
 
     operation.across = function (collection) {
         return {
             matched(count) {
                 matches(count, collection);
-
-                return self;
+                return command;
             },
             failed(count) {
                 matches(count, collection, true);
-
-                return self;
+                return command;
             }
         };
     };
@@ -218,115 +235,99 @@ PlatformConsumer.buildCommandPredicateLink = function (predicateStack, self, han
 };
 
 let PlatformCommand = {
-    command: undefined,
-    context: undefined,
+        command: undefined,
+        context: undefined,
 
-    predicateStack: [],
-    consumers: [],
+        predicateStack: [],
+        consumers: [],
 
-    processor: function () {
-        return this.command;
-    },
+        processor: function () {
+            return this.command;
+        },
 
-    arguments: [],
+        arguments: [],
 
-    appendConsumer(consumer, clearPredicateStack) {
-        this.consumers.push(consumer);
+        appendConsumer(consumer, clearPredicateStack) {
+            this.consumers.push(consumer);
 
-        if (clearPredicateStack) {
+            if (clearPredicateStack) {
+                this.predicateStack = [];
+            }
+
+            return this;
+        },
+
+        appendPassiveConsumer: function (action, examples, parameters, clearPredicateStack) {
+            let consumer;
+
+            if (this.predicateStack.length) {
+                consumer = PlatformConsumer
+                    .passiveConsumerFromArguments(
+                        action,
+                        examples,
+                        [parameters],
+                        this.predicateStack
+                    );
+            } else {
+                consumer = PlatformConsumer
+                    .passiveConsumerFromArguments(
+                        action,
+                        examples,
+                        parameters
+                    );
+            }
+
+            return this.appendConsumer(
+                consumer,
+                clearPredicateStack
+            );
+
+        },
+
+        appendConditionalConsumer: function (action, examples, parameters, clearPredicateStack) {
+
+            return this.appendConsumer(
+                PlatformConsumer
+                    .passiveConsumerFromArguments(
+                        action,
+                        examples,
+                        parameters,
+                        this.predicateStack
+                    ),
+                clearPredicateStack
+            );
+        },
+
+        when() {
+            this.predicateStack.push(Array.from(arguments));
+            return this;
+        },
+
+        otherwiseWhen()
+        {
             this.predicateStack = [];
-        }
+            if (arguments.length === 0) {
+                return this;
+            }
 
-        return this;
-    },
-
-    appendPassiveConsumer: function (action, examples, parameters, clearPredicateStack) {
-        let consumer;
-
-        if (this.predicateStack.length) {
-            consumer = PlatformConsumer
-                .passiveConsumerFromArguments(
-                    action,
-                    examples,
-                    [parameters],
-                    this.predicateStack
-                );
-        } else {
-            consumer = PlatformConsumer
-                .passiveConsumerFromArguments(
-                    action,
-                    examples,
-                    parameters
-                );
-        }
-
-        return this.appendConsumer(
-            consumer,
-            clearPredicateStack
-        );
-
-    },
-
-    appendConditionalConsumer: function (action, examples, parameters, clearPredicateStack) {
-
-        return this.appendConsumer(
-            PlatformConsumer
-                .passiveConsumerFromArguments(
-                    action,
-                    examples,
-                    parameters,
-                    this.predicateStack
-                ),
-            clearPredicateStack
-        );
-    },
-
-
-    otherwiseWhen()
-    {
-        this.predicateStack = [];
-        if (arguments.length === 0) {
+            this.predicateStack.push(Array.from(arguments));
             return this;
-        }
+        },
 
-        this.predicateStack.push(Array.from(arguments));
-        return this;
-    }
-    ,
+        otherwise()
+        {
+            this.predicateStack = [];
+            if (arguments.length === 0) {
+                return this;
+            }
 
-    otherwise()
-    {
-        this.predicateStack = [];
-        if (arguments.length === 0) {
-            return this;
-        }
+            return this.appendPassiveConsumer('otherwise', [
+                'upspark.on("FOO").when("A", "B").otherwise("C")',
+                'upspark.on("FOO").empty(":(").otherwise(arg => arg.toLowerCase())',
+            ], arguments, true);
+        },
 
-        return this.appendPassiveConsumer('otherwise', [
-            'upspark.on("FOO").when("A", "B").otherwise("C")',
-            'upspark.on("FOO").empty(":(").otherwise(arg => arg.toLowerCase())',
-        ], arguments, true);
-    }
-    ,
-
-    respond: function () {
-        return this.appendPassiveConsumer('respond', [
-            'upspark.on("FOO").respond("BAR")'
-        ], arguments, false);
-    }
-    ,
-
-    also: function () {
-        return this.appendPassiveConsumer('also', [
-            'upspark.on("FOO").respond("FOO").count(1).respond("FOO").also("BAR")'
-        ], arguments, false);
-    }
-    ,
-
-
-    counted: function (argumentCount) {
-    },
-
-    count: this.buildCommandPredicateLink(this.predicateStack, this,  {
+        count: this.buildCommandPredicateLink(this.predicateStack, this, {
             title: 'count',
             collector: () => {
                 return arguments.length;
@@ -349,7 +350,6 @@ let PlatformCommand = {
             },
             resolve: {
                 min: {
-                    alias: ['argumentCount'],
                     init: (value) => value || 1,
                     validator(value) {
                         if (!upspark.util.isNumber(value)) {
@@ -369,10 +369,10 @@ let PlatformCommand = {
                         }
                         options.flexible = true;
                     },
-                    validator(argument) {
-                        if (!upspark.util.isNumber(max)) {
+                    validator(value) {
+                        if (!upspark.util.isNumber(value)) {
                             return [
-                                `The argument maximum count can not be ${max}. A number is required`,
+                                `The argument maximum count can not be ${value}. A number is required`,
                                 'upspark.on("FOO").count(0, 5).then("LESS THAN 5 ARGUMENTS").otherwise("GREATER THEN 5 ARGUMENTS")'
                             ]
                         }
@@ -380,34 +380,10 @@ let PlatformCommand = {
                     }
                 }
             },
-        },
+        }),
 
-        then()
-{
-    return this.appendPassiveConsumer('respond', [
-        'upspark.on("FOO").count().then("BAR")'
-    ], arguments, false);
-}
-,
 
-when: function () {
-
-    if (arguments.length === 1) {
-        this.predicateStack.push(arguments[0]);
-        return this;
-    }
-
-    let consumer = PlatformConsumer.conditionalConsumerFromArguments('WHEN', [
-        'upspark.on("FOO").when(undefined, ":-(").then("BAR > {{arg}}")',
-        'upspark.on("FOO").when(undefined, ":-(").then("BAR > {{arg}}")'
-    ], arguments, this.predicateStack);
-
-    this.consumers.push(consumer);
-
-    return this;
-}
-}
-;
+    };
 let PlatformCommandArgument = {
 
     properties: {
