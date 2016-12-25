@@ -1,11 +1,12 @@
-let upspark = upspark || {};
-
 upspark['__internal'] = {};
+
 upspark['__internal'].commands = {};
 upspark['__internal'].loaded = false;
 upspark['__internal'].worker = false;
 upspark['__internal'].context = 'INIT';
 upspark['__internal'].modules = [];
+upspark['__internal'].mappings = {};
+
 upspark['__internal'].fatal = function(error) {
   let message = error || 'There was a fatal error during execution.';
   if (message.hasOwnProperty('message')) {
@@ -22,8 +23,31 @@ upspark['__internal'].require = function(path) {
     }
     return require(path);
 };
-upspark['__internal'].onContextSwitch = function(context) {
+upspark['__internal'].onContextSwitch = function(context, mappings) {
     upspark['__internal'].context = context;
+    upspark['__internal'].collectContextMappings(context, mappings);
+};
+upspark['__internal'].collectContextMappings = function(context, mappings) {
+    upspark['__internal'].mappings[context] = mappings;
+};
+upspark['__internal'].resolveMappings = function () {
+    let contextMappings = Object.keys(upspark['__internal'].mappings);
+
+    contextMappings.forEach(context => {
+
+        let moduleMappings = upspark['__internal'].mappings[context];
+        let moduleMappingsKeys = Object.keys(moduleMappings);
+
+        moduleMappingsKeys.forEach(processorKey => {
+            if(processorKey === '__esModule') {
+                return;
+            }
+
+            upspark['on'](processorKey, moduleMappings[processorKey]);
+        });
+    });
+
+    upspark['__internal'].mappings = {};
 };
 upspark['__internal'].log = function(message, error) {
     if(!process.send) {
@@ -43,8 +67,9 @@ upspark['__internal'].error = function (message) {
     return upspark['__internal'].log(message, true);
 };
 upspark['__internal'].resolve = upspark.util.resolve.bind;
+upspark['on'] = function(argument, processor, context) {
+    context = context || upspark['__internal'].context;
 
-upspark.on = upspark.command = function(argument, processor, options) {
     if(upspark.util.isNullOrUndefined(argument)) {
         upspark['__internal'].fatal(`Can not assign a command to a null or undefined argument`);
     }
@@ -79,7 +104,7 @@ upspark.on = upspark.command = function(argument, processor, options) {
 
     upspark['__internal'].commands[argument] = {
         processor: processor,
-        split: split,
-        context: upspark['__internal'].context
+        context: context
     };
+
 };

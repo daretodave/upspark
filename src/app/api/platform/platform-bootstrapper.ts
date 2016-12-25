@@ -96,9 +96,9 @@ export class PlatformBootstrapper {
                 options.presets.push("latest");
 
                 let contextSwitch:string = `
-                    (function(location, context) {
-                        context(location);
-                    })('${location}', upspark['__internal'].onContextSwitch);
+                    (function(location, mappings, context) {
+                        context(location, exports);
+                    })('${location}', exports,  upspark['__internal'].onContextSwitch);
                 `;
 
                 try {
@@ -335,6 +335,8 @@ export class PlatformBootstrapper {
                         .line()
                         .line('SOURCE::WEBPACKED')
                         .line();
+
+                source = `${source}upspark['__internal'].resolveMappings();`;
 
                 let internalNodeModuleInsert:string = excludes.map((external) => `upspark['__internal'].modules.push("${external}");`).join("");
                 let header:string = `${platformScripts["api"]}${internalNodeModuleInsert}`;

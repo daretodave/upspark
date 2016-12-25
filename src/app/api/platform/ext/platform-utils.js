@@ -1,4 +1,4 @@
-let upspark = upspark || {};
+let upspark = {};
 
 upspark.util = {};
 
@@ -78,7 +78,7 @@ upspark.util.isPrimitive = (function(primitives) {
             || primitives.indexOf(typeof argument) !== -1;
     };
 })(["boolean", "number", "string", "symbol", "undefined"]);
-upspark.util.resolve = function(entity, parameters, callback, errCallback, depth, pristine) {
+upspark.util.resolve = function(entity, parameters, callback, errCallback, depth) {
     depth = depth ? depth+1 : 0;
 
     if(upspark.util.isPrimitive(entity, true) || (upspark.util.isArray(entity, 0))) {
@@ -88,7 +88,7 @@ upspark.util.resolve = function(entity, parameters, callback, errCallback, depth
     if(upspark.util.isFunction(entity)) {
         entity = entity.apply(upspark, parameters);
 
-        upspark.util.resolve.resolve(entity, parameters, callback, errCallback, depth, pristine);
+        upspark['__internal'].resolve(entity, parameters, callback, errCallback, depth);
         return;
     }
 
@@ -109,18 +109,15 @@ upspark.util.resolve = function(entity, parameters, callback, errCallback, depth
                     } else if (leafs.length === 1) {
                         callback(leafs[0]);
                     } else {
-                        let response = leafs;
-                        if (!pristine) {
-                           response =  upspark.util.inspect(leafs);
-                        }
+                        callback(upspark.util.inspect(leafs, {
 
-                        callback(response);
+                        }));
                     }
                 }
             };
 
             results.forEach(function(result) {
-                upspark.util.resolve(result, parameters, handler, handler, depth, pristine);
+                upspark['__internal'].resolve(result, parameters, handler, handler, depth);
             });
         })
         .catch(errCallback);
