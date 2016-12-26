@@ -3,7 +3,7 @@ import {PlatformBootstrapper} from "../../api/platform/platform-bootstrapper";
 import {Platform} from "../../api/platform/platform";
 import {Logger} from "../../system/logger/logger";
 import reject = require("lodash/reject");
-import {CommandUpdateCommunicator} from "../../model/command/command-update/command-update-emitter";
+import {CommandUpdateEmitter} from "../../model/command/command-update/command-update-emitter";
 
 declare type ReloadAction = [string, (command:Reload) => any];
 
@@ -23,7 +23,7 @@ const parameters:string =
 
 export class Reload extends InternalCommand {
 
-    constructor(communicator:CommandUpdateCommunicator) {
+    constructor(communicator:CommandUpdateEmitter) {
         super(communicator);
     }
 

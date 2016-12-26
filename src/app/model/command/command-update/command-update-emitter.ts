@@ -1,23 +1,25 @@
 import {CommandUpdate} from "./command-update";
 import {Logger} from "../../../system/logger/logger";
-import {CommandUpdateMessage} from "./command-update-message";
 import {CommandLike} from "../command-like";
-import {CommandIntent} from "../command-intent";
+import {CommandUpdateListener} from "./command-update-listener";
 
-export class CommandUpdateCommunicator {
+export class CommandUpdateEmitter {
 
-    private completed: boolean = false;
+    public id:string;
+    public updateListener: CommandUpdateListener;
 
-    constructor(public id: string,
-                public intent: CommandIntent,
-                public handler: (message: CommandUpdateMessage) => any) {
-    }
+    public update(message: (CommandLike | CommandUpdate), log: any = null) {
 
-    public isCompleted(): boolean {
-        return this.completed;
-    }
+        let commandUpdate: CommandUpdate;
+        if (message instanceof CommandUpdate) {
+            commandUpdate = message;
+        } else {
+            commandUpdate = CommandUpdate.fromCommandLike(
+                this.id,
+                message
+            );
 
-    public postUpdate(commandUpdate: CommandUpdate, log: any = null): CommandUpdateCommunicator {
+        }
 
         if (log !== null) {
             if (Array.isArray(log)) {
@@ -29,30 +31,13 @@ export class CommandUpdateCommunicator {
             }
         }
 
-        let message: CommandUpdateMessage = commandUpdate.asMessage(this.intent);
-
-        if (!this.completed && message.update.completed) {
-            this.completed = true;
-        }
-
-        this.handler(message);
+        this.updateListener.onCommandUpdate(commandUpdate);
 
         return this;
     }
 
-    public update(message: CommandLike, log: any = null): CommandUpdateCommunicator {
-        return this.postUpdate(
-            CommandUpdate.fromCommandLike(
-                this.id,
-                message
-            ),
-            log
-        );
-
-    }
-
-    public complete(message: any = null, error: boolean = false, response: boolean = false, log: any = null): CommandUpdateCommunicator {
-        return this.postUpdate(CommandUpdate.completed(
+    public complete(message: any = null, error: boolean = false, response: boolean = false, log: any = null) {
+        return this.update(CommandUpdate.completed(
             this.id,
             error,
             message,
@@ -60,7 +45,7 @@ export class CommandUpdateCommunicator {
         ), log);
     }
 
-    public error(message: any = null, response: boolean = false, log: any = true): CommandUpdateCommunicator {
+    public error(message: any = null, response: boolean = false, log: any = true):any {
         if (log !== null && typeof log === 'boolean') {
             log = message;
         }

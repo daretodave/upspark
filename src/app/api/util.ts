@@ -1,5 +1,5 @@
-const STRIP_COMMENTS:RegExp = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-const ARGUMENT_NAMES:RegExp = /([^\s,]+)/g;
+const STRIP_COMMENTS: RegExp = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+const ARGUMENT_NAMES: RegExp = /([^\s,]+)/g;
 
 export class Util {
 
@@ -19,6 +19,15 @@ export class Util {
     public static isFunction(functionToCheck: any): boolean {
         let getType: any = {};
         return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
+    }
+
+    public static compose(derived: any, base: any[]) {
+        base.forEach(
+            base => Object.getOwnPropertyNames(base.prototype)
+                .forEach(
+                    name => derived.prototype[name] = base.prototype[name]
+                )
+        );
     }
 
 }

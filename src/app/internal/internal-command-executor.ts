@@ -2,27 +2,30 @@ import {Reload} from "./commands/reload";
 import {Logger} from "../system/logger/logger";
 import {InternalCommand} from "./internal-command";
 import {InternalCommandHooks} from "./internal-command-hooks";
-import {CommandUpdateCommunicator} from "../model/command/command-update/command-update-emitter";
+import {CommandUpdateEmitter} from "../model/command/command-update/command-update-emitter";
 import {CommandIntent} from "../model/command/command-intent";
+import {CommandTask} from "../model/command/command-task";
+import {Command} from "../model/command/command";
 export class InternalCommandExecutor {
 
-    private commands = new Map<string, (communicator:CommandUpdateCommunicator) => InternalCommand>();
+    private commands = new Map<string, (communicator: CommandUpdateEmitter) => InternalCommand>();
 
     constructor(public hooks: InternalCommandHooks) {
         this.commands.set(
-            'RELOAD',
+            Command.getNormalizedName('RELOAD'),
             communicator => new Reload(communicator)
         );
     }
 
 
-    execute(intent:CommandIntent, communicator:CommandUpdateCommunicator) {
+    execute(task: CommandTask) {
 
-        let constructor = this.commands.get(communicator.intent.command);
+        let command: string = task.command.intent.command.substring(1).trim();
+        let constructor = this.commands.get(Command.getNormalizedName(command));
 
         if (!constructor) {
-            communicator.error(
-                `The internal command <strong>${options.intent.command}</strong> could not be found`,
+            task.error(
+                `The internal command <strong>${command}</strong> could not be found`,
                 true
             );
             return;

@@ -1,7 +1,5 @@
 import {Command} from "../command";
 import {inspect} from "util";
-import {CommandIntent} from "../command-intent";
-import {CommandUpdateMessage} from "./command-update-message";
 import {CommandLike} from "../command-like";
 import {Util} from "../../../api/util";
 
@@ -47,13 +45,6 @@ export class CommandUpdate extends Command {
             this[property] = args === null ? null : args[property];
         });
 
-    }
-
-    asMessage(intent: CommandIntent): CommandUpdateMessage {
-        return {
-            intent: intent,
-            update: this
-        };
     }
 
 }

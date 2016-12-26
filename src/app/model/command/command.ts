@@ -1,8 +1,7 @@
 import {CommandIntent} from "./command-intent";
 import {CommandLogEntry} from "./command-log-entry";
 import {CommandLike} from "./command-like";
-import {CommandUpdateCommunicator} from "./command-update/command-update-emitter";
-import {CommandUpdateMessage} from "./command-update/command-update-message";
+import {CommandRuntime} from "./command-runtime";
 export class Command implements CommandLike {
 
     constructor(public id: string,
@@ -10,6 +9,7 @@ export class Command implements CommandLike {
                 public tag: string = '',
                 public response: string = '',
                 public output: string = '',
+                public runtime: CommandRuntime = CommandRuntime.USER,
                 public error: boolean = false,
                 public canceled: boolean = false,
                 public completed: boolean = false,
@@ -44,8 +44,5 @@ export namespace Command {
             .replace(separateWordsPattern, camelcaseJoiner);
     };
 
-    export const communicator = (command: Command, handler: (message: CommandUpdateMessage) => any): CommandUpdateCommunicator => {
-        return new CommandUpdateCommunicator(command.id, command.intent, handler);
-    }
 
 }

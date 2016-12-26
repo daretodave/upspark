@@ -43,6 +43,9 @@ export class RunnerComponent implements OnInit {
     }
 
     onRunnerKeyDown(event: KeyboardEvent): boolean {
+
+        //SET MODE AND PREVENT EXCESSIVE WHITESPACE IN ARGUMENT
+
         if (event.code === "Enter") {
 
             if (event.shiftKey) {

@@ -8,7 +8,7 @@ import methodOf = require("lodash/methodOf");
 import MemoryUsage = NodeJS.MemoryUsage;
 import {
     CommandUpdateCommunicatorOptions,
-    CommandUpdateCommunicator
+    CommandUpdateEmitter
 } from "../../model/command/command-update/command-update-emitter";
 
 const babel = require('babel-core');
@@ -262,7 +262,7 @@ export class PlatformBootstrapper {
         return new Promise<boolean>(executor);
     }
 
-    load(comms:CommandUpdateCommunicator): Promise<Platform>  {
+    load(comms:CommandUpdateEmitter): Promise<Platform>  {
         let executor = (resolve: (value:Platform) => void, reject: (reason?: any) => void) => {
 
             this.resources
