@@ -1,6 +1,6 @@
 import {CommandIntent} from "../command-intent";
 import {CommandUpdate} from "./command-update";
-export interface CommandUpdateEvent {
+export interface CommandUpdateMessage {
     update: CommandUpdate,
     intent: CommandIntent
 }

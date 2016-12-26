@@ -1,8 +1,8 @@
 import {Command} from "../command";
 import {inspect} from "util";
 import {CommandIntent} from "../command-intent";
-import {CommandUpdateEvent} from "./command-update-event";
-import {Commandable} from "../commandable";
+import {CommandUpdateMessage} from "./command-update-message";
+import {CommandLike} from "../command-like";
 import {Util} from "../../../api/util";
 
 export class CommandUpdate extends Command {
@@ -49,7 +49,7 @@ export class CommandUpdate extends Command {
 
     }
 
-    asMessage(intent: CommandIntent): CommandUpdateEvent {
+    asMessage(intent: CommandIntent): CommandUpdateMessage {
         return {
             intent: intent,
             update: this
@@ -143,7 +143,7 @@ export namespace CommandUpdate {
         return completed(id, true, message, response);
     };
 
-    export const fromCommandLike = (id: string, commandLike: Commandable): CommandUpdate => {
+    export const fromCommandLike = (id: string, commandLike: CommandLike): CommandUpdate => {
         let update: CommandUpdate = new CommandUpdate(id);
 
         Object.keys(commandLike).forEach(

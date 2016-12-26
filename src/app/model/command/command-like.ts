@@ -1,6 +1,6 @@
 import {CommandIntent} from "./command-intent";
 import {CommandLogEntry} from "./command-log-entry";
-export interface Commandable {
+export interface CommandLike {
 
     id?: string,
     intent?: CommandIntent;

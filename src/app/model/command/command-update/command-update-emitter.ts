@@ -1,8 +1,7 @@
-import {CommandUpdateListener} from "./command-update-listener";
 import {CommandUpdate} from "./command-update";
 import {Logger} from "../../../system/logger/logger";
-import {CommandUpdateEvent} from "./command-update-event";
-import {Commandable} from "../commandable";
+import {CommandUpdateMessage} from "./command-update-message";
+import {CommandLike} from "../command-like";
 import {CommandIntent} from "../command-intent";
 
 export class CommandUpdateCommunicator {
@@ -11,7 +10,7 @@ export class CommandUpdateCommunicator {
 
     constructor(public id: string,
                 public intent: CommandIntent,
-                public handler: CommandUpdateListener) {
+                public handler: (message: CommandUpdateMessage) => any) {
     }
 
     public isCompleted(): boolean {
@@ -30,18 +29,18 @@ export class CommandUpdateCommunicator {
             }
         }
 
-        let message: CommandUpdateEvent = commandUpdate.asMessage(this.intent);
+        let message: CommandUpdateMessage = commandUpdate.asMessage(this.intent);
 
         if (!this.completed && message.update.completed) {
             this.completed = true;
         }
 
-        this.handler.onEmit(message);
+        this.handler(message);
 
         return this;
     }
 
-    public update(message: Commandable, log: any = null): CommandUpdateCommunicator {
+    public update(message: CommandLike, log: any = null): CommandUpdateCommunicator {
         return this.postUpdate(
             CommandUpdate.fromCommandLike(
                 this.id,
