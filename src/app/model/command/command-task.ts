@@ -19,12 +19,6 @@ export class CommandTask implements CommandUpdateEmitter {
 
     }
 
-    public getCommandName():string {
-        return Command.getNormalizedName(
-            this.command.intent.command.trim()
-        );
-    }
-
     get id(): string {
         return this.command.id;
     }

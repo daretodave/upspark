@@ -1,7 +1,6 @@
 import {CommandUpdate} from "../../model/command/command-update/command-update";
 import {Logger} from "../../system/logger/logger";
 import {ChildProcess, fork} from "child_process";
-import {PlatformExecutorTask} from "./platform-executor-task";
 import {CommandArgument} from "../../model/command/command-argument";
 import {Command} from "../../model/command/command";
 import {PlatformMessage} from "./platform-message";

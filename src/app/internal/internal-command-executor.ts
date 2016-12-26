@@ -20,7 +20,8 @@ export class InternalCommandExecutor {
 
     execute(task: CommandTask) {
 
-        let command: string = task.command.intent.command.substring(1).trim();
+        let command: string = task.command.intent.command.trim().substring(1).trim();
+        let commandName:string = Command.getNormalizedName(command);
         let constructor = this.commands.get(Command.getNormalizedName(command));
 
         if (!constructor) {

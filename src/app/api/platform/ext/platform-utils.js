@@ -21,7 +21,7 @@ upspark.util.isNumber = function(argument) {
 upspark.util.isBoolean = function(argument, checkIfEquals) {
     let passTest = typeof argument === 'boolean';
     if (passTest && arguments.length > 1) {
-        return argument === checkIfEquals;
+        return argument === check;IfEquals;
     }
     return passTest;
 };
