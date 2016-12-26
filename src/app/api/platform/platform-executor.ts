@@ -1,4 +1,4 @@
-import {CommandUpdate} from "../../model/command/command-update";
+import {CommandUpdate} from "../../model/command/command-update/command-update";
 import {Logger} from "../../system/logger/logger";
 import {ChildProcess, fork} from "child_process";
 import {PlatformExecutorTask} from "./platform-executor-task";

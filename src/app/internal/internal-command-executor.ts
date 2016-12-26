@@ -2,25 +2,22 @@ import {Reload} from "./commands/reload";
 import {Logger} from "../system/logger/logger";
 import {InternalCommand} from "./internal-command";
 import {InternalCommandHooks} from "./internal-command-hooks";
-import {
-    CommandUpdateCommunicatorOptions,
-    CommandUpdateCommunicator
-} from "../model/command/command-update-communicator";
+import {CommandUpdateCommunicator} from "../model/command/command-update/command-update-emitter";
+import {CommandIntent} from "../model/command/command-intent";
 export class InternalCommandExecutor {
 
-    private commands = new Map<string, (options:CommandUpdateCommunicatorOptions) => InternalCommand>();
+    private commands = new Map<string, (communicator:CommandUpdateCommunicator) => InternalCommand>();
 
     constructor(public hooks: InternalCommandHooks) {
         this.commands.set(
             'RELOAD',
-            options => new Reload(options)
+            communicator => new Reload(communicator)
         );
     }
 
 
-    execute(sender: any, options:CommandUpdateCommunicatorOptions) {
+    execute(intent:CommandIntent, communicator:CommandUpdateCommunicator) {
 
-        let communicator = new CommandUpdateCommunicator(options);
         let constructor = this.commands.get(communicator.intent.command);
 
         if (!constructor) {

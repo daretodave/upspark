@@ -1,4 +1,4 @@
-import {CommandUpdate} from "../../model/command/command-update";
+import {CommandUpdate} from "../../model/command/command-update/command-update";
 type PlatformMessageIntent = "result" | "error" | "log-error" | "update" | "progress" | "abort" | "log";
 
 export interface PlatformMessage {

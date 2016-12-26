@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {SystemService} from "../../shared/system/system.service";
-import {CommandUpdate} from "../../../../app/model/command/command-update";
+import {CommandUpdate} from "../../../../app/model/command/command-update/command-update";
 import * as _ from "lodash";
 import {CommandListNavigation} from "./command-list-navigation";
 import {CommandIntent} from "../../../../app/model/command/command-intent";

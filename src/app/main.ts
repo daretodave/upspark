@@ -14,7 +14,7 @@ import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
 import {Platform} from "./api/platform/platform";
 import {PlatformExecutor} from "./api/platform/platform-executor";
 import {Command} from "./model/command/command";
-import {CommandUpdate} from "./model/command/command-update";
+import {CommandUpdate} from "./model/command/command-update/command-update";
 import {PlatformPackage} from "./api/platform/platform-package";
 import {InternalCommandExecutor} from "./internal/internal-command-executor";
 

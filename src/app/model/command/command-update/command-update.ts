@@ -1,9 +1,9 @@
-import {Command} from "./command";
+import {Command} from "../command";
 import {inspect} from "util";
-import {CommandIntent} from "./command-intent";
-import {CommandUpdateMessage} from "./command-update-message";
-import {Commandable} from "./commandable";
-import {Util} from "../../api/util";
+import {CommandIntent} from "../command-intent";
+import {CommandUpdateEvent} from "./command-update-event";
+import {Commandable} from "../commandable";
+import {Util} from "../../../api/util";
 
 export class CommandUpdate extends Command {
 
@@ -34,6 +34,7 @@ export class CommandUpdate extends Command {
                 );
                 return;
             }
+
             if (args !== null
                 && property === "error"
                 && typeof args[property] !== 'boolean') {
@@ -48,7 +49,7 @@ export class CommandUpdate extends Command {
 
     }
 
-    asMessage(intent: CommandIntent): CommandUpdateMessage {
+    asMessage(intent: CommandIntent): CommandUpdateEvent {
         return {
             intent: intent,
             update: this

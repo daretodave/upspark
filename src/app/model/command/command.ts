@@ -1,6 +1,8 @@
 import {CommandIntent} from "./command-intent";
 import {CommandLogEntry} from "./command-log-entry";
 import {Commandable} from "./commandable";
+import {CommandUpdateListener} from "./command-update/command-update-listener";
+import {CommandUpdateCommunicator} from "./command-update/command-update-emitter";
 export class Command implements Commandable {
 
     constructor(public id: string,
@@ -40,6 +42,10 @@ export namespace Command {
             .trim()
             .replace(underscoreOrDashPattern, ' ')
             .replace(separateWordsPattern, camelcaseJoiner);
+    };
+
+    export const communicator = (command: Command, handler: CommandUpdateListener): CommandUpdateCommunicator => {
+        return new CommandUpdateCommunicator(command.id, command.intent, handler);
     }
 
 }

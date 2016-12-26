@@ -1,16 +1,15 @@
 import {Command} from "../model/command/command";
 import {InternalCommandExecutor} from "./internal-command-executor";
 import {
-    CommandUpdateCommunicator,
-    CommandUpdateCommunicatorOptions
-} from "../model/command/command-update-communicator";
-export interface InternalCommand {
-    new(options: CommandUpdateCommunicatorOptions):InternalCommand
-}
-export abstract class InternalCommand extends CommandUpdateCommunicator {
+    CommandUpdateCommunicator
+} from "../model/command/command-update/command-update-emitter";
+export abstract class InternalCommand {
 
     protected resolve: (value?: string | PromiseLike<string>) => void;
     protected reject: (reason?: string) => void;
+
+    constructor(public communicator:CommandUpdateCommunicator) {
+    }
 
     public sender:any;
     public command:Command;

@@ -9,7 +9,7 @@ import MemoryUsage = NodeJS.MemoryUsage;
 import {
     CommandUpdateCommunicatorOptions,
     CommandUpdateCommunicator
-} from "../../model/command/command-update-communicator";
+} from "../../model/command/command-update/command-update-emitter";
 
 const babel = require('babel-core');
 const MemoryFS = require("memory-fs");

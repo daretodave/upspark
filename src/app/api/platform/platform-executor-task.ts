@@ -1,9 +1,9 @@
 import {Platform} from "./platform";
-import {CommandUpdateHandler} from "../../model/command/command-update-handler";
+import {CommandUpdateListener} from "../../model/command/command-update/command-update-listener";
 import {
     CommandUpdateCommunicator,
     CommandUpdateCommunicatorOptions
-} from "../../model/command/command-update-communicator";
+} from "../../model/command/command-update/command-update-emitter";
 import {CommandIntent} from "../../model/command/command-intent";
 export class PlatformExecutorTask extends CommandUpdateCommunicator {
 
