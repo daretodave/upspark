@@ -6,7 +6,10 @@ import * as fs from 'fs';
 import {Platform, excludes, apiModules} from "./platform";
 import methodOf = require("lodash/methodOf");
 import MemoryUsage = NodeJS.MemoryUsage;
-import {ProgressEventHandler} from "../../model/progress-event-handler";
+import {
+    CommandUpdateCommunicatorOptions,
+    CommandUpdateCommunicator
+} from "../../model/command/command-update-communicator";
 
 const babel = require('babel-core');
 const MemoryFS = require("memory-fs");
@@ -259,7 +262,7 @@ export class PlatformBootstrapper {
         return new Promise<boolean>(executor);
     }
 
-    load(progressEventHandler:ProgressEventHandler = ProgressEventHandler.BLANK): Promise<Platform>  {
+    load(comms:CommandUpdateCommunicator): Promise<Platform>  {
         let executor = (resolve: (value:Platform) => void, reject: (reason?: any) => void) => {
 
             this.resources
@@ -309,10 +312,6 @@ export class PlatformBootstrapper {
                     ));
                     return;
                 }
-
-                progressEventHandler.onProgressUpdate({
-                   message: 'hi'
-                });
 
                 return Promise.all([
                     this.memory,

@@ -5,11 +5,10 @@ export class CommandWrapper {
     public reference:Command;
 
     constructor(
-        id:number,
+        id:string,
         intent:CommandIntent,
 
         public update:number = 0,
-        public tag:string = '',
         public hover:boolean = false,
         public stale:boolean = false,
         public active:boolean = false

@@ -1,59 +1,34 @@
-import {Resource} from "../system/resource/resource";
-import {Safe} from "../system/safe";
-import {Command} from "../model/command/command";
 import {Reload} from "./commands/reload";
-import {CommandUpdate} from "../model/command/command-update";
 import {Logger} from "../system/logger/logger";
 import {InternalCommand} from "./internal-command";
 import {InternalCommandHooks} from "./internal-command-hooks";
+import {
+    CommandUpdateCommunicatorOptions,
+    CommandUpdateCommunicator
+} from "../model/command/command-update-communicator";
 export class InternalCommandExecutor {
 
-    private commands: Map<string, {new (...args: any[]): InternalCommand }> = new Map<string, {new (...args: any[]): InternalCommand }>();
+    private commands = new Map<string, (options:CommandUpdateCommunicatorOptions) => InternalCommand>();
 
     constructor(public hooks: InternalCommandHooks) {
-        this.commands.set('RELOAD', Reload);
+        this.commands.set(
+            'RELOAD',
+            options => new Reload(options)
+        );
     }
 
 
-    public static publishUpdate(runner: {sender: any, command: Command, title: string, host?: InternalCommandExecutor}, updates: any, completed: boolean = false): Command {
-        updates.update = Date.now();
+    execute(sender: any, options:CommandUpdateCommunicatorOptions) {
 
-        if (completed) {
-            updates.progress = 100;
-            updates.completed = true;
-        }
+        let communicator = new CommandUpdateCommunicator(options);
+        let constructor = this.commands.get(communicator.intent.command);
 
-        if (updates.output && updates.completed) {
-            let log: string = `:command '${runner.title}'`;
-            let output: string = updates.output;
-            if (output.length > 50) {
-                log = `\n${output}`;
-            } else {
-                log = ` = ${output}`;
-            }
-
-            Logger.info(`:command '${runner.title}'${log}`);
-        }
-
-        runner.sender.send('command-state-change', new CommandUpdate(runner.command, updates));
-
-        if (updates.error) {
-            Logger.error(`${runner.host ? `:command '${runner.title}' | ` : ''}${updates.error}`);
-        }
-
-        return runner.command;
-    }
-
-
-    execute(sender: any, command: Command): Promise<any> {
-        const {title, argument} = command;
-
-        let constructor: {new (...args: any[]): InternalCommand } = this.commands.get(title);
         if (!constructor) {
-            let error: string = `The internal command <strong>${title}</strong> could not be found`;
-
-            InternalCommandExecutor.publishUpdate({sender, command, title}, {error}, true);
-            return Promise.reject(error);
+            communicator.error(
+                `The internal command <strong>${options.intent.command}</strong> could not be found`,
+                true
+            );
+            return;
         }
 
         Logger.info(`:command '${title}' | executing`);

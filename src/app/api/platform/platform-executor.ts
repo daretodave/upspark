@@ -21,13 +21,13 @@ export class PlatformExecutor {
             || !intent.command
             || (commandTitle = intent.command.trim()).length === 0) {
 
-            error('No command title provided.');
+            error('No command provided', true);
             return;
         }
 
         commandTitle = Command.getNormalizedName(commandTitle);
         if (!platform.hasCommandMapped(commandTitle)) {
-            error(`The command <strong>${intent.command}</strong> could not be found`);
+            error(`The command <strong>${intent.command}</strong> could not be found`, true);
             return;
         }
 

@@ -1,8 +1,13 @@
 import {Command} from "../model/command/command";
 import {InternalCommandExecutor} from "./internal-command-executor";
-import {ProgressEventHandler} from "../model/progress-event-handler";
-import {ProgressEvent} from "../model/progress-event";
-export abstract class InternalCommand implements ProgressEventHandler {
+import {
+    CommandUpdateCommunicator,
+    CommandUpdateCommunicatorOptions
+} from "../model/command/command-update-communicator";
+export interface InternalCommand {
+    new(options: CommandUpdateCommunicatorOptions):InternalCommand
+}
+export abstract class InternalCommand extends CommandUpdateCommunicator {
 
     protected resolve: (value?: string | PromiseLike<string>) => void;
     protected reject: (reason?: string) => void;
@@ -14,16 +19,11 @@ export abstract class InternalCommand implements ProgressEventHandler {
 
     public host:InternalCommandExecutor;
 
-    public onProgressUpdate(event: ProgressEvent) {
-        this.broadcast(ProgressEvent.asChangeset(event));
-    }
-
-    public broadcast(updates:any, completed:boolean = false) {
-        InternalCommandExecutor.publishUpdate(this, updates, completed);
-    }
-
     public send(message:string, ...args:any[]) {
-        return this.sender.send.apply(this.sender, [message].concat(args));
+        return this.sender.send.apply(
+            this.sender,
+            [message].concat(args)
+        );
     }
 
     public execute(): Promise<string> {

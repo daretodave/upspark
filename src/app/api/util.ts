@@ -1,5 +1,5 @@
-const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-const ARGUMENT_NAMES = /([^\s,]+)/g;
+const STRIP_COMMENTS:RegExp = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
+const ARGUMENT_NAMES:RegExp = /([^\s,]+)/g;
 
 export class Util {
 

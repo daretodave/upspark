@@ -119,21 +119,27 @@ export namespace CommandUpdate {
         return `<ul>${listElementsHTML}</ul>`;
     };
 
-    export const completed = (id: string, error: boolean = false, message: any = null) => {
+    export const completed = (id: string, error: boolean = false, message: any = null, response:boolean = false) => {
         message = getSanitizedMessage(message, error);
 
         let update: CommandUpdate = new CommandUpdate(id);
 
         update.completed = true;
         update.error = error;
-        update.output = message;
+
+        if(response) {
+            update.response = message;
+        } else {
+            update.output = message;
+        }
+
         update.progress = 100;
 
         return update;
     };
 
-    export const error = (id: string, message: any = null): CommandUpdate => {
-        return completed(id, true, message);
+    export const error = (id: string, message: any = null, response:boolean = false): CommandUpdate => {
+        return completed(id, true, message, response);
     };
 
     export const fromCommandLike = (id: string, commandLike: Commandable): CommandUpdate => {

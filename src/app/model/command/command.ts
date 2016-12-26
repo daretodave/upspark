@@ -5,6 +5,7 @@ export class Command implements Commandable {
 
     constructor(public id: string,
                 public intent: CommandIntent,
+                public tag: string = '',
                 public response: string = '',
                 public output: string = '',
                 public error: boolean = false,
