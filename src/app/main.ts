@@ -934,18 +934,11 @@ let initRunner = () => {
 
     ipcMain.on('command-run', (event:any, arg:Command) => {
 
-        if(arg.isSystemCommand) {
-            internalCommandExecutor.execute(event.sender, arg);
-            return;
-        }
-        if(!platform.hasCommandMapped(arg.title)) {
-            let error:string = `The command <strong>${arg.title}</strong> could not be found`;
-            event.sender.send('command-state-change', new CommandUpdate(arg, {
-                error: error,
-                completed: true,
-                updated: Date.now()
-            }));
-            Logger.error(error);
+        if(!platform.hasCommandMapped(arg.intent.command)) {
+            event.sender.send('command-state-change',
+                CommandUpdate.error(arg.id, `The command <strong>${arg.intent.command}</strong> could not be found`)
+            );
+
             return;
         }
         executor.execute(arg, (update:CommandUpdate) =>  event.sender.send('command-state-change', update));

@@ -71,7 +71,9 @@ upspark['on'] = function(argument, processor, context) {
     context = context || upspark['__internal'].context;
 
     if(upspark.util.isNullOrUndefined(argument)) {
-        upspark['__internal'].fatal(`Can not assign a command to a null or undefined argument`);
+        upspark['__internal'].fatal(
+            `Can not assign a command to a null or undefined title`
+        );
     }
 
     let log = function(message) {
@@ -86,7 +88,14 @@ upspark['on'] = function(argument, processor, context) {
 
         log(`provided argument was not a string. defaulting to argument.toString`);
     }
-    argument = argument.trim();
+
+    argument = upspark.util.normalize(argument);
+
+    if(argument.length === 0) {
+        upspark['__internal'].fatal(
+            `Can not assign a command to an empty string`
+        );
+    }
 
     log(`mapping '${argument}'`);
 

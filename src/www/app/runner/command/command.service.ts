@@ -23,7 +23,7 @@ export class CommandService {
 
         this.commands.push(command);
 
-        this.system.send('command-run', command);
+        this.system.send('command-run', command.reference);
     }
 
     getCommands(): CommandWrapper[] {

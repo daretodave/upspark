@@ -37,7 +37,7 @@ upspark.util.camelize = function(str) {
     });
 };
 upspark.util.normalize = function(str) {
-    return upspark.util.camelize(str.replace(new RegExp('\_|\-', 'g'), ' '));
+    return upspark.util.camelize(str.trim().replace(new RegExp('\_|\-', 'g'), ' '));
 };
 upspark.util.displayize = function(str) {
     str = upspark.util.normalize(str);
