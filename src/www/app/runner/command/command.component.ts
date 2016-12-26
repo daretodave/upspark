@@ -1,5 +1,5 @@
 import {Component, Input, HostListener, trigger, transition, style, animate} from "@angular/core";
-import {Command} from "./command";
+import {CommandWrapper} from "./command-wrapper";
 
 require('./command.component.scss');
 
@@ -31,7 +31,10 @@ require('./command.component.scss');
 })
 export class CommandComponent {
 
-    @Input() command: Command;
+    @Input() command: CommandWrapper;
+
+    constructor() {
+    }
 
     @HostListener('mouseenter') onMouseEnter() {
         this.command.hover = true;

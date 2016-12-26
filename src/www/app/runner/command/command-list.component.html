@@ -1,5 +1,10 @@
 <div class="command-list" #commandContainer>
 
-    <up-command [attr.id]="'command-status--' + command.id" *ngFor="let command of (commands | commandSort)" [@slide] (@slide.done)="onCommandAnimationFinish($event)" [command]="command"></up-command>
+    <up-command *ngFor="let command of (commands | commandSort)"
+
+                [attr.id]="'command-status--' + command.reference.id"
+
+                [@slide]
+                (@slide.done)="onCommandAnimationFinish($event)" [command]="command"></up-command>
 
 </div>

@@ -1,4 +1,4 @@
-export class RunnerArgument {
+export class CommandArgument {
 
     title:string = '';
     content:string = '';

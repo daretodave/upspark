@@ -1,12 +1,10 @@
-import {Component, OnInit, ViewChild, ContentChildren, QueryList, ElementRef, ViewChildren} from "@angular/core";
+import {Component, OnInit, ViewChild, QueryList, ElementRef, ViewChildren} from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
 import {CommandService} from "./command/command.service";
 import {SystemEvent} from "../shared/system/system-event";
 import {CommandListComponent} from "./command/command-list.component";
-import {CommandSnippet} from "./command/command-snippet";
-import {RunnerInput} from "./runner-input";
-import {RunnerArgument} from "./runner-argument";
-import {RunnerArgumentComponent} from "./runner-argument.component";
+import {CommandIntent} from "../../../app/model/command/command-intent";
+import {CommandArgumentComponent} from "./command-argument/command-argument.component";
 
 require('./runner.component.scss');
 
@@ -15,6 +13,21 @@ require('./runner.component.scss');
     templateUrl: 'runner.component.html',
 })
 export class RunnerComponent implements OnInit {
+
+    private intent: CommandIntent = new CommandIntent();
+    private savedIntent: CommandIntent;
+    private savedCursor: number = -1;
+
+    constructor(private system: SystemService,
+                private commandService: CommandService,
+                @ViewChildren('argument')
+                private argumentList: QueryList<CommandArgumentComponent>,
+                @ViewChild("runnerInput")
+                private runnerInput: ElementRef,
+                @ViewChild("commandList")
+                private commandList: CommandListComponent) {
+    }
+
     ngOnInit() {
         this.system.handleStyleBroadcast(
             'css--runner-custom',
@@ -29,37 +42,31 @@ export class RunnerComponent implements OnInit {
         this.runnerInput.nativeElement.focus();
     }
 
-    private input:RunnerInput = new RunnerInput();
-    private cachedCommandSnippet: CommandSnippet;
-    private cachedCursor: number = -1;
+    onRunnerKeyDown(event: KeyboardEvent): boolean {
+        if (event.code === "Enter") {
 
-    @ViewChildren('argument')
-    private argumentList: QueryList<RunnerArgumentComponent>;
-    @ViewChild("runnerInput")
-    private runnerInput: ElementRef;
-    @ViewChild("commandList")
-    private commandList: CommandListComponent;
+            if (event.shiftKey) {
+                // navigate back
 
-    onRunnerInputKeyDown(event: KeyboardEvent):boolean {
-       if(event.code === "Semicolon") {
-           console.log(this.argumentList.first);
-           if(!this.argumentList.first) {
-               this.input.arguments.push(new RunnerArgument());
-           } else {
-               this.argumentList.first.focus();
-           }
-           return false;
-       }
-       return true;
-    }
+                return;
+            }
 
-    onRunnerKeyDown(event: KeyboardEvent) :boolean {
+            if (event.ctrlKey) {
+                // execute
+
+                return;
+            }
+
+
+            return;
+        }
+
         let isLeftArrow: boolean = event.code === "ArrowLeft",
             isRightArrow: boolean = event.code === "ArrowRight",
             isUpArrow: boolean = event.code === "ArrowUp",
-            isDownArrow:boolean = event.code === "ArrowDown";
+            isDownArrow: boolean = event.code === "ArrowDown";
 
-        if(!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
+        if (!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
             return true;
         }
 
@@ -74,7 +81,7 @@ export class RunnerComponent implements OnInit {
 
             } else if (command !== null) {
                 if (fromPristine) {
-                   // this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
+                    // this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
                 }
 
                 this.commandList.lock(command);
@@ -92,19 +99,19 @@ export class RunnerComponent implements OnInit {
         return false;
     }
 
-    resetCommandList(cursor: number, resetCachedCommand:boolean, overrideCurrentState:boolean = false) {
+    resetCommandList(cursor: number, resetCachedCommand: boolean, overrideCurrentState: boolean = false) {
         if (!overrideCurrentState && !this.commandService.isNavigating()) {
             return;
         }
 
-        this.cachedCursor = cursor;
+        this.savedCursor = cursor;
 
-        if (this.cachedCommandSnippet != null && resetCachedCommand) {
+        if (this.savedIntent != null && resetCachedCommand) {
             //this.command = this.cachedCommandSnippet.command;
             //this.argument = this.cachedCommandSnippet.argument;
             //this.input = this.cachedCommandSnippet.input;
         }
-        this.cachedCommandSnippet = null;
+        this.savedIntent = null;
 
         this.commandList.scrollToTop();
 
@@ -112,10 +119,10 @@ export class RunnerComponent implements OnInit {
     }
 
     resetCachedCommandList() {
-        if(this.cachedCursor === -1 || this.commandService.isNavigating()) {
+        if (this.savedCursor === -1 || this.commandService.isNavigating()) {
             return;
         }
-        const {command} =this.commandService.goToCursor(this.cachedCursor);
+        const {command} =this.commandService.goToCursor(this.savedCursor);
 
 //        this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
 
@@ -125,33 +132,24 @@ export class RunnerComponent implements OnInit {
         //this.argument = command.argument;
         //this.input = command.originalInput;
 
-        this.cachedCursor = -1;
+        this.savedCursor = -1;
     }
 
-    onCommand() {
-        // if (this.loading || (!this.command.trim() && !this.argument.trim())) {
-        //     return;
-        // }
+    execute(navigate: boolean = true, input: CommandIntent = this.intent) {
+        this.savedIntent = null;
 
-        let isNavigating:boolean = this.commandService.isNavigating();
-
-        this.cachedCommandSnippet = null;
-
-        if(isNavigating) {
+        if (navigate && this.commandService.isNavigating()) {
             this.commandList.scrollToTop();
             this.commandService.resetNavigation();
         }
 
-        //this.commandService.execute(this.command, this.argument, this.input);
+        this.commandService.execute(input);
 
-        if(isNavigating) {
+        if (navigate) {
             this.commandService.navigate(true);
         }
-
-        //this.command = this.input = this.debug = this.argument = '';
     }
 
-    constructor(private system: SystemService, private commandService: CommandService) {
-    }
+
 
 }

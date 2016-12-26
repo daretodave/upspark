@@ -1,6 +1,6 @@
 import {ChildProcess} from "child_process";
-import {Command} from "../../../www/app/runner/command/command";
-import {CommandStateChange} from "./command-state-change";
+import {Command} from "../../model/command/command";
+import {CommandUpdate} from "../../model/command/command-update";
 import {Logger} from "../../system/logger/logger";
 const {fork} = require('child_process');
 
@@ -12,13 +12,13 @@ export class PlatformExecutor {
         this.pool = new Map<string, any>();
     }
 
-    public execute(command:Command, update:(change:CommandStateChange) => any) {
+    public execute(command:Command, update:(change:CommandUpdate) => any) {
         const process = fork(this.platform, [command.title].concat(command.argument));
 
         process.on('close', (code:number) => {
             this.pool.delete(command.id);
 
-            update(new CommandStateChange(command, {
+            update(new CommandUpdate(command, {
                 completed: true
             }));
             if(!command.completed) {
@@ -36,7 +36,7 @@ export class PlatformExecutor {
 
                 Logger.info(`#command '${command.title}'${separation}${message.response}`);
 
-                update(new CommandStateChange(command, {
+                update(new CommandUpdate(command, {
                     error: message.error ? message.response : '',
                     output: message.response,
                     completed: true
@@ -49,14 +49,14 @@ export class PlatformExecutor {
                 Logger[message.error ? "error" : "info"](`#command '${command.title}'${separation}${message.message}`)
 
                 if(!message.internal) {
-                    let state: CommandStateChange = new CommandStateChange(command);
+                    let state: CommandUpdate = new CommandUpdate(command);
                     state.modify(message.logType, message.message);
                     update(state);
                 }
             }
         });
         process.on('uncaughtException', (err:any) => {
-            update(new CommandStateChange(command, {
+            update(new CommandUpdate(command, {
                 error: err
             }));
         });

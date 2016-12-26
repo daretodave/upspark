@@ -7,7 +7,7 @@ import {SystemService} from "../shared/system/system.service";
 import {CommandModule} from "./command/command.module";
 import {CommandService} from "./command/command.service";
 import {CommandSortPipe} from "./command/command-sort.pipe";
-import {RunnerArgumentComponent} from "./runner-argument.component";
+import {CommandArgumentComponent} from "./command-argument/command-argument.component";
 
 @NgModule({
     imports: [
@@ -18,7 +18,7 @@ import {RunnerArgumentComponent} from "./runner-argument.component";
     ],
     declarations: [
         RunnerComponent,
-        RunnerArgumentComponent
+        CommandArgumentComponent
     ],
     providers: [
         SystemService,

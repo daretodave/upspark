@@ -38,10 +38,10 @@ export class Platform {
             let resolve:any = {};
 
             resolve.context = mapping.context;
-            resolve.command = title;
+            resolve.reference = title;
 
             if(mapping.split) {
-                resolve.command += `[${mapping.split}]`;
+                resolve.reference += `[${mapping.split}]`;
             }
 
             if(!Util.isFunction(mapping.processor)) {
@@ -55,7 +55,7 @@ export class Platform {
         message.push("mappings");
 
         commands = _.sortBy(commands, ['context', 'command']);
-        commands.forEach((command:any) => message.push(`@[${command.context}]\t\t${command.command}${command.message}`));
+        commands.forEach((command:any) => message.push(`@[${command.context}]\t\t${command.reference}${command.message}`));
 
         return message.join("\n");
     }

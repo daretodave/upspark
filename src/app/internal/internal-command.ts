@@ -1,4 +1,4 @@
-import {Command} from "../../www/app/runner/command/command";
+import {Command} from "../model/command/command";
 import {InternalCommandExecutor} from "./internal-command-executor";
 import {ProgressEventHandler} from "../model/progress-event-handler";
 import {ProgressEvent} from "../model/progress-event";

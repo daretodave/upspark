@@ -1,11 +1,19 @@
 import {
-    AfterViewInit, Component, Input, ElementRef, NgZone, transition, animate, style, trigger,
-    ViewChild, AnimationTransitionEvent, OnInit
+    Component,
+    ElementRef,
+    NgZone,
+    transition,
+    animate,
+    style,
+    trigger,
+    ViewChild,
+    AnimationTransitionEvent,
+    OnInit
 } from "@angular/core";
-import {Command} from "./command";
 import {Observable} from "rxjs";
-import * as _ from "lodash";
+import {sortBy} from "lodash";
 import {CommandService} from "./command.service";
+import {CommandWrapper} from "./command-wrapper";
 
 require('./command-list.component.scss');
 
@@ -25,19 +33,35 @@ require('./command-list.component.scss');
         ])
     ]
 })
-export class CommandListComponent implements  AfterViewInit, OnInit {
+export class CommandListComponent implements OnInit {
 
-    @ViewChild('commandContainer') commandContainer: ElementRef;
-
-    private commandContainerJQuerySelector: JQuery;
-    private lockedCommand:Command;
-    private commands:Command[];
+    private $$commandContainer: JQuery;
+    private lockedCommand:CommandWrapper;
+    private commands:CommandWrapper[];
 
     ngOnInit() {
         this.commands = this.commandService.getCommands();
+        this.$$commandContainer = $(this.commandContainer.nativeElement);
+
+        let callback: (tick:number) => any = this.cleanStaleData.bind(this);
+
+        Observable
+            .timer(1000, 1000)
+            .subscribe(
+                (tick:number) => this.zone.run(
+                    () => callback(tick))
+                );
     }
 
-    constructor(private element:ElementRef, private commandService:CommandService, private zone:NgZone) {
+    constructor(
+        private element:ElementRef,
+        private commandService:CommandService,
+        private zone:NgZone,
+
+        @ViewChild('commandContainer')
+        private commandContainer: ElementRef
+    ) {
+
     }
 
     cleanStaleData(tick:number) {
@@ -46,30 +70,31 @@ export class CommandListComponent implements  AfterViewInit, OnInit {
         }
 
         let action:boolean = false;
-        let commands:Command[] = _.sortBy(this.commands, 'update');
+        let commands:CommandWrapper[] = sortBy(
+            this.commands,
+            (command:CommandWrapper) => command.reference.update
+        );
 
-        for(let i = 0, length = commands.length; i < length; i++) {
-            let command:Command = commands[i];
-
-            if (command.stale || !command.completed || command.isNavigatedTo || action) {
-                continue;
+        commands.forEach((command:CommandWrapper) => {
+            if (command.isIdle() || action) {
+                return;
             }
 
-            if(this.commandService.isNavigating()|| command.hover || command.lastInteraction === -1) {
-                command.lastInteraction = tick;
-                continue;
+            if(this.commandService.isNavigating() || command.hover || command.update === -1) {
+                command.update = tick;
+                return;
             }
 
-            if((tick - command.lastInteraction) < 7) {
-                continue;
+            if((tick - command.update) < 7) {
+                return;
             }
 
             action = command.stale = true;
-        }
+        });
     }
 
     scroll(scrollTop:number) {
-        this.commandContainerJQuerySelector.stop().animate({
+        this.$$commandContainer.stop().animate({
             scrollTop
         }, 600);
     }
@@ -77,18 +102,18 @@ export class CommandListComponent implements  AfterViewInit, OnInit {
     scrollToTop() {
         this.lock(null);
 
-        if(this.commandContainerJQuerySelector.scrollTop() === 0) {
+        if(this.$$commandContainer.scrollTop() === 0) {
             return;
         }
 
         this.scroll(0);
     }
 
-    scrollTo(command:Command) {
-        let element:JQuery = $('#command-status--' + command.id);
+    scrollTo(command:CommandWrapper) {
+        let element:JQuery = $('#command-status--' + command.reference.id);
 
         let elementHeight:number = element.height();
-        let elementOffset:number = element.position().top + this.commandContainerJQuerySelector.scrollTop();
+        let elementOffset:number = element.position().top + this.$$commandContainer.scrollTop();
 
         let containerHeight:number =  (<HTMLElement> this.element.nativeElement).offsetHeight;
 
@@ -100,14 +125,14 @@ export class CommandListComponent implements  AfterViewInit, OnInit {
         this.scroll(scrollTop);
     }
 
-    lock(command:Command) {
+    lock(command:CommandWrapper) {
         this.lockedCommand = command;
 
         if(!command) {
             return;
         }
 
-        let element:JQuery = $('#command-status--' + command.id);
+        let element:JQuery = $('#command-status--' + command.reference.id);
         if (element.is(":visible")) {
             this.scrollTo(command);
             return;
@@ -122,15 +147,5 @@ export class CommandListComponent implements  AfterViewInit, OnInit {
 
         this.lock(this.lockedCommand);
     }
-
-    ngAfterViewInit() {
-        this.commandContainerJQuerySelector = $(this.commandContainer.nativeElement);
-
-        let callback: (tick:number) => any = this.cleanStaleData.bind(this);
-
-        Observable.timer(1000, 1000).subscribe((tick:number) => this.zone.run(() => callback(tick)));
-    }
-
-
 
 }

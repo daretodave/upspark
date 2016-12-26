@@ -1,25 +1,36 @@
 <div class="command" [class.command--hover]="command.hover">
 
-    <div class="command__selector" *ngIf="command.isNavigatedTo" [@expand]>
+    <div class="command__selector"
+         *ngIf="command.active"
+         [@expand]>
         <div class="command__selector__line"></div>
         <div class="command__selector__pointer"></div>
     </div>
 
     <div class="command__title"
-         *ngIf="command.siblings > 1 || command.isNavigatedTo || (!command.error && !command.output)" [@slide]>
+         *ngIf="command.active"
+         [@slide]>
+
         <div class="command__title__text">
-            <div class="command__title__text__main">{{command.title}}</div>
-            <div class="command__title__text__tag" *ngIf="command.tag" [innerHTML]="command.tag" [@expand]>
+            <div class="command__title__text__main">
+                {{command.reference.intent.command}}
+            </div>
+            <div class="command__title__text__tag"
+                 *ngIf="command.tag"
+                 [innerHTML]="command.tag"
+                 [@expand]>
             </div>
         </div>
 
         <div class="command__title__indicator"
-             [class.command__title__indicator--intermediate]="!command.completed && command.progress < 0"
-             [class.command__title__indicator--success]="command.completed && !command.error"
-             [class.command__title__indicator--error]="command.completed && command.error">
+             [class.command__title__indicator--intermediate]="!command.reference.completed && command.reference.progress < 0"
+             [class.command__title__indicator--success]="command.reference.completed && !command.reference.error"
+             [class.command__title__indicator--error]="command.reference.completed && command.reference.error">
+
             <div class="command__title__indicator__progress"
-                 *ngIf="!command.completed && command.progress > -1"
-                 [style.width]="command.progress+'%'"></div>
+                 *ngIf="!command.reference.completed && command.reference.progress > -1"
+                 [style.width]="command.reference.progress+'%'">
+            </div>
 
             <div class="command__title__indicator__bar"></div>
             <div class="command__title__indicator__bar"></div>
@@ -27,10 +38,13 @@
         </div>
 
     </div>
+
     <div class="command__response">
-        <div *ngIf="command.error" class="command__response__error" [innerHTML]="command.error">
-        </div>
-        <div *ngIf="command.output" class="command__response__output" [innerHTML]="command.output">
+        <div *ngIf="command.reference.response"
+             class="command__response__output"
+             [class.command__response__error]="command.reference.error"
+             [innerHTML]="command.reference.response">
         </div>
     </div>
+
 </div>

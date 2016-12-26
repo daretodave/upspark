@@ -1,8 +1,8 @@
 import {Resource} from "../system/resource/resource";
 import {Safe} from "../system/safe";
-import {Command} from "../../www/app/runner/command/command";
+import {Command} from "../model/command/command";
 import {Reload} from "./commands/reload";
-import {CommandStateChange} from "../api/platform/command-state-change";
+import {CommandUpdate} from "../model/command/command-update";
 import {Logger} from "../system/logger/logger";
 import {InternalCommand} from "./internal-command";
 import {InternalCommandHooks} from "./internal-command-hooks";
@@ -35,7 +35,7 @@ export class InternalCommandExecutor {
             Logger.info(`:command '${runner.title}'${log}`);
         }
 
-        runner.sender.send('command-state-change', new CommandStateChange(runner.command, updates));
+        runner.sender.send('command-state-change', new CommandUpdate(runner.command, updates));
 
         if (updates.error) {
             Logger.error(`${runner.host ? `:command '${runner.title}' | ` : ''}${updates.error}`);

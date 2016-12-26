@@ -7,9 +7,11 @@
     </div>
     <div id="runner__container">
         <div class="runner-input__container">
-            <input id="runner-input" [class.runner-input--args]="input.arguments.length !== 0" #runnerInput ([ngModel])="input.command" class="plain" (keydown)="onRunnerInputKeyDown($event)">
+            <input id="runner-input" [class.runner-input--args]="intent.arguments.length !== 0" #runnerInput
+                   ([ngModel])="intent.command" class="plain">
         </div>
-        <up-runner-argument #argument *ngFor="let argument of input.arguments" [argument]="argument"></up-runner-argument>
+        <up-command-argument #argument *ngFor="let argument of intent.arguments"
+                            [argument]="argument"></up-command-argument>
     </div>
     <up-command-list #commandList></up-command-list>
 </div>

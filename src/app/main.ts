@@ -13,8 +13,8 @@ import {LogTranslator} from "./system/logger/log-translator";
 import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
 import {Platform} from "./api/platform/platform";
 import {PlatformExecutor} from "./api/platform/platform-executor";
-import {Command} from "../www/app/runner/command/command";
-import {CommandStateChange} from "./api/platform/command-state-change";
+import {Command} from "./model/command/command";
+import {CommandUpdate} from "./model/command/command-update";
 import {PlatformPackage} from "./api/platform/platform-package";
 import {InternalCommandExecutor} from "./internal/internal-command-executor";
 
@@ -940,7 +940,7 @@ let initRunner = () => {
         }
         if(!platform.hasCommandMapped(arg.title)) {
             let error:string = `The command <strong>${arg.title}</strong> could not be found`;
-            event.sender.send('command-state-change', new CommandStateChange(arg, {
+            event.sender.send('command-state-change', new CommandUpdate(arg, {
                 error: error,
                 completed: true,
                 updated: Date.now()
@@ -948,7 +948,7 @@ let initRunner = () => {
             Logger.error(error);
             return;
         }
-        executor.execute(arg, (update:CommandStateChange) =>  event.sender.send('command-state-change', update));
+        executor.execute(arg, (update:CommandUpdate) =>  event.sender.send('command-state-change', update));
     });
 
     runnerWindow.on('show', () => {
