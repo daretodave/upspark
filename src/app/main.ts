@@ -100,6 +100,7 @@ let init = () => {
         initTray();
 
         Logger.info('runner loading');
+        
         let executor = (resolve: (value:any) => void, reject: (reason?: any) => void) => {
             runnerWindow.webContents.on('did-finish-load', () => {
                 Logger.info('runner loaded');

@@ -5,8 +5,6 @@ import {SystemEvent} from "../shared/system/system-event";
 import {CommandListComponent} from "./command/command-list.component";
 import {CommandIntent} from "../../../app/model/command/command-intent";
 import {CommandArgumentComponent} from "./command-argument/command-argument.component";
-import {Answer} from "../shared/answer";
-import {CommandArgument} from "../../../app/model/command/command-argument";
 
 require('./runner.component.scss');
 
@@ -17,7 +15,6 @@ require('./runner.component.scss');
 export class RunnerComponent implements OnInit {
 
     private intent: CommandIntent = new CommandIntent();
-    private inputGroup: Answer = new Answer();
     private savedIntent: CommandIntent;
     private savedCursor: number = -1;
 
@@ -44,11 +41,6 @@ export class RunnerComponent implements OnInit {
             true
         );
         this.runnerInput.nativeElement.focus();
-
-        this.inputGroup.attach("input", this.runnerInput.nativeElement);
-        this.inputGroup.attach("argument", () => this.argumentList.map(
-            (argument:CommandArgumentComponent) => argument.content.nativeElement
-        ))
     }
 
 
@@ -92,14 +84,12 @@ export class RunnerComponent implements OnInit {
 
             } else if (command !== null) {
                 if (fromPristine) {
-                    // this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
+                    this.savedIntent = new CommandIntent(this.intent);
                 }
 
                 this.commandList.lock(command);
 
-                //this.command = command.title;
-                //this.argument = command.argument;
-                //this.input = command.originalInput;
+                this.intent = new CommandIntent(command.reference.intent);
             }
         } else if (isLeftArrow) {
             this.resetCommandList(this.commandService.getCursor(), event.altKey);
@@ -118,9 +108,7 @@ export class RunnerComponent implements OnInit {
         this.savedCursor = cursor;
 
         if (this.savedIntent != null && resetCachedCommand) {
-            //this.command = this.cachedCommandSnippet.command;
-            //this.argument = this.cachedCommandSnippet.argument;
-            //this.input = this.cachedCommandSnippet.input;
+            this.intent = new CommandIntent(this.savedIntent);
         }
         this.savedIntent = null;
 
@@ -135,14 +123,12 @@ export class RunnerComponent implements OnInit {
         }
         const {command} =this.commandService.goToCursor(this.savedCursor);
 
-//        this.cachedCommandSnippet = new CommandSnippet(this.input, this.command, this.argument);
-
+        this.savedIntent = this.intent;
+        
         this.commandList.lock(command);
 
-        //this.command = command.title;
-        //this.argument = command.argument;
-        //this.input = command.originalInput;
-
+        this.intent = new CommandIntent(command.reference.intent);
+        
         this.savedCursor = -1;
     }
 
