@@ -5,18 +5,20 @@ import {CommandUpdate} from "./command-update/command-update";
 import {Util} from "../../api/util";
 import {Command} from "./command";
 import {CommandTaskListener} from "./command-task-listener";
-import {Platform} from "../../api/platform/platform";
+import {Platform} from "../../executor/platform/platform";
+import {CommandIntentDigest} from "./command-intent-digest";
+import {Host} from "../host";
 
 export class CommandTask implements CommandUpdateEmitter {
-
-    private commandName:string;
-
+    
+    public digest:CommandIntentDigest;
+    public completed:boolean;
 
     constructor(public command: Command,
-                public platform: Platform,
+                public host: Host,
                 public listener: CommandTaskListener) {
-        this.commandName = this.command.intent.command.trim();
-
+        this.digest = CommandIntentDigest.from(this.command.intent);
+        this.completed = false;
     }
 
     get id(): string {
@@ -25,6 +27,10 @@ export class CommandTask implements CommandUpdateEmitter {
 
     get updateListener(): CommandUpdateListener {
         return this.listener;
+    }
+    
+    public isCompleted(): boolean {
+        return this.completed;
     }
 
     public update: (message: (CommandLike | CommandUpdate),

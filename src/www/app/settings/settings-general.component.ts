@@ -41,7 +41,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         ipcRenderer.removeAllListeners('settings-hotkey-load');
 
         ipcRenderer.on('display-updated', () => {
-            console.log('system.displays updated');
+            console.log('host.displays updated');
             this.zone.run(() => {
                 this.settingsService.setScreens(this.settings);
             });

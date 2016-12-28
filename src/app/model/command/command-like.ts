@@ -6,12 +6,13 @@ export interface CommandLike {
     intent?: CommandIntent;
     canceled?: boolean;
     response?: string;
+    tag?: string;
     output?: string;
     error?: boolean;
     completed?: boolean;
     update?: number;
     init?: number;
     progress?: number;
-    log: CommandLogEntry[];
+    log?: CommandLogEntry[];
 
 }

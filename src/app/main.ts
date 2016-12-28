@@ -1,22 +1,24 @@
-/// <reference path="../typings/index.d.ts" />
-import {Resource} from "./system/resource";
+import {Resource} from "./model/resource";
 import {Settings} from "./window/runner/settings";
 import {RunnerStyle} from "./window/runner-style";
 import {GlobalStyle} from "./window/global-style";
-import {TextTranslator} from "./system/resource/translators/translate-text";
-import {Safe} from "./system/safe";
+import {TextTranslator} from "./model/resource/translators/translate-text";
+import {Safe} from "./model/safe";
 import {Themes} from "./window/themes";
-import {ResourceMissingPolicy} from "./system/resource/resource-missing-policy";
-import {Log} from "./system/logger/log";
-import {Logger} from "./system/logger/logger";
-import {LogTranslator} from "./system/logger/log-translator";
-import {PlatformBootstrapper} from "./api/platform/platform-bootstrapper";
-import {Platform} from "./api/platform/platform";
-import {PlatformExecutor} from "./api/platform/platform-executor";
+import {ResourceMissingPolicy} from "./model/resource/resource-missing-policy";
+import {Log} from "./model/logger/log";
+import {Logger} from "./model/logger/logger";
+import {LogTranslator} from "./model/logger/log-translator";
+import {PlatformBootstrapper} from "./executor/platform/platform-bootstrapper";
+import {Platform} from "./executor/platform/platform";
+import {PlatformExecutor} from "./executor/platform/platform-executor";
 import {Command} from "./model/command/command";
 import {CommandUpdate} from "./model/command/command-update/command-update";
-import {PlatformPackage} from "./api/platform/platform-package";
-import {InternalCommandExecutor} from "./internal/internal-command-executor";
+import {PlatformPackage} from "./executor/platform/platform-package";
+import {InternalCommandExecutor} from "./executor/internal/internal-command-executor";
+import {Host} from "./model/host";
+import {CommandUpdateEmitter} from "./model/command/command-update/command-update-emitter";
+import {CommandTask} from "./model/command/command-task";
 
 const path = require('path');
 const electron = require('electron');
@@ -29,51 +31,39 @@ let safeWindow: any;
 let tray: any;
 let quit:boolean = false;
 
-let resources:Resource;
-let safe: Safe;
-let platform: Platform;
-let executor:PlatformExecutor;
-let internalCommandExecutor:InternalCommandExecutor;
+let host:Host = new Host();
 
 let init = () => {
 
     let external:string = path.join(app.getPath('appData'), 'upspark');
 
-    safe = new Safe(external, 'aes-256-ctr');
-    resources = new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js'));
+    host.safe(new Safe(external, 'aes-256-ctr'));
+    host.resources(new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js')));
 
-    executor = new PlatformExecutor(resources.platform);
-    internalCommandExecutor = new InternalCommandExecutor({
-        onPlatformUpdate(updatedPlatform:Platform) {
-            platform = updatedPlatform;
-            Logger.info(platform);
-        },
-        getResources(): Resource {
-            return resources;
-        }
-    });
-
-    resources.attach('settings.json', Settings);
-    resources.attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
-    resources.attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);
-    resources.attach('global.css', GlobalStyle, new TextTranslator(), 'global-style', ResourceMissingPolicy.DEFAULT);
-    resources.attach('package.json', PlatformPackage);
-
-
-    resources.load('log')
+    host.resources().attach('settings.json', Settings);
+    host.resources().attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
+    host.resources().attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);
+    host.resources().attach('global.css', GlobalStyle, new TextTranslator(), 'global-style', ResourceMissingPolicy.DEFAULT);
+    host.resources().attach('package.json', PlatformPackage);
+    host.resources()
+    .load('log')
     .then((log:Log) => {
 
         Logger
-            .attach(log, 200, () => resources.save('log', false))
+            .attach(log, 200, () => host.resources().save('log', false))
             .start('boot');
+        
         return Promise.all([
-            resources.load('settings'),
-            resources.load('runner-style'),
-            resources.load('global-style'),
+            host.resources().load('settings'),
+            host.resources().load('runner-style'),
+            host.resources().load('global-style'),
 
-            new PlatformBootstrapper(resources).load(),
+            PlatformBootstrapper.load(
+                host.resources(), 
+                CommandUpdateEmitter.BROKEN_EMITTER
+            ),
 
-            safe.init()
+            host.safe().init()
         ]);
 
     })
@@ -82,7 +72,7 @@ let init = () => {
         let promises: Promise<any>[] = [values[0]];
         let settings: Settings = values[0];
 
-        platform = values[3];
+        host.platform(values[3]);
 
         if(settings.theme.global || settings.theme.runner) {
             Logger.start('theme');
@@ -128,9 +118,9 @@ let init = () => {
 let reload = () => {
     Logger.start('reload');
     Promise.all([
-        resources.reload('settings'),
-        resources.reload('runner-style'),
-        resources.reload('global-style')
+        host.resources().reload('settings'),
+        host.resources().reload('runner-style'),
+        host.resources().reload('global-style')
     ])
     .then(() => adhereSettings())
     .then(() => Logger.finish('reload'))
@@ -193,9 +183,9 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
     }
 
     return Promise.all([
-        resources.get('settings'),
-        resources.get('runner-style'),
-        resources.get('global-style'),
+        host.resources().get('settings'),
+        host.resources().get('runner-style'),
+        host.resources().get('global-style'),
     ]).then((values:any[]) => {
         if(log) {
             Logger.start(`metrics`);
@@ -310,7 +300,7 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
     });
 };
 let openResourceDirectory = () => {
-    electron.shell.openItem(resources.root);
+    electron.shell.openItem(host.resources().root);
 };
 let toggleRunner = () => {
     runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
@@ -350,7 +340,7 @@ let initTray = () => {
     });
     options.push({
         'label': 'Log',
-        click: () => electron.shell.openItem(path.join(resources.root, 'upspark.log'))
+        click: () => electron.shell.openItem(path.join(host.resources().root, 'upspark.log'))
     });
     options.push({
         'label': 'Documentation',
@@ -377,7 +367,7 @@ let initTray = () => {
     // let info:string[] = options.map((menu:any) => (menu.label || '-------').toLowerCase());
     // info.push('-------');
     // info.unshift('-------');
-    // info.unshift('system-tray loaded');
+    // info.unshift('host-tray loaded');
     //
     // Logger.info.apply(Logger, info);
 };
@@ -392,7 +382,7 @@ let initSafe = () => {
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
     safeWindow = new BrowserWindow(options);
-    if(safe.created) {
+    if(host.safe().created) {
         safeWindow.loadURL(www('safe/auth'));
     } else {
         safeWindow.loadURL(www('safe/create'));
@@ -418,13 +408,13 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-create', (event:any, password:string) => {
-        if(safe.created) {
+        if(host.safe().created) {
             return;
         }
         console.log('Safe:creating');
         event.sender.send('safe-loader', 'on');
         setTimeout(() => {
-            safe.build(password).then(() => {
+            host.safe().build(password).then(() => {
                 event.sender.send('safe-loader', 'off');
                 event.sender.send('safe-main', {});
             }).catch((e:any) => {
@@ -436,13 +426,13 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-reset', (event:any) => {
-        if(!safe.created) {
+        if(!host.safe().created) {
             return;
         }
         event.sender.send('safe-loader', 'on');
         console.log('Safe:resetting');
         setTimeout(() => {
-            safe.reset().then(() => {
+            host.safe().reset().then(() => {
                 event.sender.send('safe-loader', 'off');
                 event.sender.send('safe-create');
             }).catch((e:any) => {
@@ -454,13 +444,13 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-auth', (event:any, password:string) => {
-        if(!safe.created) {
+        if(!host.safe().created) {
             return;
         }
         console.log('Safe:auth');
         event.sender.send('safe-loader', 'on');
         setTimeout(() => {
-            safe.unlock(password).then((mappings) => {
+            host.safe().unlock(password).then((mappings) => {
                 event.sender.send('safe-loader', 'off');
                 event.sender.send('safe-main', mappings);
             }).catch((e:any) => {
@@ -472,19 +462,19 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-export', (event:any, password:string, exportLocation:string, options:string[]) => {
-        if(!safe.auth || !password || !exportLocation || !options.length) {
+        if(!host.safe().auth || !password || !exportLocation || !options.length) {
             return;
         }
         console.log('Safe:export', exportLocation, options);
         event.sender.send('safe-loader', 'on');
-        safe.export(password, exportLocation, options).then(() => {
+        host.safe().export(password, exportLocation, options).then(() => {
             dialog.showMessageBox(safeWindow, {
                 type: "info",
                 message: `Exported ${options.length} keys successfully`,
                 buttons: []
             });
             event.sender.send('safe-loader', 'off');
-            event.sender.send('safe-main', safe.getMappings());
+            event.sender.send('safe-main', host.safe().getMappings());
         }).catch((error) => {
             console.log(error);
 
@@ -499,20 +489,20 @@ let initSafe = () => {
 
     ipcMain.on('safe-main', (event:any) => {
         console.log('Safe:main');
-        event.sender.send('safe-main', safe.getMappings());
+        event.sender.send('safe-main', host.safe().getMappings());
     });
 
     ipcMain.on('safe-update', (event:any, password:string) => {
-        if(!safe.created || !safe.auth) {
+        if(!host.safe().created || !host.safe().auth) {
             event.sender.send('safe-auth');
             return;
         }
         console.log('Safe:update');
         event.sender.send('safe-loader', 'on');
         setTimeout(() => {
-            safe.build(password).then(() => {
+            host.safe().build(password).then(() => {
                 event.sender.send('safe-loader', 'off');
-                event.sender.send('safe-main', safe.getMappings());
+                event.sender.send('safe-main', host.safe().getMappings());
             }).catch((e:any) => {
                 console.log(e);
                 event.sender.send('safe-loader', 'off');
@@ -522,48 +512,48 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-lock', (event:any) => {
-        if(!safe.created) {
+        if(!host.safe().created) {
             return;
         }
         console.log('Safe:lock');
-        safe.lock();
+        host.safe().lock();
         event.sender.send('safe-auth');
     });
 
     ipcMain.on('safe-delete', (event:any, key:string) => {
-        if(!safe.auth) {
+        if(!host.safe().auth) {
             return;
         }
         console.log('Safe:delete');
 
-        safe.remove(key)
+        host.safe().remove(key)
             .save()
             .catch((e:any) => {
                 console.log(e);
-                safe.lock();
+                host.safe().lock();
                 event.sender.send('safe-auth');
             });
     });
 
     ipcMain.on('safe-new', (event:any, key:string, value:string) => {
-        if(!safe.created) {
+        if(!host.safe().created) {
             return;
         }
         console.log('Safe:new');
 
-        if(safe.has(key)) {
+        if(host.safe().has(key)) {
             event.sender.send('safe-new-error', 'key', `'${key}' is already in use`);
             return;
         }
 
-        safe.set(key, value)
+        host.safe().set(key, value)
             .save()
             .then(() => {
-                event.sender.send('safe-main', safe.getMappings());
+                event.sender.send('safe-main', host.safe().getMappings());
             }).catch((e:any) => {
                 console.log(e);
 
-                safe.lock();
+                host.safe().lock();
                 event.sender.send('safe-auth');
             });
     });
@@ -583,42 +573,42 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-edit', (event:any, key:string, previousKey:string, value: string) => {
-        if(!safe.auth) {
+        if(!host.safe().auth) {
             return;
         }
         console.log('Safe:edit');
 
         if(previousKey !== key) {
-            safe.remove(previousKey);
+            host.safe().remove(previousKey);
         }
-        safe.set(key, value)
+        host.safe().set(key, value)
             .save()
             .then(() => {
-                event.sender.send('safe-main', safe.getMappings());
+                event.sender.send('safe-main', host.safe().getMappings());
             }).catch((e:any) => {
             console.log(e);
 
-            safe.lock();
+            host.safe().lock();
             event.sender.send('safe-auth');
         });
     });
 
     ipcMain.on('safe-import-final', (event:any, values:any[]) => {
-        if(!safe.auth) {
+        if(!host.safe().auth) {
             return;
         }
         console.log('Safe:import-final');
 
         values.forEach((value) => {
-            safe.set(value.key, value.value);
+            host.safe().set(value.key, value.value);
         });
-        safe
+        host.safe()
             .save()
             .then(() => {
-                event.sender.send('safe-main', safe.getMappings());
+                event.sender.send('safe-main', host.safe().getMappings());
             }).catch((e:any) => {
 
-            safe.lock();
+            host.safe().lock();
             event.sender.send('safe-auth');
         });
     });
@@ -642,14 +632,14 @@ let initSafe = () => {
     });
 
     ipcMain.on('safe-import', (event:any, importLocation:string, password:string) => {
-        if(!safe.created || !safe.auth) {
+        if(!host.safe().created || !host.safe().auth) {
             event.sender.send('safe-auth');
             return;
         }
         console.log('Safe:import');
         event.sender.send('safe-loader', 'on');
         setTimeout(() => {
-            safe.crack(importLocation, password, null, null).then((mappings:any) => {
+            host.safe().crack(importLocation, password, null, null).then((mappings:any) => {
                 event.sender.send('safe-loader', 'off');
                 event.sender.send('safe-import', mappings);
             }).catch((e:any) => {
@@ -710,7 +700,7 @@ let initSettings = () => {
 
         console.log('Settings:reset-metrics');
 
-        let settings:Settings = resources.syncGet<Settings>('settings');
+        let settings:Settings = host.resources().syncGet<Settings>('settings');
         let screen:number = settings.location.screen;
         let hotkey:string = settings.hotkey;
 
@@ -720,7 +710,7 @@ let initSettings = () => {
         settings.hotkey = hotkey;
 
         adhereSettings().then(() => {
-            resources.save('settings');
+            host.resources().save('settings');
             event.sender.send('settings-metrics-load');
         });
 
@@ -731,11 +721,11 @@ let initSettings = () => {
 
         console.log('Settings:reset-display');
 
-        let settings:Settings = resources.syncGet<Settings>('settings');
+        let settings:Settings = host.resources().syncGet<Settings>('settings');
         settings.location.screen = 0;
 
         adhereSettings().then(() => {
-            resources.save('settings');
+            host.resources().save('settings');
             event.sender.send('settings-display-load');
         });
 
@@ -746,11 +736,11 @@ let initSettings = () => {
 
         console.log('Settings:reset-hotkey');
 
-        let settings:Settings = resources.syncGet<Settings>('settings');
+        let settings:Settings = host.resources().syncGet<Settings>('settings');
         settings.hotkey = 'Control+`';
 
         adhereSettings().then(() => {
-            resources.save('settings');
+            host.resources().save('settings');
             event.sender.send('settings-hotkey-load');
         });
 
@@ -766,11 +756,11 @@ let initSettings = () => {
     ipcMain.on('open-resources', openResourceDirectory);
     ipcMain.on('get-setting', (event:any, args:any) => {
         let resolve:any = undefined;
-        let settings:Settings = resources.syncGet<Settings>('settings');
+        let settings:Settings = host.resources().syncGet<Settings>('settings');
 
         switch(args) {
             case 'resource-dir':
-                resolve = resources.root;
+                resolve = host.resources().root;
                 break;
             case 'width':
                 resolve = settings.size.width;
@@ -841,7 +831,7 @@ let initSettings = () => {
             Logger.info(`set '${setting}' to [${value}]`);
         }
 
-        resources
+        host.resources()
         .load('settings')
         .then((settings:Settings) => {
 
@@ -896,7 +886,7 @@ let initSettings = () => {
             return adhereSettings(save);
         })
         .then(() => {
-            return save ? <Promise<any>>resources.save('settings') : null;
+            return save ? <Promise<any>>host.resources().save('settings') : null;
         })
         .then(() => {
             if(save) {
@@ -934,14 +924,13 @@ let initRunner = () => {
 
     ipcMain.on('command-run', (event:any, arg:Command) => {
 
-        if(!platform.hasCommandMapped(arg.intent.command)) {
-            event.sender.send('command-state-change',
-                CommandUpdate.error(arg.id, `The command <strong>${arg.intent.command}</strong> could not be found`)
-            );
-
-            return;
-        }
-        executor.execute(arg, (update:CommandUpdate) =>  event.sender.send('command-state-change', update));
+        let task:CommandTask = new CommandTask(arg, host, {
+            onCommandUpdate(update:CommandUpdate) {
+                event.sender.send('command-state-change', update);
+            }
+        });
+        
+        host.execute(task);
     });
 
     runnerWindow.on('show', () => {

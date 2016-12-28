@@ -1,4 +1,4 @@
-import {ResourceModel} from "../../system/resource/resource-model";
+import {ResourceModel} from "../../model/resource/resource-model";
 import {Location} from "../../model/location";
 import {Size} from "../../model/size";
 import {UpTheme} from "../../model/up-theme";

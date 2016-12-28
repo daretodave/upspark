@@ -1,6 +1,6 @@
 import {Theme} from "./theme";
 import {LoadedTheme} from "./loaded-theme";
-import {Logger} from "../system/logger/logger";
+import {Logger} from "../model/logger/logger";
 const themes: any = require('../config/themes.json');
 const loaded: Map<string, LoadedTheme> = new Map<string, LoadedTheme>();
 const fs = require('fs');

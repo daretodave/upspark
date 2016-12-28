@@ -1,0 +1,14 @@
+{{line}}
+UPSPARK
+{{tab}}| VERSION{{tab}}{{tab}}{{version}}
+{{tab}}| SYSTEM{{tab}}{{tab}}{{system}}
+{{tab}}| LAST-LOG{{tab}}{{tab}}{{last-log}}
+{{tab}}| LAST-BOOT{{tab}}{{tab}}{{last-boot}}
+{{line}}
+{error}
+Something went wrong. Here's what we know -
+
+{error-message}
+
+{/error}
+{{contents}}

@@ -1,5 +1,5 @@
 import {CommandUpdate} from "./command-update";
-import {Logger} from "../../../system/logger/logger";
+import {Logger} from "../../logger/logger";
 import {CommandLike} from "../command-like";
 import {CommandUpdateListener} from "./command-update-listener";
 
@@ -7,6 +7,7 @@ export class CommandUpdateEmitter {
 
     public id:string;
     public updateListener: CommandUpdateListener;
+    public completed: boolean;
 
     public update(message: (CommandLike | CommandUpdate), log: any = null) {
 
@@ -18,20 +19,25 @@ export class CommandUpdateEmitter {
                 this.id,
                 message
             );
-
+        }
+        
+        if(!this.completed && commandUpdate.completed === true) {
+            this.completed = true;
         }
 
-        if (log !== null) {
+        if (log !== null || this.updateListener === null) {
             if (Array.isArray(log)) {
                 Logger.log.apply(Logger, [commandUpdate.error].concat(log));
-            } else if (typeof log === 'boolean') {
+            } else if (typeof log === 'boolean' || this.updateListener === null) {
                 Logger.log(commandUpdate.error, commandUpdate);
             } else {
                 Logger.log(commandUpdate.error, log);
             }
         }
 
-        this.updateListener.onCommandUpdate(commandUpdate);
+        if (this.updateListener !== null) {
+            this.updateListener.onCommandUpdate(commandUpdate);
+        }
 
         return this;
     }
@@ -60,3 +66,8 @@ export class CommandUpdateEmitter {
 
 }
 
+export namespace CommandUpdateEmitter {
+    
+    export const BROKEN_EMITTER: CommandUpdateEmitter = new CommandUpdateEmitter();
+    
+}

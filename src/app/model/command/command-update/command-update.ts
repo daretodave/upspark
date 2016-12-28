@@ -54,7 +54,7 @@ export namespace CommandUpdate {
         = [].join.call([
         ':-(',
         'Something went terribly wrong when running that command.',
-        'You can check the system log in the upspark directory for details.'
+        'You can check the host log in the upspark directory for details.'
     ], ["<br><br>"]);
     export const DEFAULT_ERROR_MESSAGE: string = 'Something went wrong';
     export const DEFAULT_SUCCESS_MESSAGE: string = 'Task completed';

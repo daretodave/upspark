@@ -1,4 +1,4 @@
-import {ResourceModel} from "../system/resource/resource-model";
+import {ResourceModel} from "../model/resource/resource-model";
 export class RunnerStyle implements ResourceModel {
 
     content:string;
