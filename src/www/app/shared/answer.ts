@@ -1,25 +1,65 @@
-import KEY_UNSORTED = ElementStateQuery.KEY_UNSORTED;
-import ElementResolver = ElementStateQuery.ElementResolver;
-import ResolvableElement = ElementStateQuery.ResolvableElement;
-import ResolvableElementCollections = ElementStateQuery.ResolvableElementCollections;
+import KEY_UNSORTED = Answer.KEY_UNSORTED;
+import ElementResolver = Answer.ElementResolver;
+import ResolvableElement = Answer.ResolvableElement;
+import ResolvableElementCollections = Answer.ResolvableElementCollections;
 
-export class ElementStateQuery {
+export class Answer {
+
+    //
+    // make compute resolve the predicates
+    // maybe chain compute/solve to allow for different routes
+    // make solve perform compute sync
+    // make solveFor
+    // make pristine return a new answer without attachments
+    // make branch to return a new answer with different elements
+    // make merge to return a new answer with the same elements and predicates
+    // make isPristine to return if attachments are provided
+    // make a method to return a new answer with more predicates
+    // make a cache policy? or just add option to cache predicate
+    // make generic or allow any
+    // split in to different files
+    // profit
+    //
 
     private elements = new Map<string, ElementReference[]>();
+    private predicates:ElementState[];
 
-    constructor(private cache: boolean = true,
-                elements: Map<string, ElementReference[]> = null) {
-
-        if(elements !== null) {
-            if(elements instanceof Map) {
-                this.elements = elements;
-            } else if(Array.isArray(elements)) {
-                this.elements.set(KEY_UNSORTED, elements);
-            }
-        }
+    constructor(private cache: boolean = true) {
     }
 
-    public query(...predicate: ElementState[]): Promise<ElementStateQueryResult> {
+    public getPredicates() {
+        return this.predicates;
+    }
+
+    public getTopics():string[] {
+        return Array.from(this.elements.keys());
+    }
+
+    public has(group:string):boolean {
+        return this.elements.has(group);
+    }
+
+    public compute(): Promise<ElementStateQueryResult> {
+        return this.computeFor.apply(this, this.elements);
+    }
+
+    public attach(...element: ResolvableElement[]) {
+        return this.link.apply(this, [KEY_UNSORTED].concat(<any>element));
+    }
+
+    public unlink(group:string):boolean {
+        return this.elements.delete(group);
+    }
+
+    public predicate(...predicate:ElementState[]):Answer {
+        this.predicates.push.apply(
+            this.predicates,
+            predicate
+        );
+        return this;
+    }
+
+    public computeFor(...predicate: ElementState[]): Promise<ElementStateQueryResult> {
         return Promise
         .all(ElementResolution
             .fromGroupMap(
@@ -64,61 +104,108 @@ export class ElementStateQuery {
                 }
             });
 
-            return {
-                group,
-                groups,
-                first,
-                last,
-                result,
-                index,
-                isolated: groups.length <= 1,
-                empty: result.length !== 0
-            };
+            let empty:boolean = result.length !== 0;
+            let isolated:boolean = group.length !== 0;
+
+            return {group,groups,first,last,result,index,isolated,empty};
         });
     }
 
-    public has(group:string):boolean {
-        return this.elements.has(group);
+    private remove(...reference:ElementReference[]):number {
+        let count:number = 0;
+
+        reference = [].concat(reference);
+        reference.forEach((element:ElementReference) => {
+            if(!this.elements.has(element.resolution.group)) {
+                return;
+            }
+            let group:ElementReference[] = this.elements.get(element.resolution.group);
+
+            let index = group.indexOf(element);
+            if (index === -1) {
+                return;
+            }
+            group.slice(index, 1);
+
+            count += 1;
+        });
+
+        return count;
     }
 
-    public detach(group:string):boolean {
-        return this.elements.delete(group);
+    public detach(...element: ResolvableElement[]):number {
+        let count:number = 0;
+
+        element = [].concat(element);
+
+        element.forEach((resolvable:ResolvableElement): ElementReference => {
+            if(resolvable instanceof ElementReference) {
+                count += this.remove(resolvable);
+                return;
+            }
+
+            if(resolvable instanceof ElementResolution) {
+                if(!resolvable.container) {
+                    return;
+                }
+
+                let index = resolvable.container.indexOf(resolvable);
+                if (index === -1) {
+                    return;
+                }
+                resolvable.container.slice(index, 1);
+
+                count += 1;
+                return;
+            }
+
+            Array.from(this.elements).forEach(
+                ([group, entries]) => {
+                    let match:ElementReference[] = entries.filter((entry:ElementReference) => entry.resolver === resolvable);
+
+                    match.forEach((entry:ElementReference) => {
+                        let index = entries.indexOf(entry);
+                        if (index === -1) {
+                            return;
+                        }
+                        entries.slice(index, 1);
+
+                        count += 1;
+                    });
+                }
+            );
+
+        });
+
+        return count;
     }
 
-    public groups():string[] {
-        return Array.from(this.elements.keys());
-    }
 
-    public add(...element: ResolvableElement[]):ElementStateQuery {
-        return this.attach.apply(
-            this, [ElementStateQuery.KEY_UNSORTED].concat(<any>element)
-        );
-    }
-
-    public attach(group: string, ...element: ResolvableElement[]): ElementStateQuery {
+    public link(topic: string, ...element: ResolvableElement[]): Answer {
         let collection: ElementReference[];
 
         element = [].concat(element);
-        if(!group || (group = group.toString().toUpperCase().trim()).length) {
-            group = KEY_UNSORTED;
+
+        if(!topic || (topic = topic.toString().toUpperCase().trim()).length) {
+            topic = KEY_UNSORTED;
         }
 
-        if (!this.elements.has(group)) {
-            this.elements.set(group, collection = []);
+        if (!this.elements.has(topic)) {
+            this.elements.set(topic, collection = []);
         } else {
-            collection = this.elements.get(group);
+            collection = this.elements.get(topic);
         }
 
         collection.push.apply(
             collection,
             element.map((resolvable:ResolvableElement): ElementReference => {
                 if(resolvable instanceof ElementReference) {
-                    resolvable.resolution.group = group;
+                    resolvable.resolution.group = topic;
                     return resolvable;
                 }
 
                 if(resolvable instanceof ElementResolution) {
-                    resolvable.group = group;
+                    resolvable.group = topic;
                     return new ElementReference(
                         resolvable.resolver,
                         resolvable
@@ -160,7 +247,8 @@ export class ElementResolution {
     constructor(public resolver: ElementResolver,
                 public group: string,
                 public element: HTMLElement,
-                public index:number = -1) {
+                public index:number = -1,
+                public container:ElementResolution[] = null) {
     }
 }
 
@@ -168,26 +256,29 @@ export namespace ElementResolution {
 
     export const fromGroupMap = (
         map:Map<string, ResolvableElementCollections>,
-        cache:boolean = true
+        cache:boolean = true,
+        container:ElementResolution[] = null
     ):Promise<ElementResolution>[] =>
         [].concat(
-            Array.from(map, ([group, resolvers]) => fromGroup(resolvers, group, cache))
+            Array.from(map, ([group, resolvers]) => fromGroup(resolvers, group, cache, container))
         );
 
     export const fromGroup = (
         resolvers:ResolvableElementCollections,
         group:string,
-        cache:boolean = true
+        cache:boolean = true,
+        container:ElementResolution[] = null,
     ) =>
         (<any>resolvers).map(
-            (resolvable:ResolvableElement, index:number) => fromResolvable(resolvable, group, index,cache)
+            (resolvable:ResolvableElement, index:number) => fromResolvable(resolvable, group, index, cache, container)
         );
 
     export const fromResolvable = (
         resolvableElement:ResolvableElement,
-        group:string = ElementStateQuery.KEY_UNSORTED,
+        group:string = Answer.KEY_UNSORTED,
         index:number = 0,
-        cache:boolean = true
+        cache:boolean = true,
+        container:ElementResolution[] = null
     ): Promise<ElementResolution> => {
         if(resolvableElement instanceof ElementReference) {
 
@@ -210,6 +301,7 @@ export namespace ElementResolution {
                         resolution.element = element;
                         resolution.group = group;
                         resolution.index = index;
+                        resolution.container = container;
                         return resolution
                     }
 
@@ -217,13 +309,17 @@ export namespace ElementResolution {
                         resolver,
                         group,
                         element,
-                        index
+                        index,
+                        container
                     );
 
                     return resolvableElement.resolution;
                 }
             );
         } else if(resolvableElement instanceof ElementResolution) {
+            resolvableElement.group = group;
+            resolvableElement.index = index;
+            resolvableElement.container = container;
             return Promise.resolve(resolvableElement);
         }
 
@@ -238,7 +334,9 @@ export namespace ElementResolution {
                 (element:any) => ElementResolution.fromElement(
                     element,
                     group,
-                    <any>resolvableElement
+                    <any>resolvableElement,
+                    index,
+                    container
                 )
             );
     };
@@ -246,9 +344,10 @@ export namespace ElementResolution {
 
     export const fromElement = (
         element:HTMLElement,
-        group:string = ElementStateQuery.KEY_UNSORTED,
+        group:string = Answer.KEY_UNSORTED,
         resolver: ElementResolver = <any>element,
         index:number = -1,
+        container: ElementReference[] = null
     ):ElementResolution =>
         new ElementResolution(
             resolver,
@@ -257,7 +356,7 @@ export namespace ElementResolution {
         );
 
     export const fromElements = (
-        group:string = ElementStateQuery.KEY_UNSORTED,
+        group:string = Answer.KEY_UNSORTED,
         ...element:HTMLElement[]
     ): ElementResolution[] => []
         .concat(element)
@@ -271,7 +370,7 @@ export namespace ElementResolution {
         );
 }
 
-export namespace ElementStateQuery {
+export namespace Answer {
 
     export const KEY_UNSORTED: string = "UNSORTED";
 

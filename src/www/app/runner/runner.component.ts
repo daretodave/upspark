@@ -5,7 +5,7 @@ import {SystemEvent} from "../shared/system/system-event";
 import {CommandListComponent} from "./command/command-list.component";
 import {CommandIntent} from "../../../app/model/command/command-intent";
 import {CommandArgumentComponent} from "./command-argument/command-argument.component";
-import {ElementStateQuery} from "../shared/element-state-query";
+import {Answer} from "../shared/answer";
 import {CommandArgument} from "../../../app/model/command/command-argument";
 
 require('./runner.component.scss');
@@ -17,7 +17,7 @@ require('./runner.component.scss');
 export class RunnerComponent implements OnInit {
 
     private intent: CommandIntent = new CommandIntent();
-    private inputGroup: ElementStateQuery = new ElementStateQuery();
+    private inputGroup: Answer = new Answer();
     private savedIntent: CommandIntent;
     private savedCursor: number = -1;
 
