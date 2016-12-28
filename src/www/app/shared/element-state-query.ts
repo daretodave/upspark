@@ -8,7 +8,7 @@ export class ElementStateQuery {
     private elements = new Map<string, ElementReference[]>();
 
     constructor(private cache: boolean = true,
-                elements: Map<string, ElementReference[]>) {
+                elements: Map<string, ElementReference[]> = null) {
 
         if(elements !== null) {
             if(elements instanceof Map) {
@@ -277,6 +277,6 @@ export namespace ElementStateQuery {
 
     export type ResolvableElement = ElementResolver | ElementResolution | ElementReference;
     export type ResolvableElementCollections = ElementResolver[] | ElementResolution[] | ElementReference[];
-    export type ElementResolver = (...args: any[]) => HTMLElement | Promise<HTMLElement> | PromiseLike<HTMLElement> | HTMLElement;
+    export type ElementResolver = (...args: any[]) => any | Promise<HTMLElement> | PromiseLike<HTMLElement> | HTMLElement;
 
 }

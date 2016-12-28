@@ -5,6 +5,8 @@ import {SystemEvent} from "../shared/system/system-event";
 import {CommandListComponent} from "./command/command-list.component";
 import {CommandIntent} from "../../../app/model/command/command-intent";
 import {CommandArgumentComponent} from "./command-argument/command-argument.component";
+import {ElementStateQuery} from "../shared/element-state-query";
+import {CommandArgument} from "../../../app/model/command/command-argument";
 
 require('./runner.component.scss');
 
@@ -15,8 +17,10 @@ require('./runner.component.scss');
 export class RunnerComponent implements OnInit {
 
     private intent: CommandIntent = new CommandIntent();
+    private inputGroup: ElementStateQuery = new ElementStateQuery();
     private savedIntent: CommandIntent;
     private savedCursor: number = -1;
+
 
     constructor(private system: SystemService,
                 private commandService: CommandService,
@@ -40,14 +44,18 @@ export class RunnerComponent implements OnInit {
             true
         );
         this.runnerInput.nativeElement.focus();
+
+        this.inputGroup.attach("input", this.runnerInput.nativeElement);
+        this.inputGroup.attach("argument", () => this.argumentList.map(
+            (argument:CommandArgumentComponent) => argument.content.nativeElement
+        ))
     }
+
+
 
     onRunnerKeyDown(event: KeyboardEvent): boolean {
 
-        //SET MODE AND PREVENT EXCESSIVE WHITESPACE IN ARGUMENT
-
         if (event.code === "Enter") {
-
             if (event.shiftKey) {
                 // navigate back
 
