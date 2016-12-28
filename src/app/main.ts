@@ -10,12 +10,9 @@ import {Log} from "./model/logger/log";
 import {Logger} from "./model/logger/logger";
 import {LogTranslator} from "./model/logger/log-translator";
 import {PlatformBootstrapper} from "./executor/platform/platform-bootstrapper";
-import {Platform} from "./executor/platform/platform";
-import {PlatformExecutor} from "./executor/platform/platform-executor";
 import {Command} from "./model/command/command";
 import {CommandUpdate} from "./model/command/command-update/command-update";
 import {PlatformPackage} from "./executor/platform/platform-package";
-import {InternalCommandExecutor} from "./executor/internal/internal-command-executor";
 import {Host} from "./model/host";
 import {CommandUpdateEmitter} from "./model/command/command-update/command-update-emitter";
 import {CommandTask} from "./model/command/command-task";
@@ -39,6 +36,8 @@ let init = () => {
 
     host.safe(new Safe(external, 'aes-256-ctr'));
     host.resources(new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js')));
+    
+    console.log(host.resources().attach);
 
     host.resources().attach('settings.json', Settings);
     host.resources().attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
@@ -250,7 +249,6 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
                 }
             `;
         }
-
         x = Math.floor(x);
         y = Math.floor(y);
 
@@ -294,7 +292,7 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
     })
     .catch((e) => {
         if(log) {
-            Logger.finish('configure', e.getMessage())
+            Logger.finish('configure', e)
         } else {
             console.error(e);
         }

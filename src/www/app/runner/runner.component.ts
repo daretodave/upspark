@@ -14,19 +14,19 @@ require('./runner.component.scss');
 })
 export class RunnerComponent implements OnInit {
 
+    @ViewChildren('argument')
+    private argumentList: QueryList<CommandArgumentComponent>;
+    @ViewChild("runnerInput")
+    private runnerInput: ElementRef;
+    @ViewChild("commandList")
+    private commandList: CommandListComponent;
+
     private intent: CommandIntent = new CommandIntent();
     private savedIntent: CommandIntent;
     private savedCursor: number = -1;
-
-
+    
     constructor(private system: SystemService,
-                private commandService: CommandService,
-                @ViewChildren('argument')
-                private argumentList: QueryList<CommandArgumentComponent>,
-                @ViewChild("runnerInput")
-                private runnerInput: ElementRef,
-                @ViewChild("commandList")
-                private commandList: CommandListComponent) {
+                private commandService: CommandService) {
     }
 
     ngOnInit() {

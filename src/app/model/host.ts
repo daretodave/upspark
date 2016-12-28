@@ -26,21 +26,21 @@ export class Host {
         return this._executor.get(runtime);
     }
     
-    resources(resources?:Resource):Resource {
+    resources(resources:Resource = null):Resource {
         if(resources !== null) {
             this._resources = resources;
         }
         return this._resources;
     }
     
-    safe(safe?:Safe): Safe {
+    safe(safe:Safe = null): Safe {
         if(safe !== null) {
             this._safe = safe;
         }
         return this._safe;
     }
     
-    platform(platform?:Platform): Platform {
+    platform(platform:Platform = null): Platform {
         if(platform !== null) {
             this._platform = platform;
         }
