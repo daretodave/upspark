@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import Process = NodeJS.Process;
-import {Util} from "../../api/util";
 import {Logger} from "../../model/logger/logger";
+import {Util} from "../../util/util";
 const util = require('util');
 const tryRequire = require('try-require');
 

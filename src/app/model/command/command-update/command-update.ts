@@ -1,7 +1,7 @@
 import {Command} from "../command";
 import {inspect} from "util";
 import {CommandLike} from "../command-like";
-import {Util} from "../../../api/util";
+import {Util} from "../../../util/util";
 
 export class CommandUpdate extends Command {
 

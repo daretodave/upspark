@@ -2,12 +2,11 @@ import {CommandUpdateEmitter} from "./command-update/command-update-emitter";
 import {CommandUpdateListener} from "./command-update/command-update-listener";
 import {CommandLike} from "./command-like";
 import {CommandUpdate} from "./command-update/command-update";
-import {Util} from "../../api/util";
 import {Command} from "./command";
 import {CommandTaskListener} from "./command-task-listener";
-import {Platform} from "../../executor/platform/platform";
 import {CommandIntentDigest} from "./command-intent-digest";
 import {Host} from "../host";
+import {Util} from "../../util/util";
 
 export class CommandTask implements CommandUpdateEmitter {
     
