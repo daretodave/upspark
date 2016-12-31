@@ -19,7 +19,6 @@ export class PlatformExecutor {
         }
 
         let process: ChildProcess;
-
         this.pool.set(
             task.id,
             process =
@@ -30,18 +29,18 @@ export class PlatformExecutor {
                         )
                     )
                 )
+
         );
 
         process.on('close', (code: number) => {
-            Logger.info(`#command '${task.digest.command.display}' process has finished [] > exit code = ${code}`);
-
             if (!task.isCompleted()) {
+                Logger.info(`#command '${task.digest.command.display}' process has finished [] > exit code = ${code}`);
+
                 task.complete();
             }
         });
 
         process.on('message', (message: PlatformMessage) => {
-
             let log = (error: boolean, message: any) => {
                 if (typeof message === 'string' && message.length < 50) {
                     Logger.log(error, `\t\t# ${message}`);
@@ -52,13 +51,16 @@ export class PlatformExecutor {
                 }
             };
 
-            Logger.info(`#command '${task.digest.command.display}' | process = '${process.pid}' | ${message["intent"]}`);
 
             message = PlatformMessage.sanitize(message);
 
             let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
 
             switch (message.intent) {
+
+                case PlatformMessage.INTENT_INTERNAL_LOG:
+                    log(false, message.payload);
+                    break;
 
                 case PlatformMessage.INTENT_ABORT:
                 case PlatformMessage.INTENT_FATAL_ERROR:
@@ -147,7 +149,8 @@ export class PlatformExecutor {
                     commandUpdate.absorb(message.payload);
                     break;
 
-                default:
+                case PlatformMessage.INTENT_LOG:
+                case PlatformMessage.INTENT_LOG_ERROR:
                     let isError: boolean = message.intent === PlatformMessage.INTENT_LOG_ERROR;
 
                     log(isError, message.payload);
@@ -158,6 +161,10 @@ export class PlatformExecutor {
                             isError
                         )
                     );
+                    break;
+
+                default:
+                    Logger.info(`#command '${task.digest.command.display}' | process = '${process.pid}'`, message);
                     break;
             }
 

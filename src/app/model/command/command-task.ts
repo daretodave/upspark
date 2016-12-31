@@ -11,21 +11,17 @@ import {Util} from "../../util/util";
 export class CommandTask implements CommandUpdateEmitter {
     
     public digest:CommandIntentDigest;
+    public updateListener:CommandUpdateListener;
     public completed:boolean;
+    public id:string;
 
     constructor(public command: Command,
                 public host: Host,
                 public listener: CommandTaskListener) {
+        this.id = command.id;
         this.digest = CommandIntentDigest.from(this.command.intent);
+        this.updateListener = listener;
         this.completed = false;
-    }
-
-    get id(): string {
-        return this.command.id;
-    }
-
-    get updateListener(): CommandUpdateListener {
-        return this.listener;
     }
     
     public isCompleted(): boolean {

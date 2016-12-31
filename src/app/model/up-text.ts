@@ -10,8 +10,14 @@ export class UpText {
     set content(content:string) {
         this.text = content || '';
 
-        if(!this.text) {
+        if(!this.text.trim()) {
             this.display = '';
+            this.normalized = '';
+
+        } else {
+
+            this.display = UpText.getDisplayName(content);
+            this.normalized = UpText.getNormalizedName(content);
         }
     }
 

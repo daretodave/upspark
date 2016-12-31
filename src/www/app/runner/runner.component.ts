@@ -6,6 +6,8 @@ import {CommandListComponent} from "./command/command-list.component";
 import {CommandIntent} from "../../../app/model/command/command-intent";
 import {CommandArgumentComponent} from "./command-argument/command-argument.component";
 import {CommandArgument} from "../../../app/model/command/command-argument";
+import {Command} from "../../../app/model/command/command";
+import {CommandWrapper} from "./command/command-wrapper";
 
 require('./runner.component.scss');
 
@@ -25,6 +27,7 @@ export class RunnerComponent implements OnInit {
     private intent: CommandIntent = new CommandIntent();
     private savedIntent: CommandIntent;
     private savedCursor: number = -1;
+    private command: CommandWrapper;
     
     constructor(private system: SystemService,
                 private commandService: CommandService) {
@@ -78,7 +81,7 @@ export class RunnerComponent implements OnInit {
             return false;
         }
 
-        if ("Enter" === code) {
+        if ("Enter" === code || "NumpadEnter" === code) {
 
             if(ctrlKey && shiftKey) {
                 this.intent = new CommandIntent();
@@ -102,7 +105,10 @@ export class RunnerComponent implements OnInit {
             }
 
             if (ctrlKey || document.activeElement === this.runnerInput.nativeElement) {
-                this.commandService.execute(this.intent);
+                this.command = this.commandService.execute(new CommandIntent(this.intent));
+
+                this.intent.arguments = [];
+                this.intent.command = "";
                 return false;
             }
         }

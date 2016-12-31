@@ -1,8 +1,22 @@
-(function(title, input) {
-    if(arguments.length === 0) {
+(function(argv) {
+    if(!Array.isArray(argv)) {
+        argv = [0, 0, argv];
+    }
+
+    if(argv.length < 2) {
         upspark['__internal'].fatal('no command to execute');
         return;
     }
+
+    let title = argv[2];
+    let parameters = [];
+
+    if(argv.length > 2) {
+        for(let i = 3; i < argv.length; i++) {
+            parameters.push(argv[i]);
+        }
+    }
+
     if(!upspark['util'].isString(title)) {
         upspark['__internal'].log(`command name was not a string | defaulting to name.toString`);
         title = title.toString();
@@ -12,36 +26,34 @@
         upspark['__internal'].log(`${message}`);
     };
 
-    log('executing');
-
-    let command = upspark['__internal'].commands[title],
-        parameters = [];
+    let command = upspark['__internal'].commands[title];
     if (!command) {
         upspark['__internal'].fatal(`The command '${title}' was not found`);
         return;
     }
 
-    if(input) {
-        if(!upspark['util'].isString(input)) {
-            input = input.toString();
-            log('input provided was not string | defaulting to input.toString');
-        }
-        parameters = input.split(command.split);
+    if(parameters.length) {
+        parameters.map(function (input, index) {
+            if(!upspark['util'].isString(input)) {
+                input = input.toString();
+
+                log('input[' + index + '] not string | defaulting to input.toString');
+            }
+        });
 
         log(`[${parameters.join(", ")}]`);
     }
 
-    upspark['util'].resolve(null)(command.processor, parameters, function(result) {
+    upspark['util'].resolve(command.processor, parameters, function(result) {
         process.send({
-            type: 'command-result',
-            response: result
+            intent: 'result',
+            payload: result
         });
     }, function(error) {
         process.send({
-            type: 'command-result',
-            error: true,
-            response: error
+            intent: 'error',
+            payload: error
         });
     });
 
-})(process.argv[2], process.argv[3]);
+})(process.argv);

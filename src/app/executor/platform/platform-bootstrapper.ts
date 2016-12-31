@@ -117,6 +117,7 @@ export class PlatformBootstrapper {
 
             });
         };
+
         return new Promise<any>(executor);
     }
 
@@ -140,7 +141,6 @@ export class PlatformBootstrapper {
                     resolve(true);
                 }
             });
-
         };
 
         return new Promise<any>(executor);
@@ -352,7 +352,7 @@ export class PlatformBootstrapper {
                     upspark['__internal'].worker = true;
                     ${source}
                     upspark['__internal'].loaded = true;
-                    ${platformScripts["executors"]}
+                    ${platformScripts["executor"]}
                 `;
 
                 Logger.info(platform);

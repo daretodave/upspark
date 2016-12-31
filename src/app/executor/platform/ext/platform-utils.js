@@ -21,7 +21,7 @@ upspark.util.isNumber = function(argument) {
 upspark.util.isBoolean = function(argument, checkIfEquals) {
     let passTest = typeof argument === 'boolean';
     if (passTest && arguments.length > 1) {
-        return argument === check;IfEquals;
+        return argument === check;
     }
     return passTest;
 };
@@ -88,7 +88,7 @@ upspark.util.resolve = function(entity, parameters, callback, errCallback, depth
     if(upspark.util.isFunction(entity)) {
         entity = entity.apply(upspark, parameters);
 
-        upspark['__internal'].resolve(entity, parameters, callback, errCallback, depth);
+        upspark['util'].resolve(entity, parameters, callback, errCallback, depth);
         return;
     }
 
@@ -110,7 +110,8 @@ upspark.util.resolve = function(entity, parameters, callback, errCallback, depth
                         callback(leafs[0]);
                     } else {
                         callback(upspark.util.inspect(leafs, {
-
+                            depth: null,
+                            showHidden: true
                         }));
                     }
                 }

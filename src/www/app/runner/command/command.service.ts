@@ -18,12 +18,14 @@ export class CommandService {
     constructor(private system: SystemService) {
     }
 
-    execute(intent: CommandIntent) {
+    execute(intent: CommandIntent):CommandWrapper {
         const command: CommandWrapper = new CommandWrapper(generatedUUID(), intent);
 
         this.commands.push(command);
 
         this.system.send('command-run', command.reference);
+
+        return command;
     }
 
     getCommands(): CommandWrapper[] {
@@ -43,13 +45,14 @@ export class CommandService {
         }
 
         Object.keys(update).forEach((property: string) => {
-            if (!command.reference.hasOwnProperty(property)
+            if (update[property] === null
+                || !command.reference.hasOwnProperty(property)
                 || property == 'errors'
                 || property == 'messages') {
                 return;
             }
 
-            command.reference[property] = property;
+            command.reference[property] = update[property];
         });
 
         update.messages.forEach(

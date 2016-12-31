@@ -14,13 +14,14 @@ export class CommandUpdateEmitter {
         let commandUpdate: CommandUpdate;
         if (message instanceof CommandUpdate) {
             commandUpdate = message;
+            commandUpdate.id = this.id;
         } else {
             commandUpdate = CommandUpdate.fromCommandLike(
                 this.id,
                 message
             );
         }
-        
+
         if(!this.completed && commandUpdate.completed === true) {
             this.completed = true;
         }

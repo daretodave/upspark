@@ -56,11 +56,8 @@ upspark['__internal'].log = function(message, error) {
     }
 
     process.send({
-        type: 'command-log',
-        logType: error ? 'log-error' : 'log-info',
-        internal: true,
-        message: message,
-        error: error
+        intent: error ? 'log-error' : 'log-internal',
+        payload: message,
     });
 };
 upspark['__internal'].error = function (message) {
