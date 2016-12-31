@@ -7,8 +7,10 @@
     </div>
     <div id="runner__container">
         <div class="runner-input__container">
-            <input id="runner-input" [class.runner-input--args]="intent.arguments.length !== 0" #runnerInput
-                   ([ngModel])="intent.command" class="plain">
+            <input id="runner-input"
+                   #runnerInput
+                   [class.runner-input--args]="intent.arguments.length !== 0"
+                   [(ngModel)]="intent.command" class="plain">
         </div>
         <up-command-argument #argument *ngFor="let argument of intent.arguments"
                             [argument]="argument"></up-command-argument>

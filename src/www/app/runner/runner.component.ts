@@ -5,6 +5,7 @@ import {SystemEvent} from "../shared/system/system-event";
 import {CommandListComponent} from "./command/command-list.component";
 import {CommandIntent} from "../../../app/model/command/command-intent";
 import {CommandArgumentComponent} from "./command-argument/command-argument.component";
+import {CommandArgument} from "../../../app/model/command/command-argument";
 
 require('./runner.component.scss');
 
@@ -43,61 +44,103 @@ export class RunnerComponent implements OnInit {
         this.runnerInput.nativeElement.focus();
     }
 
-
-
     onRunnerKeyDown(event: KeyboardEvent): boolean {
+        const {code, shiftKey, ctrlKey} = event;
+        const args = this.argumentList.length;
 
-        if (event.code === "Enter") {
-            if (event.shiftKey) {
-                // navigate back
+        if("Space" === code && ((shiftKey && args) || ctrlKey)) {
 
-                return;
-            }
-
-            if (event.ctrlKey) {
-                // execute
-
-                return;
-            }
-
-
-            return;
-        }
-
-        let isLeftArrow: boolean = event.code === "ArrowLeft",
-            isRightArrow: boolean = event.code === "ArrowRight",
-            isUpArrow: boolean = event.code === "ArrowUp",
-            isDownArrow: boolean = event.code === "ArrowDown";
-
-        if (!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
-            return true;
-        }
-
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        event.stopPropagation();
-
-        if (isUpArrow || isDownArrow) {
-            const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
-            if (reset) {
-                this.resetCommandList(fromCursor, true, true);
-
-            } else if (command !== null) {
-                if (fromPristine) {
-                    this.savedIntent = new CommandIntent(this.intent);
+            let focusedIndex:number = -1;
+            this.argumentList.forEach((argument:CommandArgumentComponent, index:number) => {
+                if(document.activeElement === argument.content.nativeElement) {
+                    focusedIndex = index;
                 }
+            });
 
-                this.commandList.lock(command);
-
-                this.intent = new CommandIntent(command.reference.intent);
+            if(shiftKey) {
+                if(focusedIndex > 0) {
+                    this.argumentList.toArray()[focusedIndex-1].content.nativeElement.focus();
+                    return false;
+                } else if(focusedIndex !== 0) {
+                    this.argumentList.toArray()[args-1].content.nativeElement.focus();
+                    return false;
+                }
+                this.runnerInput.nativeElement.focus();
+                return false;
             }
-        } else if (isLeftArrow) {
-            this.resetCommandList(this.commandService.getCursor(), event.altKey);
-        } else if (isRightArrow && event.altKey) {
-            this.resetCachedCommandList();
+
+            if(focusedIndex !== -1 && focusedIndex !== args -1) {
+                this.argumentList.toArray()[focusedIndex+1].content.nativeElement.focus();
+                return false;
+            }
+
+            this.intent.arguments.push(new CommandArgument());
+            return false;
         }
 
-        return false;
+        if ("Enter" === code) {
+
+            if(ctrlKey && shiftKey) {
+                this.intent = new CommandIntent();
+                this.runnerInput.nativeElement.focus();
+                return false;
+            }
+
+            if (shiftKey) {
+                if(args === 0) {
+                    this.intent.command = '';
+                    this.runnerInput.nativeElement.focus();
+                    return false;
+                }
+                if(args === 1) {
+                    this.runnerInput.nativeElement.focus();
+                } else {
+                    this.argumentList.toArray()[args-2].content.nativeElement.focus();
+                }
+                this.intent.arguments.pop();
+                return false;
+            }
+
+            if (ctrlKey || document.activeElement === this.runnerInput.nativeElement) {
+                this.commandService.execute(this.intent);
+                return false;
+            }
+        }
+
+        // let isLeftArrow: boolean = event.code === "ArrowLeft",
+        //     isRightArrow: boolean = event.code === "ArrowRight",
+        //     isUpArrow: boolean = event.code === "ArrowUp",
+        //     isDownArrow: boolean = event.code === "ArrowDown";
+        //
+        // if (!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
+        //     return true;
+        // }
+        //
+        // event.preventDefault();
+        // event.stopImmediatePropagation();
+        // event.stopPropagation();
+        //
+        // if (isUpArrow || isDownArrow) {
+        //     const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
+        //     if (reset) {
+        //         this.resetCommandList(fromCursor, true, true);
+        //
+        //     } else if (command !== null) {
+        //         if (fromPristine) {
+        //             this.savedIntent = new CommandIntent(this.intent);
+        //         }
+        //
+        //         this.commandList.lock(command);
+        //
+        //         this.intent = new CommandIntent(command.reference.intent);
+        //     }
+        // } else if (isLeftArrow) {
+        //     this.resetCommandList(this.commandService.getCursor(), event.altKey);
+        // } else if (isRightArrow && event.altKey) {
+        //     this.resetCachedCommandList();
+        // }
+
+        return true;
     }
 
     resetCommandList(cursor: number, resetCachedCommand: boolean, overrideCurrentState: boolean = false) {
