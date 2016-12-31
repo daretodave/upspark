@@ -1,4 +1,7 @@
-import {Component, OnInit, ViewChild, QueryList, ElementRef, ViewChildren} from "@angular/core";
+import {
+    Component, OnInit, ViewChild, QueryList, ElementRef, ViewChildren, style, animate,
+    transition, trigger
+} from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
 import {CommandService} from "./command/command.service";
 import {SystemEvent} from "../shared/system/system-event";
@@ -14,6 +17,18 @@ require('./runner.component.scss');
 @Component({
     selector: 'up-runner',
     templateUrl: 'runner.component.html',
+    animations: [
+        trigger('expand', [
+            transition('void => *', [
+                style({width: '0'}),
+                animate(100, style({width: '*'}))
+            ]),
+            transition('* => void', [
+                style({width: '*'}),
+                animate(100, style({width: '0'}))
+            ])
+        ]),
+    ]
 })
 export class RunnerComponent implements OnInit {
 
@@ -28,7 +43,8 @@ export class RunnerComponent implements OnInit {
     private savedIntent: CommandIntent;
     private savedCursor: number = -1;
     private command: CommandWrapper;
-    
+
+
     constructor(private system: SystemService,
                 private commandService: CommandService) {
     }

@@ -5,6 +5,7 @@
         <div id="runner-path">
         </div>
     </div>
+
     <div id="runner__container">
         <div class="runner-input__container">
             <input id="runner-input"
@@ -15,10 +16,12 @@
         <up-command-argument #argument *ngFor="let argument of intent.arguments"
                             [argument]="argument"></up-command-argument>
         <div class="runner__output"
+             [@expand]
              *ngIf="command && command.reference.output"
              [innerHTML]="command.reference.output">
         </div>
 
     </div>
+
     <up-command-list #commandList></up-command-list>
 </div>

@@ -25,7 +25,7 @@ export namespace CommandIntentDigest {
             if (runtime !== null) {
                 digest.runtime = runtime;
                 //"reload"\\
-                input = input.substring(0).trim();
+                input = input.substring(1).trim();
             }
 
             digest.command.content = input;

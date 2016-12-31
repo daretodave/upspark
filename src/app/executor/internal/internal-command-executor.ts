@@ -12,6 +12,9 @@ export class InternalCommandExecutor {
 
     execute(task: CommandTask) {
 
+        console.log(task.digest.command.normalized, task);
+        console.log(this.commands);
+
         let constructor = this.commands.get(task.digest.command.normalized);
 
         if (!constructor) {
