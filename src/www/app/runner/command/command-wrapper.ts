@@ -8,7 +8,7 @@ export class CommandWrapper {
         id:string,
         intent:CommandIntent,
 
-        public update:number = 0,
+        public update:number = -1,
         public hover:boolean = false,
         public stale:boolean = false,
         public active:boolean = false

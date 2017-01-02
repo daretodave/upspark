@@ -22,6 +22,9 @@ export class CommandService {
         const command: CommandWrapper = new CommandWrapper(generatedUUID(), intent);
 
         this.commands.push(command);
+        if (this.cursor+1 === this.commands.length) {
+            this.cursor++;
+        }
 
         this.system.send('command-run', command.reference);
 

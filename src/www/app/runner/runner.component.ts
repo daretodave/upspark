@@ -121,48 +121,59 @@ export class RunnerComponent implements OnInit {
             }
 
             if (ctrlKey || document.activeElement === this.runnerInput.nativeElement) {
+                let isNavigating:boolean = this.commandService.isNavigating();
+
+                this.savedIntent = null;
+
+                if(isNavigating) {
+                    this.commandList.scrollToTop();
+                    this.commandService.resetNavigation();
+                }
+
                 this.command = this.commandService.execute(new CommandIntent(this.intent));
+
+                if(isNavigating) {
+                    this.commandService.navigate(true);
+                }
 
                 this.intent.arguments = [];
                 this.intent.command = "";
+
+
                 return false;
             }
         }
 
-        // let isLeftArrow: boolean = event.code === "ArrowLeft",
-        //     isRightArrow: boolean = event.code === "ArrowRight",
-        //     isUpArrow: boolean = event.code === "ArrowUp",
-        //     isDownArrow: boolean = event.code === "ArrowDown";
-        //
-        // if (!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
-        //     return true;
-        // }
-        //
-        // event.preventDefault();
-        // event.stopImmediatePropagation();
-        // event.stopPropagation();
-        //
-        // if (isUpArrow || isDownArrow) {
-        //     const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
-        //     if (reset) {
-        //         this.resetCommandList(fromCursor, true, true);
-        //
-        //     } else if (command !== null) {
-        //         if (fromPristine) {
-        //             this.savedIntent = new CommandIntent(this.intent);
-        //         }
-        //
-        //         this.commandList.lock(command);
-        //
-        //         this.intent = new CommandIntent(command.reference.intent);
-        //     }
-        // } else if (isLeftArrow) {
-        //     this.resetCommandList(this.commandService.getCursor(), event.altKey);
-        // } else if (isRightArrow && event.altKey) {
-        //     this.resetCachedCommandList();
-        // }
+        let isLeftArrow: boolean = event.code === "ArrowLeft",
+            isRightArrow: boolean = event.code === "ArrowRight",
+            isUpArrow: boolean = event.code === "ArrowUp",
+            isDownArrow: boolean = event.code === "ArrowDown";
 
-        return true;
+        if (!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
+            return true;
+        }
+
+        if (isUpArrow || isDownArrow) {
+            const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
+            if (reset) {
+                this.resetCommandList(fromCursor, true, true);
+
+            } else if (command !== null) {
+                if (fromPristine) {
+                    this.savedIntent = new CommandIntent(this.intent);
+                }
+
+                this.commandList.lock(command);
+
+                this.intent = new CommandIntent(command.reference.intent);
+            }
+        } else if (isLeftArrow) {
+            this.resetCommandList(this.commandService.getCursor(), event.altKey);
+        } else if (isRightArrow && event.altKey) {
+            this.resetCachedCommandList();
+        }
+
+        return false;
     }
 
     resetCommandList(cursor: number, resetCachedCommand: boolean, overrideCurrentState: boolean = false) {
