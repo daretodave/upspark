@@ -14,7 +14,7 @@ export class PlatformExecutor {
         Logger.info(`#command ${task.digest.command.display}`);
 
         if (!task.host.platform().hasCommandMapped(task.digest.command.normalized)) {
-            task.error(`The command <strong>${task.command.intent.command}</strong> could not be found`, true);
+            task.error(`The command <strong>${task.command.intent.command}</strong> could not be found`);
             return;
         }
 

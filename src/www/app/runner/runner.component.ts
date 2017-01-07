@@ -16,19 +16,7 @@ require('./runner.component.scss');
 
 @Component({
     selector: 'up-runner',
-    templateUrl: 'runner.component.html',
-    animations: [
-        trigger('expand', [
-            transition('void => *', [
-                style({width: '0'}),
-                animate(100, style({width: '*'}))
-            ]),
-            transition('* => void', [
-                style({width: '*'}),
-                animate(100, style({width: '0'}))
-            ])
-        ]),
-    ]
+    templateUrl: 'runner.component.html'
 })
 export class RunnerComponent implements OnInit {
 
@@ -157,6 +145,7 @@ export class RunnerComponent implements OnInit {
             const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
             if (reset) {
                 this.resetCommandList(fromCursor, true, true);
+                this.command = null;
 
             } else if (command !== null) {
                 if (fromPristine) {
@@ -164,8 +153,11 @@ export class RunnerComponent implements OnInit {
                 }
 
                 this.commandList.lock(command);
+                this.command = command;
 
                 this.intent = new CommandIntent(command.reference.intent);
+            } else {
+                this.command = null;
             }
         } else if (isLeftArrow) {
             this.resetCommandList(this.commandService.getCursor(), event.altKey);

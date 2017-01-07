@@ -19,6 +19,7 @@ export class CommandService {
     }
 
     execute(intent: CommandIntent):CommandWrapper {
+        console.log(intent);
         const command: CommandWrapper = new CommandWrapper(generatedUUID(), intent);
 
         this.commands.push(command);
@@ -50,8 +51,8 @@ export class CommandService {
         Object.keys(update).forEach((property: string) => {
             if (update[property] === null
                 || !command.reference.hasOwnProperty(property)
-                || property == 'errors'
-                || property == 'messages') {
+                || property === 'errors'
+                || property === 'messages') {
                 return;
             }
 

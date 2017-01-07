@@ -11,16 +11,9 @@ export class CommandArgumentComponent implements OnInit {
 
     @ViewChild('content') content:ElementRef;
     @Input('argument') argument:CommandArgument;
-    @Output() onRemoveRequest = new EventEmitter<CommandArgument>();
 
     ngOnInit() {
        this.focus();
-    }
-
-    onContentKeyDown(event:KeyboardEvent) {
-    }
-
-    constructor() {
     }
 
     focus() {
