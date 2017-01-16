@@ -21,8 +21,8 @@ export class CommandUpdate extends Command {
             if (!(args || this).hasOwnProperty(property)
                 || (args || this)[property] === null
                 || typeof (args || this)[property] === 'undefined'
-                || property == 'errors'
-                || property == 'messages') {
+                || property === 'errors'
+                || property === 'messages') {
                 return;
             }
 

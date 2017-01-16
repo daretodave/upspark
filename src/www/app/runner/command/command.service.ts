@@ -19,7 +19,6 @@ export class CommandService {
     }
 
     execute(intent: CommandIntent):CommandWrapper {
-        console.log(intent);
         const command: CommandWrapper = new CommandWrapper(generatedUUID(), intent);
 
         this.commands.push(command);
@@ -41,6 +40,8 @@ export class CommandService {
     }
 
     onStateChange(update: CommandUpdate) {
+        console.log('UPDATE Received', update);
+
         let command: CommandWrapper = this.commands.find(
             (command: CommandWrapper) => command.reference.id === update.id
         );

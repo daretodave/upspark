@@ -175,7 +175,7 @@ export class RunnerComponent implements OnInit {
 
         this.savedCursor = cursor;
 
-        if (this.savedIntent != null && resetCachedCommand) {
+        if (this.savedIntent !== null && resetCachedCommand) {
             this.intent = new CommandIntent(this.savedIntent);
         }
         this.savedIntent = null;
