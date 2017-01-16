@@ -20,7 +20,7 @@ export class CommandUpdateEmitter {
                 message
             );
         }
-        
+
         commandUpdate.id = this.id;
 
         if(!this.completed && commandUpdate.completed === true) {

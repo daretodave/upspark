@@ -127,6 +127,7 @@ export class RunnerComponent implements OnInit {
                 this.intent.arguments = [];
                 this.intent.command = "";
 
+                this.runnerInput.nativeElement.focus();
 
                 return false;
             }
@@ -164,6 +165,8 @@ export class RunnerComponent implements OnInit {
         } else if (isRightArrow && event.altKey) {
             this.resetCachedCommandList();
         }
+
+        this.runnerInput.nativeElement.focus();
 
         return false;
     }
