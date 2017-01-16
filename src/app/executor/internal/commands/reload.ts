@@ -6,8 +6,17 @@ import {Logger} from "../../../model/logger/logger";
 declare type ReloadAction = [string, (command:Reload) => any];
 
 const actions = new Map([
-    ["ALL",      (command) => command.reloadAll()]      as ReloadAction,
-    ["COMMANDS", (command) => command.reloadCommands()] as ReloadAction
+
+    ["ALL",      (command) => command
+        .reloadAll()
+    ] as ReloadAction,
+
+    ["COMMANDS", (command) => command
+        .reloadCommands()
+        .then (command.resolve)
+        .catch(command.reject)
+    ] as ReloadAction
+
 ]);
 
 const parameters:string =
@@ -22,19 +31,23 @@ const parameters:string =
 export class Reload extends InternalCommand {
 
     reloadAll() {
-        this.reloadCommands();
+        Promise.all([
+            this.reloadCommands()
+        ]).then(message => this.resolve(message)).catch(this.reject);
     }
 
-    reloadCommands() {
-        PlatformBootstrapper.load(this.task.host.resources(), this.task)
-            .then((platform: Platform) => {
-                this.task.host.platform(platform);
-                this.resolve(`SUCCESS`);
-            })
-            .catch(this.reject);
+    reloadCommands(): Promise<string> {
+        return PlatformBootstrapper.load(this.task.host.resources(), this.task)
+        .then((platform: Platform) => {
+            this.task.host.platform(platform);
+
+            let count:number = platform.size();
+
+            return `RELOADED ${count} COMMAND${count === 0 || count !== 1 ? 'S' : ''}`;
+        });
     }
 
-    onExecute(arg: string = 'COMMANDS') {
+    onExecute(arg: string = 'ALL') {
 
         const tag: string = arg.toUpperCase().trim();
         if (!actions.has(tag)) {

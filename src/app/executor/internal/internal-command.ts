@@ -3,9 +3,8 @@ import {CommandTask} from "../../model/command/command-task";
 import {CommandArgument} from "../../model/command/command-argument";
 export abstract class InternalCommand {
 
-    protected resolve: (value?: string | PromiseLike<string>) => void;
-    protected reject: (reason?: string) => void;
-
+    public resolve: (value?: any | PromiseLike<any>) => void;
+    public reject: (reason?: string) => void;
     public task:CommandTask;
 
     public execute(): Promise<string> {

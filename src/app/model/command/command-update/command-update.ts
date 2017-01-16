@@ -92,10 +92,7 @@ export namespace CommandUpdate {
         }
 
         const listElementsHTML: string = args.reduce(
-            (left: any, right: any) => {
-                if (typeof left !== 'string') {
-                    left = inspect(left);
-                }
+            (left: string, right: any) => {
                 if (typeof right !== 'string') {
                     if (Array.isArray(right)) {
                         right = getMessageFromCollection(right);
