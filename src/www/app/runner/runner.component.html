@@ -13,8 +13,8 @@
                    [class.runner-input--args]="intent.arguments.length !== 0"
                    [(ngModel)]="intent.command" class="plain">
         </div>
-        <up-command-argument #argument *ngFor="let arg of intent.arguments"
-                            [argument]="arg"></up-command-argument>
+
+        <up-command-argument #argument *ngFor="let arg of intent.arguments" [argument]="arg"></up-command-argument>
 
         <div class="runner__output__container">
             <div class="runner__output"

@@ -1,6 +1,6 @@
 import {
     Component, OnInit, ViewChild, QueryList, ElementRef, ViewChildren, style, animate,
-    transition, trigger
+    transition, trigger, NgZone, ChangeDetectionStrategy
 } from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
 import {CommandService} from "./command/command.service";
@@ -81,7 +81,7 @@ export class RunnerComponent implements OnInit {
                 return false;
             }
 
-            this.intent.arguments.push(new CommandArgument());
+            this.intent.arguments.push(new CommandArgument())
             return false;
         }
 
