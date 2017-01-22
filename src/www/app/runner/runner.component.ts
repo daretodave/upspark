@@ -55,6 +55,23 @@ export class RunnerComponent implements OnInit {
         const {code, shiftKey, ctrlKey} = event;
         const args = this.argumentList.length;
 
+        if("Escape" === code) {
+
+            this.commandList.scrollToTop();
+            this.commandService.resetNavigation();
+            this.runnerInput.nativeElement.focus();
+            this.intent.arguments = [];
+            this.intent.command = "";
+            this.command = null;
+
+            if(shiftKey) {
+                this.commandList.toStaleState();
+            }
+
+            return false;
+        }
+
+
         if("Space" === code && ((shiftKey && args) || ctrlKey)) {
 
             let focusedIndex:number = -1;
@@ -81,7 +98,7 @@ export class RunnerComponent implements OnInit {
                 return false;
             }
 
-            this.intent.arguments.push(new CommandArgument())
+            this.intent.arguments.push(new CommandArgument());
             return false;
         }
 
@@ -131,6 +148,7 @@ export class RunnerComponent implements OnInit {
 
                 return false;
             }
+
         }
 
         let isLeftArrow: boolean = event.code === "ArrowLeft",

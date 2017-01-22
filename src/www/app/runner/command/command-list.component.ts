@@ -36,56 +36,65 @@ require('./command-list.component.scss');
 export class CommandListComponent implements OnInit {
 
     private $$commandContainer: JQuery;
-    private lockedCommand:CommandWrapper;
-    private commands:CommandWrapper[];
+    private lockedCommand: CommandWrapper;
+    private commands: CommandWrapper[];
+
+    @ViewChild('commandContainer')
+    private commandContainer: ElementRef;
 
     ngOnInit() {
         this.commands = this.commandService.getCommands();
         this.$$commandContainer = $(this.commandContainer.nativeElement);
 
-        let callback: (tick:number) => any = this.cleanStaleData.bind(this);
+        let callback: (tick: number) => any = this.cleanStaleData.bind(this);
 
         Observable
             .timer(1000, 1000)
             .subscribe(
-                (tick:number) => this.zone.run(
+                (tick: number) => this.zone.run(
                     () => callback(tick))
-                );
+            );
     }
 
-    constructor(
-        private element:ElementRef,
-        private commandService:CommandService,
-        private zone:NgZone,
-
-        @ViewChild('commandContainer')
-        private commandContainer: ElementRef
-    ) {
+    constructor(private element: ElementRef,
+                private commandService: CommandService,
+                private zone: NgZone) {
 
     }
 
-    cleanStaleData(tick:number) {
-        if(!this.commands) {
+    toStaleState() {
+        if (!this.commands) {
             return;
         }
 
-        let action:boolean = false;
-        let commands:CommandWrapper[] = sortBy(
+        this.commands.forEach((command: CommandWrapper) => {
+            command.stale = true;
+            command.update = -1;
+        });
+    }
+
+    cleanStaleData(tick: number) {
+        if (!this.commands) {
+            return;
+        }
+
+        let action: boolean = false;
+        let commands: CommandWrapper[] = sortBy(
             this.commands,
-            (command:CommandWrapper) => command.reference.update
+            (command: CommandWrapper) => command.reference.update
         );
 
-        commands.forEach((command:CommandWrapper) => {
+        commands.forEach((command: CommandWrapper) => {
             if (command.isIdle() || action) {
                 return;
             }
 
-            if(this.commandService.isNavigating() || command.hover || command.update === -1) {
+            if (this.commandService.isNavigating() || command.hover || command.update === -1) {
                 command.update = tick;
                 return;
             }
 
-            if((tick - command.update) < 7) {
+            if ((tick - command.update) < 7) {
                 return;
             }
 
@@ -93,7 +102,7 @@ export class CommandListComponent implements OnInit {
         });
     }
 
-    scroll(scrollTop:number) {
+    scroll(scrollTop: number) {
         this.$$commandContainer.stop().animate({
             scrollTop
         }, 600);
@@ -102,46 +111,45 @@ export class CommandListComponent implements OnInit {
     scrollToTop() {
         this.lock(null);
 
-        if(this.$$commandContainer.scrollTop() === 0) {
+        if (this.$$commandContainer.scrollTop() === 0) {
             return;
         }
 
         this.scroll(0);
     }
 
-    scrollTo(command:CommandWrapper) {
-        let element:JQuery = $('#command-status--' + command.reference.id);
+    scrollTo(element: JQuery) {
 
-        let elementHeight:number = element.height();
-        let elementOffset:number = element.position().top + this.$$commandContainer.scrollTop();
+        let elementHeight: number = element.height();
+        let elementOffset: number = element.position().top + this.$$commandContainer.scrollTop();
 
-        let containerHeight:number =  (<HTMLElement> this.element.nativeElement).offsetHeight;
+        let containerHeight: number = (<HTMLElement> this.element.nativeElement).offsetHeight;
 
-        let scrollTop:number = elementOffset;
+        let scrollTop: number = elementOffset;
         if (elementHeight < containerHeight) {
-            scrollTop -= containerHeight/2 - elementHeight/2;
+            scrollTop -= containerHeight / 2 - elementHeight / 2;
         }
 
         this.scroll(scrollTop);
     }
 
-    lock(command:CommandWrapper) {
+    lock(command: CommandWrapper) {
         this.lockedCommand = command;
 
-        if(!command) {
+        if (!command) {
             return;
         }
 
-        let element:JQuery = $('#command-status--' + command.reference.id);
+        let element: JQuery = $('#command-status--' + command.reference.id);
         if (element.is(":visible")) {
-            this.scrollTo(command);
+            this.scrollTo(element);
             return;
         }
 
     }
 
-    onCommandAnimationFinish(event:AnimationTransitionEvent) {
-        if(event.toState !== null || this.lock === null) {
+    onCommandAnimationFinish(event: AnimationTransitionEvent) {
+        if (event.toState !== null || this.lock === null) {
             return;
         }
 
