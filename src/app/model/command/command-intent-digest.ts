@@ -18,10 +18,8 @@ export namespace CommandIntentDigest {
         const digest = new CommandIntentDigest();
 
         let blocks = intent.command.split(/\s+/g);
-
-        console.log(blocks);
-
         let input: string;
+
         if (blocks.length) {
             input = blocks[0].trim();
 

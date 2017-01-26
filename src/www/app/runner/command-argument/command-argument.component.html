@@ -1,5 +1,5 @@
 <div class="command-argument">
 
-    <textarea rows="1" class="command-argument__text" (keydown)="resize()" (keyup)="resize()" #content [(ngModel)]="argument.content"></textarea>
+    <textarea rows="1" class="command-argument__text" (keydown)="resize()" (keyup)="resize()" #content (change)="onResolveUpdated()"></textarea>
 
 </div>
