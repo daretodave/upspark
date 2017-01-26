@@ -4,10 +4,11 @@ import {CommandIntent} from "./command-intent";
 export class CommandIntentDigest {
 
     constructor(public runtime: CommandRuntime = CommandRuntime.PLATFORM,
-                public command: UpText = new UpText()) {
+                public command: UpText = new UpText(),
+                public argument: string[] = []) {
     }
 
-    public isEmpty():boolean {
+    public isEmpty(): boolean {
         return !!this.command.content.length;
     }
 }
@@ -16,7 +17,27 @@ export namespace CommandIntentDigest {
     export const from = (intent: CommandIntent): CommandIntentDigest => {
         const digest = new CommandIntentDigest();
 
-        let input = intent.command.trim();
+        let blocks = intent.command.split(/\s+/g);
+
+        console.log(blocks);
+
+        let input: string;
+        if (blocks.length) {
+            input = blocks[0].trim();
+
+            //:reload commands
+            if (blocks.length > 1) {
+                for(let index = 1; index < blocks.length; index++) {
+                    digest.argument.push(blocks[index]);
+                }
+            }
+        } else {
+            input = '';
+        }
+
+        for (let index = 0; index < intent.arguments.length; index++) {
+            digest.argument.push(intent.arguments[index].content);
+        }
 
         if (input.length) {
             let runtimeFlag: string = input.charAt(0);

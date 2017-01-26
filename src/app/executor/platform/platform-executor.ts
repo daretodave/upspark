@@ -24,9 +24,7 @@ export class PlatformExecutor {
             process =
                 fork(task.host.resources().platform,
                     [task.digest.command.normalized].concat(
-                        task.command.intent.arguments.map(
-                            (argument: CommandArgument) => argument.title
-                        )
+                        task.digest.argument
                     )
                 )
 

@@ -71,7 +71,6 @@ export class RunnerComponent implements OnInit {
             return false;
         }
 
-
         if("Space" === code && ((shiftKey && args) || ctrlKey)) {
 
             let focusedIndex:number = -1;
@@ -157,6 +156,7 @@ export class RunnerComponent implements OnInit {
             isDownArrow: boolean = event.code === "ArrowDown";
 
         if (!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
+
             return true;
         }
 

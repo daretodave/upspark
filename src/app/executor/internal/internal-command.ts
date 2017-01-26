@@ -17,9 +17,7 @@ export abstract class InternalCommand {
             try {
                 let response:any = self.onExecute.apply(
                     self,
-                    self.task.command.intent.arguments.map(
-                        (arg: CommandArgument) => arg.content
-                    )
+                    self.task.digest.argument
                 );
 
                 if (response !== undefined && Promise.resolve(response) !== response) {
