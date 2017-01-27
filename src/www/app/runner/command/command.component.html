@@ -12,7 +12,7 @@
 
         <div class="command__title__text">
             <div class="command__title__text__main">
-                {{command.reference.intent.command}}
+                {{command.reference.intent.display || command.reference.intent.command}}
             </div>
             <div class="command__title__text__tag"
                  *ngIf="command.reference.tag"

@@ -16,15 +16,9 @@ export class CommandArgumentComponent implements OnInit {
     constructor() {
     }
 
-    onResolveUpdated() {
-        this.argument.content = this.content.nativeElement.innerHTML;
-        console.log(this.argument.content);
-    }
-
     ngOnInit() {
-       this.focus();
-
-       this.content.nativeElement.innerHTML = this.argument.content;
+        //this.focus();
+        //this.resize();
     }
 
     resize():boolean {

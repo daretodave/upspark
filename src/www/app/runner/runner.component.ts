@@ -125,6 +125,10 @@ export class RunnerComponent implements OnInit {
             }
 
             if (ctrlKey || document.activeElement === this.runnerInput.nativeElement) {
+                if(!this.intent.command.trim()) {
+                    return;
+                }
+
                 let isNavigating:boolean = this.commandService.isNavigating();
 
                 this.savedIntent = null;
