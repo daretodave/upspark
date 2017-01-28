@@ -12,10 +12,37 @@ export class Host {
     private _safe:Safe;
     private _platform:Platform;
     private _executor = new Map<CommandRuntime, Executor>();
+    private _cwd:string;
+    private _defaultCWD:string;
+    private _cwdUpdateCallback: (cwd:string) => any;
     
     constructor() {
         this._executor.set(CommandRuntime.INTERNAL, new InternalCommandExecutor());
         this._executor.set(CommandRuntime.PLATFORM, new PlatformExecutor());
+    }
+
+    setDefaultCWD(cwd:string, updateCallback: (cwd:string) => any) {
+        this._defaultCWD = cwd;
+        this._cwd = cwd;
+        this._cwdUpdateCallback = updateCallback;
+    }
+
+    toDefaultCWD(): string {
+        return this.cwd(this._defaultCWD);
+    }
+
+    cwd(cwd:string = null): string {
+        if(cwd !== null) {
+            this._cwd = cwd;
+
+            if(this._cwdUpdateCallback) {
+                let updatedCWD: string = this._cwd === this._defaultCWD ? '' : this._cwd;
+
+                this._cwdUpdateCallback(updatedCWD);
+            }
+
+        }
+        return this._cwd;
     }
     
     execute(task:CommandTask) {

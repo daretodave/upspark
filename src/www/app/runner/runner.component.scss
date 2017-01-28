@@ -51,7 +51,8 @@
 
 }
 #runner-path {
-    margin-top: 26px;
+    margin-top: 5px;
+  margin-left: 5px;
 }
 #runner__container {
     flex-grow:1;
@@ -91,11 +92,21 @@ body {
     box-shadow: none;
     outline: none;
 }
+.runner__output__container {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
 .runner__output {
   color: white;
   position: relative;
-  margin-left: 20px;
+  height: 100%;
+  overflow: auto;
 }
 .pre {
     white-space: pre;
+}
+
+.scroll-x {
+  overflow-x: scroll;
 }

@@ -33,12 +33,15 @@ let host:Host = new Host();
 let init = () => {
 
     let external:string = path.join(app.getPath('appData'), 'upspark');
+    let home:string = path.join(app.getPath('home'), '.upspark');
+
+    host.setDefaultCWD(home, (cwd:string) => {
+        runnerWindow.webContents.send('cwd-update', cwd);
+    });
 
     host.safe(new Safe(external, 'aes-256-ctr'));
-    host.resources(new Resource(path.join(app.getPath('home'), '.upspark'), path.join(external, 'platform.worker.js')));
+    host.resources(new Resource(home, path.join(external, 'platform.worker.js')));
     
-    console.log(host.resources().attach);
-
     host.resources().attach('settings.json', Settings);
     host.resources().attach('upspark.log', Log, new LogTranslator(new Date()), 'log');
     host.resources().attach('runner.css', RunnerStyle, new TextTranslator(), 'runner-style', ResourceMissingPolicy.DEFAULT);

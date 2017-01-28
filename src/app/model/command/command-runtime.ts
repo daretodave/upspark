@@ -1,15 +1,13 @@
 export enum CommandRuntime {
     SYSTEM,
     INTERNAL,
-    PLATFORM,
-    PLATFORM_REACTIVE
+    PLATFORM
 }
 export namespace CommandRuntime {
 
     export const FLAG_SYSTEM: string = ">";
     export const FLAG_INTERNAL: string = ":";
     export const FLAG_PLATFORM: string = "#";
-    export const FLAG_PLATFORM_REACTIVE: string = "*";
 
     export const from = (flag: string):CommandRuntime => {
         if(!flag || !(flag = flag.trim()).length) {
@@ -25,10 +23,7 @@ export namespace CommandRuntime {
         if(flag === FLAG_INTERNAL) {
             return CommandRuntime.INTERNAL;
         }
-        if(flag === FLAG_PLATFORM_REACTIVE) {
-            return CommandRuntime.PLATFORM_REACTIVE;
-        }
-
+        
         return null;
     }
 

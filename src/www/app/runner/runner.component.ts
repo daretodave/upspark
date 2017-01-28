@@ -11,6 +11,7 @@ import {CommandArgumentComponent} from "./command-argument/command-argument.comp
 import {CommandArgument} from "../../../app/model/command/command-argument";
 import {Command} from "../../../app/model/command/command";
 import {CommandWrapper} from "./command/command-wrapper";
+import {CommandIntentDigest} from "../../../app/model/command/command-intent-digest";
 
 require('./runner.component.scss');
 
@@ -31,7 +32,7 @@ export class RunnerComponent implements OnInit {
     private savedIntent: CommandIntent;
     private savedCursor: number = -1;
     private command: CommandWrapper;
-
+    private cwd:string = '';
 
     constructor(private system: SystemService,
                 private commandService: CommandService) {
@@ -48,6 +49,9 @@ export class RunnerComponent implements OnInit {
             (event: SystemEvent) => this.commandService.onStateChange(event.value),
             true
         );
+        this.system.subscribeToBroadcast('cwd-update', (event:SystemEvent) => {
+            this.cwd = event.get<string>('cwd');
+        }, true, 'cwd');
         this.runnerInput.nativeElement.focus();
     }
 

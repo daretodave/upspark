@@ -4,7 +4,7 @@ import {CommandArgument} from "../../model/command/command-argument";
 export abstract class InternalCommand {
 
     public resolve: (value?: any | PromiseLike<any>) => void;
-    public reject: (reason?: string) => void;
+    public reject: (reason?: any) => void;
     public task:CommandTask;
 
     public execute(): Promise<string> {

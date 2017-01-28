@@ -3,12 +3,18 @@ import {InternalCommand} from "./internal-command";
 import {CommandTask} from "../../model/command/command-task";
 import {Logger} from "../../model/logger/logger";
 import {CommandArgument} from "../../model/command/command-argument";
+import {Cd} from "./commands/cd";
+import {Path} from "./commands/path";
+import {Ls} from "./commands/ls";
 export class InternalCommandExecutor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
     
     constructor() {
         this.commands.set('reload', Reload);
+        this.commands.set('cd', Cd);
+        this.commands.set('path', Path);
+        this.commands.set('ls', Ls);
     }
 
     execute(task: CommandTask) {

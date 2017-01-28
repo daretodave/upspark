@@ -142,7 +142,7 @@ export class PlatformExecutor {
                     break;
 
                 case PlatformMessage.INTENT_UPDATE:
-                    log(message.payload["error"] === true, `update | ${inspect(message.payload)}`)
+                    log(message.payload["error"] === true, `update | ${inspect(message.payload)}`);
 
                     commandUpdate.absorb(message.payload);
                     break;
