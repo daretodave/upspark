@@ -6,6 +6,7 @@ import {CommandArgument} from "../../model/command/command-argument";
 import {Cd} from "./commands/cd";
 import {Path} from "./commands/path";
 import {Ls} from "./commands/ls";
+import {Open} from "./commands/open";
 export class InternalCommandExecutor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
@@ -15,6 +16,7 @@ export class InternalCommandExecutor {
         this.commands.set('cd', Cd);
         this.commands.set('path', Path);
         this.commands.set('ls', Ls);
+        this.commands.set('open', Open);
     }
 
     execute(task: CommandTask) {
