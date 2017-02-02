@@ -3,5 +3,8 @@
     "core-js": "registry:dt/core-js#0.0.0+20160725163759",
     "jquery": "registry:dt/jquery#1.10.0+20160929162922",
     "node": "registry:dt/node#6.0.0+20160909174046"
+  },
+  "dependencies": {
+    "lodash": "registry:npm/lodash#4.0.0+20161015015725"
   }
 }

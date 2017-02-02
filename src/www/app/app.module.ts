@@ -28,7 +28,7 @@ require('bootstrap');
         RouterModule.forRoot([], {
             useHash: true            
         }),
-        Angulartics2Module.forRoot()
+        Angulartics2Module.forRoot([])
     ],
     providers: [
         Angulartics2GoogleAnalytics

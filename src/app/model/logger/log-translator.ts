@@ -2,7 +2,6 @@ import {ResourceTranslator} from "../resource/resource-translator";
 import {Log} from "./log";
 import {EOL, arch, cpus, release, type} from 'os';
 import * as _ from 'lodash';
-import wrap = require("lodash/wrap");
 import {LogMessage} from "./log-message";
 
 declare let APP_VERSION:string;

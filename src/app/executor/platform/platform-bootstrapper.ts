@@ -2,7 +2,6 @@ import {PlatformPackage, DEFAULT_MAIN} from "./platform-package";
 import * as path from "path";
 import * as fs from "fs";
 import {Platform, excludes, apiModules} from "./platform";
-import methodOf = require("lodash/methodOf");
 import MemoryUsage = NodeJS.MemoryUsage;
 import {Logger} from "../../model/logger/logger";
 import {Resource} from "../../model/resource/resource";
