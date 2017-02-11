@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "main": "dist/main.js",
   "scripts": {
-    "build": "./node_modules/.bin/webpack"
+    "build": "./node_modules/.bin/webpack",
+    "electron": "electron ./dist/main.js"
   },
   "devDependencies": {
     "angular2-template-loader": "^0.4.0",
@@ -56,18 +57,18 @@
     "builtin-modules": "^1.1.1",
     "core-js": "^2.4.1",
     "debug": "^2.3.3",
-    "electron": "^1.4.3",
+    "electron": "^1.6.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-util": "^3.0.7",
     "jquery": "^3.1.1",
     "lodash": "^4.17.4",
     "reflect-metadata": "^0.1.9",
     "rxjs": "^5.0.2",
+    "systemjs": "^0.19.41",
     "threads": "^0.7.2",
     "try-require": "^1.2.1",
     "uuid": "^3.0.1",
     "webpack": "^1.13.3",
-    "systemjs": "^0.19.41",
     "zone.js": "^0.7.4"
   },
   "babel": {

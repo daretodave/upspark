@@ -3,7 +3,6 @@ export class CommandLogEntry {
     constructor(public message: string,
                 public type: string = CommandLogEntry.INFO) {
     }
-
 }
 
 export namespace CommandLogEntry {

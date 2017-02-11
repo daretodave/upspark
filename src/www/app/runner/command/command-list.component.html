@@ -1,7 +1,7 @@
 <div class="command-list" #commandContainer>
 
     <up-command *ngFor="let command of (commands | commandSort)"
-
+                (click)="onCommandClick(command)"
                 [attr.id]="'command-status--' + command.reference.id"
 
                 [@slide]

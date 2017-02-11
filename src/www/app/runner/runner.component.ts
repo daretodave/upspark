@@ -55,6 +55,42 @@ export class RunnerComponent implements OnInit {
         this.runnerInput.nativeElement.focus();
     }
 
+    onCommandClick(command: CommandWrapper) {
+        console.log('CLICKED COMMAND', command);
+
+        this.commandService.goToCursor(this
+            .commandService
+            .getCursorForCommand(command)
+        );
+
+        this.toCommand(
+            command,
+            this.commandService.isNavigating()
+        );
+
+    }
+
+    toCommand(command: CommandWrapper, fromPristine:boolean = false, requestFocus:boolean = true) {
+        console.log('NAVIGATE TO COMMAND', command, fromPristine);
+
+        if (this.command && (this.command.reference.id !== command.reference.id)) {
+            this.command.active = false;
+        }
+
+        if (fromPristine) {
+            this.savedIntent = new CommandIntent(this.intent);
+        }
+
+        this.commandList.lock(command);
+        this.command = command;
+
+        this.intent = new CommandIntent(command.reference.intent);
+
+        if(requestFocus) {
+            this.runnerInput.nativeElement.focus();
+        }
+    }
+
     onRunnerKeyDown(event: KeyboardEvent): boolean {
         const {code, shiftKey, ctrlKey} = event;
         const args = this.argumentList.length;
@@ -175,14 +211,7 @@ export class RunnerComponent implements OnInit {
                 this.command = null;
 
             } else if (command !== null) {
-                if (fromPristine) {
-                    this.savedIntent = new CommandIntent(this.intent);
-                }
-
-                this.commandList.lock(command);
-                this.command = command;
-
-                this.intent = new CommandIntent(command.reference.intent);
+                this.toCommand(command, fromPristine, false);
             } else {
                 this.command = null;
             }

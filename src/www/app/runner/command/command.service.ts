@@ -6,6 +6,8 @@ import {CommandListNavigation} from "./command-list-navigation";
 import {CommandIntent} from "../../../../app/model/command/command-intent";
 import {CommandWrapper} from "./command-wrapper";
 import {CommandLogEntry} from "../../../../app/model/command/command-log-entry";
+import {Command} from "../../../../app/model/command/command";
+import {CommandLike} from "../../../../app/model/command/command-like";
 
 const generatedUUID = require('uuid/v1');
 
@@ -42,6 +44,7 @@ export class CommandService {
     onStateChange(update: CommandUpdate) {
         console.log('UPDATE Received', update);
 
+
         let command: CommandWrapper = this.commands.find(
             (command: CommandWrapper) => command.reference.id === update.id
         );
@@ -49,26 +52,35 @@ export class CommandService {
             return;
         }
 
+        const {reference} = command;
+
         Object.keys(update).forEach((property: string) => {
             if (update[property] === null
-                || !command.reference.hasOwnProperty(property)
+                || !reference.hasOwnProperty(property)
                 || property === 'errors'
-                || property === 'messages') {
+                || property === 'messages'
+                || property === 'output') {
                 return;
             }
 
-            command.reference[property] = update[property];
+            reference[property] = update[property];
         });
 
         update.messages.forEach(
-            (message: string) => command.reference.log.push(new CommandLogEntry(message))
+            (message: string) => reference.log.push(new CommandLogEntry(message))
         );
 
         update.errors.forEach(
-            (message: string) => command.reference.log.push(new CommandLogEntry(message, CommandLogEntry.ERROR))
+            (message: string) => reference.log.push(new CommandLogEntry(message, CommandLogEntry.ERROR))
         );
 
-        command.reference.update = Date.now();
+        if(update.output) {
+            reference.output.push(...update.output);
+        }
+
+        reference.update = Date.now();
+
+        console.log('STATE', command);
     }
 
     goToCursor(target: number): CommandListNavigation {
@@ -152,4 +164,16 @@ export class CommandService {
     getCursor(): number {
         return this.cursor;
     }
+
+    getCursorForCommand(command: CommandWrapper) {
+        for(let i = 0; i < this.commands.length; i++) {
+            if(command.reference.id === this.commands[i].reference.id) {
+                return i;
+            }
+
+        }
+
+        return 0;
+    }
+
 }

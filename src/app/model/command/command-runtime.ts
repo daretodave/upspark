@@ -1,11 +1,15 @@
 export enum CommandRuntime {
     SYSTEM,
     INTERNAL,
-    PLATFORM
+    PLATFORM,
+    BASH,
+    BASH_EXTERNAL
 }
 export namespace CommandRuntime {
 
-    export const FLAG_SYSTEM: string = ">";
+    export const FLAG_SYSTEM: string = "*";
+    export const FLAG_BASH: string = ">";
+    export const FLAG_BASH_EXTERNAL: string = "$";
     export const FLAG_INTERNAL: string = ":";
     export const FLAG_PLATFORM: string = "#";
 
@@ -22,6 +26,12 @@ export namespace CommandRuntime {
         }
         if(flag === FLAG_INTERNAL) {
             return CommandRuntime.INTERNAL;
+        }
+        if(flag === FLAG_BASH) {
+            return CommandRuntime.BASH;
+        }
+        if(flag === FLAG_BASH_EXTERNAL) {
+            return CommandRuntime.BASH_EXTERNAL;
         }
         
         return null;

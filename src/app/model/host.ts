@@ -6,6 +6,7 @@ import {CommandRuntime} from "./command/command-runtime";
 import {Executor} from "../executor/executor";
 import {InternalCommandExecutor} from "../executor/internal/internal-command-executor";
 import {CommandTask} from "./command/command-task";
+import {SystemCommandExecutor} from "../executor/system/system-command-executor";
 export class Host {
     
     private _resources:Resource;
@@ -19,6 +20,9 @@ export class Host {
     constructor() {
         this._executor.set(CommandRuntime.INTERNAL, new InternalCommandExecutor());
         this._executor.set(CommandRuntime.PLATFORM, new PlatformExecutor());
+        this._executor.set(CommandRuntime.SYSTEM, new SystemCommandExecutor(CommandRuntime.SYSTEM));
+        this._executor.set(CommandRuntime.BASH, new SystemCommandExecutor(CommandRuntime.BASH));
+        this._executor.set(CommandRuntime.BASH_EXTERNAL, new SystemCommandExecutor(CommandRuntime.BASH_EXTERNAL));
     }
 
     setDefaultCWD(cwd:string, updateCallback: (cwd:string) => any) {

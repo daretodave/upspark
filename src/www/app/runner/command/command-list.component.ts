@@ -8,12 +8,14 @@ import {
     trigger,
     ViewChild,
     AnimationTransitionEvent,
-    OnInit
+    OnInit, Input, Output, EventEmitter
 } from "@angular/core";
 import {Observable} from "rxjs";
 import {sortBy} from "lodash";
 import {CommandService} from "./command.service";
 import {CommandWrapper} from "./command-wrapper";
+import {CommandComponent} from "./command.component";
+import {Command} from "../../../../app/model/command/command";
 
 require('./command-list.component.scss');
 
@@ -41,6 +43,9 @@ export class CommandListComponent implements OnInit {
 
     @ViewChild('commandContainer')
     private commandContainer: ElementRef;
+
+    @Output('commandClick')
+    private commandClick = new EventEmitter<CommandWrapper>();
 
     ngOnInit() {
         this.commands = this.commandService.getCommands();
@@ -74,7 +79,7 @@ export class CommandListComponent implements OnInit {
     }
 
     cleanStaleData(tick: number) {
-        if (!this.commands) {
+        if (!this.commands || this.commands.some(command => command.active)) {
             return;
         }
 
@@ -106,6 +111,10 @@ export class CommandListComponent implements OnInit {
         this.$$commandContainer.stop().animate({
             scrollTop
         }, 600);
+    }
+
+    onCommandClick(command: CommandWrapper) {
+        this.commandClick.emit(command);
     }
 
     scrollToTop() {

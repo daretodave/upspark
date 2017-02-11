@@ -103,6 +103,9 @@ body {
   height: 100%;
   overflow: auto;
 }
+.runner__output__text--error {
+  color: #ff4d43;
+}
 .pre {
     white-space: pre;
 }

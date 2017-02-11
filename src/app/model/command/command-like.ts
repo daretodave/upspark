@@ -7,7 +7,7 @@ export interface CommandLike {
     canceled?: boolean;
     response?: string;
     tag?: string;
-    output?: string;
+    output?: CommandLogEntry[];
     error?: boolean;
     completed?: boolean;
     update?: number;

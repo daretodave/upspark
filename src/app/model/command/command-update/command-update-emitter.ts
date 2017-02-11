@@ -45,6 +45,14 @@ export class CommandUpdateEmitter {
         return this;
     }
 
+    public out(message: any, error: boolean = false, log: any = null) {
+        return this.update(CommandUpdate.out(
+            this.id,
+            message,
+            error
+        ), log);
+    }
+
     public complete(message: any = null, error: boolean = false, response: boolean = false, log: any = null) {
         return this.update(CommandUpdate.completed(
             this.id,

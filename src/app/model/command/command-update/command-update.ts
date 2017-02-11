@@ -2,6 +2,7 @@ import {Command} from "../command";
 import {inspect} from "util";
 import {CommandLike} from "../command-like";
 import {Util} from "../../../util/util";
+import {CommandLogEntry} from "../command-log-entry";
 
 export class CommandUpdate extends Command {
 
@@ -14,6 +15,15 @@ export class CommandUpdate extends Command {
 
         this.update = Date.now();
     }
+
+    out(message:any, error:boolean = false) {
+        if(this.output == null) {
+            this.output = [];
+        }
+
+        this.output.push(new CommandLogEntry(CommandUpdate.getSanitizedMessage(message, error), error ? CommandLogEntry.ERROR : CommandLogEntry.INFO));
+    }
+
 
     absorb(args: any = null) {
 
@@ -57,7 +67,7 @@ export namespace CommandUpdate {
         'You can check the host log in the upspark directory for details.'
     ], ["<br><br>"]);
     export const DEFAULT_ERROR_MESSAGE: string = 'Something went wrong';
-    export const DEFAULT_SUCCESS_MESSAGE: string = 'Task completed';
+    export const DEFAULT_SUCCESS_MESSAGE: string = '';
     export const DEFAULT_ABORT_MESSAGE: string = 'Task aborted';
 
     export const getSanitizedMessage = (message: any, error: boolean): string => {
@@ -77,8 +87,14 @@ export namespace CommandUpdate {
         }
 
         if (Array.isArray(message)) {
-            message = getMessageFromCollection(message);
-        } else if (typeof message !== 'string') {
+            if(message.length > 1) {
+                message = getMessageFromCollection(message);
+            } else {
+                message = message[0];
+            }
+        }
+
+        if (typeof message !== 'string') {
             message = inspect(message);
         }
 
@@ -108,6 +124,15 @@ export namespace CommandUpdate {
         return `<ul>${listElementsHTML}</ul>`;
     };
 
+    export const out = (id: string, message: any, error: boolean = false) => {
+
+        let update: CommandUpdate = new CommandUpdate(id);
+
+        update.out(message, error);
+
+        return update;
+    };
+
     export const completed = (id: string, error: boolean = false, message: any = null, response:boolean = false) => {
         message = getSanitizedMessage(message, error);
 
@@ -119,7 +144,7 @@ export namespace CommandUpdate {
         if(response) {
             update.response = message;
         } else {
-            update.output = message;
+            update.out(message, error);
         }
 
         update.progress = 100;

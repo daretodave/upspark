@@ -17,12 +17,14 @@
 
         <div class="runner__output__container">
             <div class="runner__output"
-                 *ngIf="command && command.reference.output"
-                 [innerHTML]="command.reference.output">
+                 *ngIf="command && command.reference.output">
+                <div class="runner__output__text"
+                     *ngFor="let out of command.reference.output"
+                     [class.runner__output__text--error]="out.type === 'error'" [innerHTML]="out.message"></div>
             </div>
         </div>
 
     </div>
 
-    <up-command-list #commandList></up-command-list>
+    <up-command-list #commandList (commandClick)="onCommandClick($event)" ></up-command-list>
 </div>

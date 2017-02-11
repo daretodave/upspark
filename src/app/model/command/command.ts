@@ -7,7 +7,7 @@ export class Command implements CommandLike {
                 public intent: CommandIntent,
                 public tag: string = '',
                 public response: string = '',
-                public output: string = '',
+                public output: CommandLogEntry[] = [],
                 public error: boolean = false,
                 public canceled: boolean = false,
                 public completed: boolean = false,

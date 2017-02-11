@@ -25,7 +25,10 @@ export class PlatformExecutor {
                 fork(task.host.resources().platform,
                     [task.digest.command.normalized].concat(
                         task.digest.argument
-                    )
+                    ),
+                    {
+                        cwd: task.host.cwd()
+                    }
                 )
 
         );
@@ -36,6 +39,7 @@ export class PlatformExecutor {
 
                 task.complete();
             }
+            this.pool.delete(task.id);
         });
 
         process.on('message', (message: PlatformMessage) => {
@@ -85,7 +89,7 @@ export class PlatformExecutor {
                     commandUpdate.progress = 100;
                     commandUpdate.canceled = true;
                     commandUpdate.completed = true;
-                    commandUpdate.output = CommandUpdate.getSanitizedMessage(message.payload, true);
+                    commandUpdate.out(message.payload, true);
 
                     break;
                 case PlatformMessage.INTENT_PROGRESS:
@@ -126,9 +130,9 @@ export class PlatformExecutor {
                             commandUpdate.response = CommandUpdate.DEFAULT_SUCCESS_MESSAGE;
                         }
                         output = commandUpdate.response;
-                    } else {
-                        commandUpdate.output = output;
                     }
+
+                    commandUpdate.out(output);
 
                     let separation: string = output.length > 50 ? '\n' : ' = ';
 
@@ -139,12 +143,23 @@ export class PlatformExecutor {
 
                     commandUpdate.progress = 100;
                     commandUpdate.completed = true;
+
                     break;
 
                 case PlatformMessage.INTENT_UPDATE:
                     log(message.payload["error"] === true, `update | ${inspect(message.payload)}`);
 
                     commandUpdate.absorb(message.payload);
+                    break;
+
+                case PlatformMessage.INTENT_OUT_ERROR:
+                case PlatformMessage.INTENT_OUT:
+                    let isOutError: boolean = message.intent === PlatformMessage.INTENT_OUT_ERROR;
+
+                    log(isOutError, message.payload);
+
+                    commandUpdate.out(message.payload, isOutError);
+
                     break;
 
                 case PlatformMessage.INTENT_LOG:
