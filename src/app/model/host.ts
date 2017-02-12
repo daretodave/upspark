@@ -52,7 +52,11 @@ export class Host {
     execute(task:CommandTask) {
         this.executor(task.digest.runtime).execute(task);
     }
-    
+
+    message(task:CommandTask, id:string, type:CommandRuntime, message:string) {
+        this.executor(type).message(task, id, message);
+    }
+
     executor(runtime:CommandRuntime):Executor {
         return this._executor.get(runtime);
     }

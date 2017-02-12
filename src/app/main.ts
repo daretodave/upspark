@@ -16,6 +16,7 @@ import {PlatformPackage} from "./executor/platform/platform-package";
 import {Host} from "./model/host";
 import {CommandUpdateEmitter} from "./model/command/command-update/command-update-emitter";
 import {CommandTask} from "./model/command/command-task";
+import {CommandRuntime} from "./model/command/command-runtime";
 
 const path = require('path');
 const electron = require('electron');
@@ -933,6 +934,20 @@ let initRunner = () => {
         });
         
         host.execute(task);
+    });
+
+    ipcMain.on('command-repl', (event:any, id:string, type:CommandRuntime, message:string) => {
+
+        Logger.info(`>command MESSAGE | id = ${id} | type ${type}`);
+        Logger.info(`>${message}`);
+
+        let task:CommandTask = new CommandTask(new Command(id, null), host, {
+            onCommandUpdate(update:CommandUpdate) {
+                event.sender.send('command-state-change', update);
+            }
+        });
+
+        host.message(task, id, type, message);
     });
 
     runnerWindow.on('show', () => {

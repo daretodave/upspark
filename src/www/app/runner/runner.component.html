@@ -1,6 +1,6 @@
-<div id="runner" (keydown)="onRunnerKeyDown($event)">
+<div id="runner" (keydown)="onRunnerKeyDown($event)" [class.runner-repl]="repl">
     <div id="runner__path">
-        <div id="runner-image">
+        <div id="runner-image" [class.runner-image-repl]="repl">
         </div>
         <div id="runner-path">{{cwd}}</div>
     </div>
@@ -15,9 +15,8 @@
 
         <up-command-argument #argument *ngFor="let arg of intent.arguments" [argument]="arg"></up-command-argument>
 
-        <div class="runner__output__container">
-            <div class="runner__output"
-                 *ngIf="command && command.reference.output">
+        <div class="runner__output__container" *ngIf="command && command.reference.output && command.reference.output.length">
+            <div class="runner__output">
                 <div class="runner__output__text"
                      *ngFor="let out of command.reference.output"
                      [class.runner__output__text--error]="out.type === 'error'" [innerHTML]="out.message"></div>

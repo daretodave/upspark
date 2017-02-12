@@ -1,6 +1,7 @@
 import {CommandIntent} from "./command-intent";
 import {CommandLogEntry} from "./command-log-entry";
 import {CommandLike} from "./command-like";
+import {CommandRuntime} from "./command-runtime";
 export class Command implements CommandLike {
 
     constructor(public id: string,
@@ -14,7 +15,8 @@ export class Command implements CommandLike {
                 public update: number = Date.now(),
                 public init: number = Date.now(),
                 public progress: number = -1,
-                public log: CommandLogEntry[] = []) {
+                public log: CommandLogEntry[] = [],
+                public type: CommandRuntime = CommandRuntime.PLATFORM) {
     }
 
 }

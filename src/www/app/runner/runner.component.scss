@@ -25,7 +25,25 @@
     position: relative;
     padding: 20px;
     @include scroll(.4em, rgb(95, 95, 95));
+
+  &.runner-repl {
+    animation: pulse 5s infinite;
+  }
 }
+
+@keyframes pulse {
+  0% {
+    background: rgba(0, 0, 0, .9);
+  }
+  50% {
+    background: rgba(16, 16, 16, 0.94);
+  }
+  100% {
+    background: rgba(0, 0, 0, .9);
+  }
+}
+
+
 #runner__path {
     display: flex;
     color: white;
@@ -38,7 +56,7 @@
     background-size: 30px 30px;
     opacity: .3;
     transition: all .3s;
-    &.loading {
+    &.runner-image-repl {
       filter: sepia(100%);
       transform: rotate(180deg);
     }
@@ -71,6 +89,7 @@
   font-size: 4.0em;
   width: 100%;
   text-align:center;
+  padding-right: 20px;
   &.runner-input--args {
     text-align:right;
   }
@@ -96,6 +115,7 @@ body {
   display: flex;
   align-items: center;
   height: 100%;
+  max-width: 60%;
 }
 .runner__output {
   color: white;

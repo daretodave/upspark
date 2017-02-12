@@ -7,15 +7,23 @@ import {Cd} from "./commands/cd";
 import {Path} from "./commands/path";
 import {Ls} from "./commands/ls";
 import {Open} from "./commands/open";
-export class InternalCommandExecutor {
+import {Executor} from "../executor";
+export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
+
+    cancel(id: string) {
+
+    }
+
+    message(task:CommandTask, id: string, message:string) {
+
+    }
     
     constructor() {
         this.commands.set('reload', Reload);
         this.commands.set('cd', Cd);
         this.commands.set('path', Path);
-        this.commands.set('ls', Ls);
         this.commands.set('open', Open);
     }
 

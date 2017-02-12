@@ -16,12 +16,18 @@ export class CommandUpdate extends Command {
         this.update = Date.now();
     }
 
-    out(message:any, error:boolean = false) {
+    out(message:any, error:boolean = false, isText:boolean = false) {
         if(this.output == null) {
             this.output = [];
         }
 
-        this.output.push(new CommandLogEntry(CommandUpdate.getSanitizedMessage(message, error), error ? CommandLogEntry.ERROR : CommandLogEntry.INFO));
+        this.output.push(new CommandLogEntry(
+            CommandUpdate.getSanitizedMessage(
+                message,
+                error,
+                isText
+            ), error ? CommandLogEntry.ERROR : CommandLogEntry.INFO)
+        );
     }
 
 
@@ -70,7 +76,10 @@ export namespace CommandUpdate {
     export const DEFAULT_SUCCESS_MESSAGE: string = '';
     export const DEFAULT_ABORT_MESSAGE: string = 'Task aborted';
 
-    export const getSanitizedMessage = (message: any, error: boolean): string => {
+    const NBSP = '&nbsp;';
+    const TAB_REPLACEMENT = NBSP.repeat(8);
+
+    export const getSanitizedMessage = (message: any, error: boolean, isText:boolean = false): string => {
 
         if (typeof message === 'undefined'
             || message === null
@@ -87,48 +96,41 @@ export namespace CommandUpdate {
         }
 
         if (Array.isArray(message)) {
-            if(message.length > 1) {
-                message = getMessageFromCollection(message);
-            } else {
-                message = message[0];
-            }
+            message = getMessageFromCollection(message, error);
         }
-
         if (typeof message !== 'string') {
             message = inspect(message);
+        }
+
+        if(isText) {
+            message = message.replace(/(?:\r\n|\r|\n)/g, '<br>');
+            message = message.replace(/\t/g, TAB_REPLACEMENT);
+            message = message.replace(/ /g, NBSP);
         }
 
         return message;
     };
 
-    export const getMessageFromCollection: (args: any[]) => string = (args: any[]): string => {
+    export const getMessageFromCollection = (args: any[], error:boolean): string => {
 
         if (args.length === 1) {
-            return inspect(args[0]);
+            return getSanitizedMessage(args[0], error);
         }
 
-        const listElementsHTML: string = args.reduce(
-            (left: string, right: any) => {
-                if (typeof right !== 'string') {
-                    if (Array.isArray(right)) {
-                        right = getMessageFromCollection(right);
-                    } else {
-                        right = inspect(right);
-                    }
-                }
-                return left + `<li>${right}</li>`;
-            },
-            ''
-        );
-
-        return `<ul>${listElementsHTML}</ul>`;
+        return `<ul>${args.reduce(
+            (left: string, right: any) => left + `<li>${getSanitizedMessage(right, error)}</li>`, ''
+        )}</ul>`;
     };
 
-    export const out = (id: string, message: any, error: boolean = false) => {
+    export const out = (id: string, message: any, error: boolean = false, isText:boolean = false) => {
 
         let update: CommandUpdate = new CommandUpdate(id);
 
-        update.out(message, error);
+        update.out(
+            message,
+            error,
+            isText
+        );
 
         return update;
     };

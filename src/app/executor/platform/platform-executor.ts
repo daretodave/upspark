@@ -5,10 +5,44 @@ import {CommandTask} from "../../model/command/command-task";
 import {Logger} from "../../model/logger/logger";
 import {CommandArgument} from "../../model/command/command-argument";
 import {CommandUpdate} from "../../model/command/command-update/command-update";
+import {Executor} from "../executor";
 
-export class PlatformExecutor {
+export class PlatformExecutor implements Executor {
 
     private pool = new Map<string, ChildProcess>();
+
+    cancel(id: string) {
+        let process:ChildProcess = this.pool.get(id);
+        if (process === null) {
+            Logger.info(`>process ${id} not found to cancel`);
+            return;
+        }
+
+        try {
+            process.kill();
+        } catch(error) {
+            Logger.error(error);
+        }
+    }
+
+    message(task:CommandTask, id: string, message:string) {
+        let process:ChildProcess = this.pool.get(id);
+        if (process === null) {
+            Logger.info(`>process ${id} not found to send message`);
+            return;
+        }
+
+        try {
+            process.send(message);
+
+            let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
+
+            commandUpdate.messages.push(`> ${message}`);
+
+        } catch(error) {
+            Logger.error(error);
+        }
+    }
 
     public execute(task:CommandTask) {
         Logger.info(`#command ${task.digest.command.display}`);
@@ -171,7 +205,7 @@ export class PlatformExecutor {
                     commandUpdate[isError ? "errors" : "messages"].push(
                         CommandUpdate.getSanitizedMessage(
                             message.payload,
-                            isError
+                            isError,
                         )
                     );
                     break;

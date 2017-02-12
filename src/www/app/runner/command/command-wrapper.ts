@@ -11,7 +11,8 @@ export class CommandWrapper {
         public update:number = -1,
         public hover:boolean = false,
         public stale:boolean = false,
-        public active:boolean = false
+        public active:boolean = false,
+        public repl:boolean = false
     ) {
         this.reference = new Command(id, intent);
     }

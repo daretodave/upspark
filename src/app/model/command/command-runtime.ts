@@ -13,6 +13,18 @@ export namespace CommandRuntime {
     export const FLAG_INTERNAL: string = ":";
     export const FLAG_PLATFORM: string = "#";
 
+    export const is = (input:string, assertion:CommandRuntime):boolean => {
+        return assertion === get(input);
+    };
+
+    export const get = (input:string):CommandRuntime => {
+        if(!input || !(input = input.trim()).length) {
+            return CommandRuntime.PLATFORM;
+        }
+
+        return from(input.substring(0, 1)) || CommandRuntime.PLATFORM
+    };
+
     export const from = (flag: string):CommandRuntime => {
         if(!flag || !(flag = flag.trim()).length) {
             return null;

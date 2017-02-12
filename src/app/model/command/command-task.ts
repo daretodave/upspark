@@ -19,7 +19,7 @@ export class CommandTask implements CommandUpdateEmitter {
                 public host: Host,
                 public listener: CommandTaskListener) {
         this.id = command.id;
-        this.digest = CommandIntentDigest.from(this.command.intent);
+        this.digest = this.command.intent ?  CommandIntentDigest.from(this.command.intent) : new CommandIntentDigest();
         this.updateListener = listener;
         this.completed = false;
     }
@@ -31,7 +31,7 @@ export class CommandTask implements CommandUpdateEmitter {
     public update: (message: (CommandLike | CommandUpdate),
                     log?: any) => any;
 
-    public out: (message: any, error?: boolean, log?: any) => any;
+    public out: (message: any, error?: boolean, log?: any, isText?:boolean) => any;
 
     public complete: (message?: any,
                       error?: boolean,

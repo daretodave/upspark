@@ -6,6 +6,7 @@ up-command {
 }
 .command {
   display: flex;
+  width: 100%;
   //flex-grow: 1;
   //animation: slide-up 200ms ease-in 0ms 1 normal forwards;
   &:not(.command--stale).command--hover {
@@ -14,11 +15,30 @@ up-command {
     }
   }
 }
-
+.command__log {
+  width: 100%;
+  margin-top: 5px;
+  max-height: 75px;
+  &.command__log--focus {
+    overflow: auto;
+  }
+}
 .command__title__indicator {
   width: 100%;
   height: 2px;
   position: relative;
+}
+.accent {
+  color: #1981ff;
+}
+.block {
+  min-width: 250px;
+}
+.command__log__text {
+  color: rgba(255, 255, 255, 0.61);
+  &.command__log__text--error {
+    color: #ff4d43;
+  }
 }
 
 $background-indicator-error: rgba(255, 1, 0, 0.31);
@@ -120,6 +140,9 @@ $background-indicator-loading: #fdba2c;
   align-self:center;
   margin-right: 5px;
   width: 20px;
+  &.command__selector-repl {
+    width: 30px;
+  }
 }
 
 $color-pointer: rgba(186, 190, 187, 0.37);
@@ -130,10 +153,16 @@ $color-pointer: rgba(186, 190, 187, 0.37);
   border-top: 4px dashed transparent;
   border-bottom: 4px solid transparent;
   border-left: 6px solid $color-pointer;
+  &.command__selector-repl {
+    border: 0;
+  }
 }
 .command__selector__line {
   flex-grow: 1;
   align-self: center;
   height: 1px;
   border-bottom: 2px solid $color-pointer;
+  &.command__selector-repl {
+    border-bottom: 1px dotted $color-pointer;
+  }
 }

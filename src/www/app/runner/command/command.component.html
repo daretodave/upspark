@@ -1,10 +1,13 @@
 <div class="command" [class.command--hover]="command.hover">
 
     <div class="command__selector"
+         [class.command__selector-repl]="command.repl"
          *ngIf="command.active"
          [@expand]>
-        <div class="command__selector__line"></div>
-        <div class="command__selector__pointer"></div>
+        <div [class.command__selector-repl]="command.repl"
+             class="command__selector__line"></div>
+        <div [class.command__selector-repl]="command.repl"
+             class="command__selector__pointer"></div>
     </div>
 
     <div class="command__title"
@@ -44,6 +47,12 @@
              [class.command__response__error]="command.reference.error"
              [innerHTML]="command.reference.response">
         </div>
+    </div>
+
+    <div class="command__log" [class.command__log--focus]="command.active"  *ngIf="command.reference.log.length">
+        <div class="command__log__text"
+             *ngFor="let out of command.reference.log"
+             [class.command__log__text--error]="out.type === 'error'" [innerHTML]="out.message"></div>
     </div>
 
 </div>

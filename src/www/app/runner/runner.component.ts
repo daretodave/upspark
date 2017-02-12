@@ -12,6 +12,8 @@ import {CommandArgument} from "../../../app/model/command/command-argument";
 import {Command} from "../../../app/model/command/command";
 import {CommandWrapper} from "./command/command-wrapper";
 import {CommandIntentDigest} from "../../../app/model/command/command-intent-digest";
+import {CommandUpdate} from "../../../app/model/command/command-update/command-update";
+import {CommandRuntime} from "../../../app/model/command/command-runtime";
 
 require('./runner.component.scss');
 
@@ -30,12 +32,21 @@ export class RunnerComponent implements OnInit {
 
     private intent: CommandIntent = new CommandIntent();
     private savedIntent: CommandIntent;
+    private savedReplIntent: CommandIntent;
     private savedCursor: number = -1;
     private command: CommandWrapper;
     private cwd:string = '';
+    private repl:boolean = false;
 
     constructor(private system: SystemService,
                 private commandService: CommandService) {
+    }
+
+    update() {
+        this.repl = this.command
+            && this.command.repl
+            && this.command.active
+            && !this.command.reference.completed;
     }
 
     ngOnInit() {
@@ -46,7 +57,20 @@ export class RunnerComponent implements OnInit {
         );
         this.system.subscribeToBroadcast(
             'command-state-change',
-            (event: SystemEvent) => this.commandService.onStateChange(event.value),
+            (event: SystemEvent) =>  {
+                let update: CommandUpdate = event.value;
+                let isCompleted:boolean = this.commandService.onStateChange(update);
+
+                if (this.repl
+                    && isCompleted
+                    && this.command
+                    && this.command.reference.id === update.id) {
+                    this.restorePreREPLIntent();
+                } else {
+                    this.update();
+                }
+
+            },
             true
         );
         this.system.subscribeToBroadcast('cwd-update', (event:SystemEvent) => {
@@ -68,13 +92,29 @@ export class RunnerComponent implements OnInit {
             this.commandService.isNavigating()
         );
 
+        this.repl = false;
+    }
+
+    resetCommandFocus() {
+        if(this.command !== null) {
+            this.command.repl = false;
+            this.command = null;
+        }
+
+        this.update();
     }
 
     toCommand(command: CommandWrapper, fromPristine:boolean = false, requestFocus:boolean = true) {
         console.log('NAVIGATE TO COMMAND', command, fromPristine);
+        if(!command) {
+            return;
+        }
 
-        if (this.command && (this.command.reference.id !== command.reference.id)) {
-            this.command.active = false;
+        if (this.command) {
+            if((this.command.reference.id !== command.reference.id)) {
+                this.command.active = false;
+            }
+            this.command.repl = false;
         }
 
         if (fromPristine) {
@@ -89,6 +129,8 @@ export class RunnerComponent implements OnInit {
         if(requestFocus) {
             this.runnerInput.nativeElement.focus();
         }
+
+        this.update();
     }
 
     onRunnerKeyDown(event: KeyboardEvent): boolean {
@@ -102,7 +144,7 @@ export class RunnerComponent implements OnInit {
             this.runnerInput.nativeElement.focus();
             this.intent.arguments = [];
             this.intent.command = "";
-            this.command = null;
+            this.resetCommandFocus();
 
             if(shiftKey) {
                 this.commandList.toStaleState();
@@ -165,29 +207,12 @@ export class RunnerComponent implements OnInit {
             }
 
             if (ctrlKey || document.activeElement === this.runnerInput.nativeElement) {
-                if(!this.intent.command.trim()) {
-                    return;
+
+                if(this.repl) {
+                    this.sendToREPL();
+                } else {
+                    this.execute();
                 }
-
-                let isNavigating:boolean = this.commandService.isNavigating();
-
-                this.savedIntent = null;
-
-                if(isNavigating) {
-                    this.commandList.scrollToTop();
-                    this.commandService.resetNavigation();
-                }
-
-                this.command = this.commandService.execute(new CommandIntent(this.intent));
-
-                if(isNavigating) {
-                    this.commandService.navigate(true);
-                }
-
-                this.intent.arguments = [];
-                this.intent.command = "";
-
-                this.runnerInput.nativeElement.focus();
 
                 return false;
             }
@@ -199,7 +224,7 @@ export class RunnerComponent implements OnInit {
             isUpArrow: boolean = event.code === "ArrowUp",
             isDownArrow: boolean = event.code === "ArrowDown";
 
-        if (!(isLeftArrow && this.commandService.isNavigating()) && !(isRightArrow && event.altKey) && !isUpArrow && !isDownArrow) {
+        if (!(isLeftArrow && this.commandService.isNavigating()) && !isRightArrow && !isUpArrow && !isDownArrow) {
 
             return true;
         }
@@ -208,22 +233,46 @@ export class RunnerComponent implements OnInit {
             const {reset, command, fromPristine, fromCursor} = this.commandService.navigate(!isUpArrow);
             if (reset) {
                 this.resetCommandList(fromCursor, true, true);
-                this.command = null;
-
+                this.resetCommandFocus();
             } else if (command !== null) {
                 this.toCommand(command, fromPristine, false);
             } else {
-                this.command = null;
+                this.resetCommandFocus();
             }
         } else if (isLeftArrow) {
-            this.resetCommandList(this.commandService.getCursor(), event.altKey);
-        } else if (isRightArrow && event.altKey) {
-            this.resetCachedCommandList();
+
+            if(!this.repl) {
+                this.resetCommandList(this.commandService.getCursor(), event.altKey);
+            } else {
+                this.restorePreREPLIntent();
+            }
+
+        } else if (isRightArrow) {
+            if(event.altKey) {
+                this.resetCachedCommandList();
+            } else if(this.commandService.isNavigating()
+                && this.command
+                && !this.command.reference.completed
+                && !CommandRuntime.is(this.command.reference.intent.command, CommandRuntime.INTERNAL)) {
+
+                this.toREPL();
+            }
         }
 
         this.runnerInput.nativeElement.focus();
 
         return false;
+    }
+
+    toREPL() {
+        this.repl = true;
+
+        this.command.repl = true;
+
+        this.savedReplIntent = this.intent;
+
+        this.intent.arguments = [];
+        this.intent.command = "";
     }
 
     resetCommandList(cursor: number, resetCachedCommand: boolean, overrideCurrentState: boolean = false) {
@@ -237,40 +286,99 @@ export class RunnerComponent implements OnInit {
             this.intent = new CommandIntent(this.savedIntent);
         }
         this.savedIntent = null;
+        this.savedReplIntent = null;
 
         this.commandList.scrollToTop();
 
         this.commandService.resetNavigation();
     }
 
+    restorePreREPLIntent() {
+        if(this.repl) {
+            this.repl = false;
+
+            if(this.command) {
+                this.command.repl = false;
+            }
+
+            if(this.savedReplIntent !== null) {
+                this.intent = new CommandIntent(this.savedReplIntent);
+            }
+        }
+    }
+
     resetCachedCommandList() {
         if (this.savedCursor === -1 || this.commandService.isNavigating()) {
             return;
         }
-        const {command} =this.commandService.goToCursor(this.savedCursor);
+        const {command} = this.commandService.goToCursor(this.savedCursor);
 
         this.savedIntent = this.intent;
         
         this.commandList.lock(command);
 
         this.intent = new CommandIntent(command.reference.intent);
+
+        this.command = command;
         
         this.savedCursor = -1;
     }
 
-    execute(navigate: boolean = true, input: CommandIntent = this.intent) {
-        this.savedIntent = null;
+    sendToREPL() {
+        console.log('REPL', this.command);
 
-        if (navigate && this.commandService.isNavigating()) {
+        if(!this.command
+            || !this.command.repl
+            || !this.command.active
+            || this.command.reference.completed) {
+            return;
+        }
+
+        let command:string = this.intent.command;
+        if (this.intent.arguments.length) {
+            this.intent.arguments.map(arg => arg.content).join(" ");
+        }
+
+        this.intent.arguments = [];
+        this.intent.command = "";
+
+        this.runnerInput.nativeElement.focus();
+
+        let type:CommandRuntime = CommandRuntime.get(this.command.reference.intent.command);
+
+        console.log('REPL-CMD', this.command.reference.id, type, command);
+
+        this.system.send('command-repl', this.command.reference.id, type, command)
+
+    }
+
+    execute() {
+        console.log('EXECUTE', this.intent, this.command);
+
+        if(!this.intent.command.trim()) {
+            return;
+        }
+
+        let isNavigating:boolean = this.commandService.isNavigating();
+
+        this.savedIntent = null;
+        this.savedReplIntent = null;
+
+        if(isNavigating) {
             this.commandList.scrollToTop();
             this.commandService.resetNavigation();
         }
 
-        this.commandService.execute(input);
+        this.command = this.commandService.execute(new CommandIntent(this.intent));
 
-        if (navigate) {
+        if(isNavigating) {
             this.commandService.navigate(true);
         }
+
+        this.intent.arguments = [];
+        this.intent.command = "";
+
+        this.runnerInput.nativeElement.focus();
     }
 
 

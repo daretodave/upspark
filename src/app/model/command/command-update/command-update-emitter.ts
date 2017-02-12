@@ -45,11 +45,12 @@ export class CommandUpdateEmitter {
         return this;
     }
 
-    public out(message: any, error: boolean = false, log: any = null) {
+    public out(message: any, error: boolean = false, isText:boolean = false, log: any = null) {
         return this.update(CommandUpdate.out(
             this.id,
             message,
-            error
+            error,
+            isText
         ), log);
     }
 

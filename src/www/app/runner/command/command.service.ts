@@ -41,7 +41,7 @@ export class CommandService {
         return _.sortBy(this.commands, (command: CommandWrapper) => command.reference.update);
     }
 
-    onStateChange(update: CommandUpdate) {
+    onStateChange(update: CommandUpdate): boolean {
         console.log('UPDATE Received', update);
 
 
@@ -49,10 +49,11 @@ export class CommandService {
             (command: CommandWrapper) => command.reference.id === update.id
         );
         if (!command) {
-            return;
+            return false;
         }
 
         const {reference} = command;
+        const {completed} = reference;
 
         Object.keys(update).forEach((property: string) => {
             if (update[property] === null
@@ -67,20 +68,20 @@ export class CommandService {
         });
 
         update.messages.forEach(
-            (message: string) => reference.log.push(new CommandLogEntry(message))
+            (message: string) => reference.log.unshift(new CommandLogEntry(message))
         );
 
         update.errors.forEach(
-            (message: string) => reference.log.push(new CommandLogEntry(message, CommandLogEntry.ERROR))
+            (message: string) => reference.log.unshift(new CommandLogEntry(message, CommandLogEntry.ERROR))
         );
 
         if(update.output) {
-            reference.output.push(...update.output);
+            reference.output.unshift(...update.output.reverse());
         }
 
         reference.update = Date.now();
 
-        console.log('STATE', command);
+        return reference.completed && !completed;
     }
 
     goToCursor(target: number): CommandListNavigation {
@@ -125,6 +126,7 @@ export class CommandService {
 
         if (command !== null) {
             command.active = false;
+            command.repl = false;
         }
 
         this.cursor = target;
@@ -156,6 +158,7 @@ export class CommandService {
         if (this.cursor < this.commands.length) {
             let command: CommandWrapper = commands[this.cursor];
             command.active = false;
+            command.repl = false;
         }
 
         this.cursor = this.commands.length;
