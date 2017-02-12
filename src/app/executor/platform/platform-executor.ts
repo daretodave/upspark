@@ -6,7 +6,7 @@ import {Logger} from "../../model/logger/logger";
 import {CommandArgument} from "../../model/command/command-argument";
 import {CommandUpdate} from "../../model/command/command-update/command-update";
 import {Executor} from "../executor";
-
+import {merge} from "lodash";
 export class PlatformExecutor implements Executor {
 
     private pool = new Map<string, ChildProcess>();
@@ -52,22 +52,23 @@ export class PlatformExecutor implements Executor {
             return;
         }
 
-        let process: ChildProcess;
+        let childProcess: ChildProcess;
         this.pool.set(
             task.id,
-            process =
+            childProcess =
                 fork(task.host.resources().platform,
                     [task.digest.command.normalized].concat(
                         task.digest.argument
                     ),
                     {
-                        cwd: task.host.cwd()
+                        cwd: task.host.cwd(),
+                        env: merge({}, process.env, task.host.getENV())
                     }
                 )
 
         );
 
-        process.on('close', (code: number) => {
+        childProcess.on('close', (code: number) => {
             if (!task.isCompleted()) {
                 Logger.info(`#command '${task.digest.command.display}' process has finished [] > exit code = ${code}`);
 
@@ -76,7 +77,7 @@ export class PlatformExecutor implements Executor {
             this.pool.delete(task.id);
         });
 
-        process.on('message', (message: PlatformMessage) => {
+        childProcess.on('message', (message: PlatformMessage) => {
             let log = (error: boolean, message: any) => {
                 if (typeof message === 'string' && message.length < 50) {
                     Logger.log(error, `\t\t# ${message}`);
@@ -112,7 +113,7 @@ export class PlatformExecutor implements Executor {
                     log(true, `${context}, killing child process | task.id = ${task.id}`);
 
                     try {
-                        process.kill();
+                        childProcess.kill();
                     } catch (error) {
                         Logger.error(error);
 
@@ -211,14 +212,14 @@ export class PlatformExecutor implements Executor {
                     break;
 
                 default:
-                    Logger.info(`#command '${task.digest.command.display}' | process = '${process.pid}'`, message);
+                    Logger.info(`#command '${task.digest.command.display}' | process = '${childProcess.pid}'`, message);
                     break;
             }
 
             task.update(commandUpdate);
         });
 
-        process.on('uncaughtException', (err: any) => task.error(err));
+        childProcess.on('uncaughtException', (err: any) => task.error(err));
     }
 
 }

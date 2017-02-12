@@ -8,6 +8,7 @@ import ReadableStream = NodeJS.ReadableStream;
 import {Socket} from "net";
 import ErrnoException = NodeJS.ErrnoException;
 import {EOL} from "os";
+import {merge} from "lodash";
 export class SystemCommandExecutor implements Executor {
 
 
@@ -60,7 +61,7 @@ export class SystemCommandExecutor implements Executor {
                     task.digest.command.content,
                     task.digest.argument, {
                         cwd: task.host.cwd(),
-                        env: process.env,
+                        env: merge({}, process.env, task.host.getENV()),
                         shell: true
                     }
                 );
@@ -70,7 +71,7 @@ export class SystemCommandExecutor implements Executor {
                     task.digest.command.content,
                     task.digest.argument, {
                         cwd: task.host.cwd(),
-                        env: process.env
+                        env: merge({}, process.env, task.host.getENV())
                     }
                 );
                 break;
@@ -80,6 +81,7 @@ export class SystemCommandExecutor implements Executor {
                 options['cwd'] = task.host.cwd();
                 options['windowsVerbatimArguments'] = true;
                 options['shell'] = true;
+                options['env'] = merge({}, process.env, task.host.getENV());
 
                 if(task.digest.command.content === "node" || task.digest.command.content === "python") {
                     task.digest.argument.unshift("-i");
@@ -90,6 +92,8 @@ export class SystemCommandExecutor implements Executor {
                     task.digest.argument,
                     options
                 );
+
+                Logger.info('>BASE', options);
 
                 (<Socket>childProcess.stdout).setEncoding('utf8');
                 (<Socket>childProcess.stdin).setEncoding('utf8');

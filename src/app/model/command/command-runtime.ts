@@ -43,7 +43,7 @@ export namespace CommandRuntime {
             return CommandRuntime.BASH;
         }
         if(flag === FLAG_BASH_EXTERNAL) {
-            return CommandRuntime.BASH_EXTERNAL;
+            //return CommandRuntime.BASH_EXTERNAL;
         }
         
         return null;

@@ -8,6 +8,7 @@ import {Path} from "./commands/path";
 import {Ls} from "./commands/ls";
 import {Open} from "./commands/open";
 import {Executor} from "../executor";
+import {Env} from "./commands/env";
 export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
@@ -23,6 +24,7 @@ export class InternalCommandExecutor implements Executor {
     constructor() {
         this.commands.set('reload', Reload);
         this.commands.set('cd', Cd);
+        this.commands.set('env', Env);
         this.commands.set('path', Path);
         this.commands.set('open', Open);
     }

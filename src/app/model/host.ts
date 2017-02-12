@@ -7,6 +7,7 @@ import {Executor} from "../executor/executor";
 import {InternalCommandExecutor} from "../executor/internal/internal-command-executor";
 import {CommandTask} from "./command/command-task";
 import {SystemCommandExecutor} from "../executor/system/system-command-executor";
+import {EnvMap} from "./env-map";
 export class Host {
     
     private _resources:Resource;
@@ -14,6 +15,7 @@ export class Host {
     private _platform:Platform;
     private _executor = new Map<CommandRuntime, Executor>();
     private _cwd:string;
+    private _env:EnvMap = {};
     private _defaultCWD:string;
     private _cwdUpdateCallback: (cwd:string) => any;
     
@@ -33,6 +35,15 @@ export class Host {
 
     toDefaultCWD(): string {
         return this.cwd(this._defaultCWD);
+    }
+
+    getENV():EnvMap {
+        return this._env;
+    }
+
+    setENV(key:string, value:string):Host {
+        this._env[key] = value;
+        return this;
     }
 
     cwd(cwd:string = null): string {
