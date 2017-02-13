@@ -9,6 +9,7 @@ import {Ls} from "./commands/ls";
 import {Open} from "./commands/open";
 import {Executor} from "../executor";
 import {Env} from "./commands/env";
+import {Dev} from "./commands/dev";
 export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
@@ -27,6 +28,7 @@ export class InternalCommandExecutor implements Executor {
         this.commands.set('env', Env);
         this.commands.set('path', Path);
         this.commands.set('open', Open);
+        this.commands.set('dev', Dev);
     }
 
     execute(task: CommandTask) {

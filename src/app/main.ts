@@ -925,6 +925,8 @@ let initRunner = () => {
     runnerWindow = new BrowserWindow(options);
     runnerWindow.loadURL(www('runner'));
 
+    host.attachRunnerWindow(runnerWindow);
+
     ipcMain.on('command-run', (event:any, arg:Command) => {
 
         let task:CommandTask = new CommandTask(arg, host, {

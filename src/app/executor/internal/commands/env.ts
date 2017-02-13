@@ -36,12 +36,12 @@ export class Env extends InternalCommand {
             if (!Object.keys(this.task.host.getENV()).length) {
                 return `No temporary environment variables have been set.<br><br>
                         Add variables with -- <br><br>\t\t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span class="accent">:</span>env set <strong>key</strong> <strong class="accent">value</strong><br><br>Environment variables attached to the process\n\n
+                        <span class="accent">:</span>env set <strong>key</strong> <strong class="accent">value</strong><br><br>Environment variables attached to the process --\n\n
                         <br><br>${inspect(process.env, {showHidden:true, depth:null})}`.replace(/,/g, ',<br>');
             }
 
             return `Temporary environment variables\n\n<br><br>${inspect(this.task.host.getENV(), true, 5)}
-            <br><br>Environment variables attached to the process. These will be replaced by replaced by variables above with the same key\n\n
+            <br><br>Environment variables attached to the process. These will be replaced by replaced by variables above with the same key --\n\n
             <br><br>${inspect(process.env, {showHidden:true, depth:null})}`.replace(/,/g, ',<br>');
         }
 

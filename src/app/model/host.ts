@@ -18,7 +18,8 @@ export class Host {
     private _env:EnvMap = {};
     private _defaultCWD:string;
     private _cwdUpdateCallback: (cwd:string) => any;
-    
+    private _runnerWindow:any;
+
     constructor() {
         this._executor.set(CommandRuntime.INTERNAL, new InternalCommandExecutor());
         this._executor.set(CommandRuntime.PLATFORM, new PlatformExecutor());
@@ -44,6 +45,16 @@ export class Host {
     setENV(key:string, value:string):Host {
         this._env[key] = value;
         return this;
+    }
+
+    attachRunnerWindow(runnerWindow:any) {
+        this._runnerWindow = runnerWindow;
+    }
+
+    openDEVToolsForRunner() {
+        if(this._runnerWindow !== null) {
+            this._runnerWindow.webContents.openDevTools();
+        }
     }
 
     cwd(cwd:string = null): string {
