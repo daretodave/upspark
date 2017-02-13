@@ -15,6 +15,18 @@ const actions = new Map([
         .reloadCommands()
         .then (command.resolve)
         .catch(command.reject)
+    ] as ReloadAction,
+
+    ["SETTINGS", (command) => command
+        .reloadSettings()
+        .then (command.resolve)
+        .catch(command.reject)
+    ] as ReloadAction,
+
+    ["THEME", (command) => command
+        .reloadTheme()
+        .then (command.resolve)
+        .catch(command.reject)
     ] as ReloadAction
 
 ]);
@@ -32,7 +44,9 @@ export class Reload extends InternalCommand {
 
     reloadAll() {
         Promise.all([
-            this.reloadCommands()
+            this.reloadCommands(),
+            this.reloadSettings(),
+            this.reloadTheme()
         ]).then(message => this.resolve(message)).catch(this.reject);
     }
 
@@ -45,6 +59,20 @@ export class Reload extends InternalCommand {
 
             return `RELOADED ${count} COMMAND${count === 0 || count !== 1 ? 'S' : ''}`;
         });
+    }
+
+    reloadSettings(): Promise<string> {
+        return this.task.host.reloadSettings()
+            .then(() => {
+                return `RELOADED SETTINGS`;
+            });
+    }
+
+    reloadTheme(): Promise<string> {
+        return this.task.host.reloadTheme()
+            .then(() => {
+                return `RELOADED THEME`;
+            });
     }
 
     onExecute(arg: string = 'ALL') {

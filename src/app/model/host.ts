@@ -18,14 +18,40 @@ export class Host {
     private _env:EnvMap = {};
     private _defaultCWD:string;
     private _cwdUpdateCallback: (cwd:string) => any;
+
+    private _settingsWindow:any;
     private _runnerWindow:any;
 
-    constructor() {
+    private _reloadSettings: () => Promise<any>;
+    private _reloadTheme: () => Promise<any>;
+    private _reload: () => Promise<any>;
+
+    constructor(
+        reload:() => Promise<any>,
+        reloadTheme:() => Promise<any>,
+        reloadSettings:() => Promise<any>
+    ) {
+        this._reload = reload;
+        this._reloadTheme = reloadTheme;
+        this._reloadSettings = reloadSettings;
+
         this._executor.set(CommandRuntime.INTERNAL, new InternalCommandExecutor());
         this._executor.set(CommandRuntime.PLATFORM, new PlatformExecutor());
         this._executor.set(CommandRuntime.SYSTEM, new SystemCommandExecutor(CommandRuntime.SYSTEM));
         this._executor.set(CommandRuntime.BASH, new SystemCommandExecutor(CommandRuntime.BASH));
         this._executor.set(CommandRuntime.BASH_EXTERNAL, new SystemCommandExecutor(CommandRuntime.BASH_EXTERNAL));
+    }
+
+    reload(): Promise<any> {
+        return this._reload();
+    }
+
+    reloadTheme(): Promise<any> {
+        return this._reloadTheme();
+    }
+
+    reloadSettings(): Promise<any> {
+        return this._reloadSettings();
     }
 
     setDefaultCWD(cwd:string, updateCallback: (cwd:string) => any) {
@@ -51,10 +77,20 @@ export class Host {
         this._runnerWindow = runnerWindow;
     }
 
+    attachSettingsWindow(settingsWindow:any) {
+        this._settingsWindow = settingsWindow;
+    }
+
     openDEVToolsForRunner() {
-        if(this._runnerWindow !== null) {
-            this._runnerWindow.webContents.openDevTools();
-        }
+        this._runnerWindow.webContents.openDevTools();
+    }
+
+    hideRunnerWindow() {
+        this._runnerWindow.hide();
+    }
+
+    openSettingsWindow() {
+        this._settingsWindow.show();
     }
 
     cwd(cwd:string = null): string {

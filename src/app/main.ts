@@ -29,7 +29,30 @@ let safeWindow: any;
 let tray: any;
 let quit:boolean = false;
 
-let host:Host = new Host();
+let host:Host = new Host(
+    () => {
+        return Promise.all([
+            host.resources().reload('settings'),
+            host.resources().reload('runner-style'),
+            host.resources().reload('global-style')
+        ]).then(() => {
+            return adhereSettings(true);
+        });
+    },
+    () => {
+        return Promise.all([
+            host.resources().reload('runner-style'),
+            host.resources().reload('global-style')
+        ]).then(() => {
+            return adhereSettings(true);
+        });
+    },
+    () => {
+        return host.resources().reload('settings').then(() => {
+            return adhereSettings(true);
+        });
+    }
+);
 
 let init = () => {
 
@@ -142,7 +165,7 @@ let rotate = (cx:number, cy:number, x:number, y:number, angle:number)  : number[
             ny:number = (sin * ox) + (cos * oy) + cy;
 
     return [Math.round(nx), Math.round(ny)];
-}
+};
 
 let adhereSettings = (log:boolean = true):Promise<any> => {
     if(log) {
@@ -675,6 +698,8 @@ let initSettings = () => {
 
     settingsWindow = new BrowserWindow(options);
     settingsWindow.loadURL(www('settings'));
+
+    host.attachSettingsWindow(settingsWindow);
 
     if (process.env.ENV !== 'development') {
         settingsWindow.setMenu(null);

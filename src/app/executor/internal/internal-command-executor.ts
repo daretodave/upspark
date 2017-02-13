@@ -5,11 +5,13 @@ import {Logger} from "../../model/logger/logger";
 import {CommandArgument} from "../../model/command/command-argument";
 import {Cd} from "./commands/cd";
 import {Path} from "./commands/path";
-import {Ls} from "./commands/ls";
 import {Open} from "./commands/open";
 import {Executor} from "../executor";
 import {Env} from "./commands/env";
 import {Dev} from "./commands/dev";
+import {Settings} from "./commands/settings";
+import {Config} from "./commands/config";
+import {Resources} from "./commands/resources";
 export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
@@ -29,6 +31,9 @@ export class InternalCommandExecutor implements Executor {
         this.commands.set('path', Path);
         this.commands.set('open', Open);
         this.commands.set('dev', Dev);
+        this.commands.set('settings', Settings);
+        this.commands.set('config', Config);
+        this.commands.set('resources', Resources);
     }
 
     execute(task: CommandTask) {
