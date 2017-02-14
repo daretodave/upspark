@@ -11,8 +11,7 @@ import {EOL} from "os";
 import {merge} from "lodash";
 export class SystemCommandExecutor implements Executor {
 
-
-    cancel(id: string) {
+    cancel(task:CommandTask, id: string) {
         let process:ChildProcess = this.pool.get(id);
         if (process === null) {
             Logger.info(`>process ${id} not found to cancel`);
@@ -24,6 +23,8 @@ export class SystemCommandExecutor implements Executor {
         } catch(error) {
             Logger.error(error);
         }
+
+        task.error('Aborted<br><br>');
     }
 
     message(task:CommandTask, id: string, message:string) {

@@ -16,8 +16,8 @@ export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
 
-    cancel(id: string) {
-
+    cancel(task:CommandTask, id: string) {
+        task.error('Aborted<br><br>');
     }
 
     message(task:CommandTask, id: string, message:string) {

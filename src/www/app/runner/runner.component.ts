@@ -137,6 +137,21 @@ export class RunnerComponent implements OnInit {
         const {code, shiftKey, ctrlKey} = event;
         const args = this.argumentList.length;
 
+        if("KeyC" === code
+            && ctrlKey
+            && this.command
+            && this.command.active
+            && !this.command.reference.completed) {
+
+            let type:CommandRuntime = CommandRuntime.get(this.command.reference.intent.command);
+
+            console.log('CANCEL', this.command.reference.id, type, this.command);
+
+            this.system.send('command-end', this.command.reference.id, type);
+
+            return false;
+        }
+
         if("Escape" === code) {
 
             this.commandList.scrollToTop();

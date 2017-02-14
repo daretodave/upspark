@@ -3,7 +3,7 @@ export interface Executor {
     
     execute(task:CommandTask):any;
 
-    cancel(id:string):any;
+    cancel(task:CommandTask, id:string):any;
 
     message(task:CommandTask, id:string, message:string): any;
 

@@ -963,6 +963,21 @@ let initRunner = () => {
         host.execute(task);
     });
 
+
+    ipcMain.on('command-end', (event:any, id:string, type:CommandRuntime) => {
+
+        Logger.info(`>command END | id = ${id} | type ${type}`);
+
+        let task:CommandTask = new CommandTask(new Command(id, null), host, {
+            onCommandUpdate(update:CommandUpdate) {
+                event.sender.send('command-state-change', update);
+            }
+        });
+
+        host.cancel(task, id, type);
+    });
+
+
     ipcMain.on('command-repl', (event:any, id:string, type:CommandRuntime, message:string) => {
 
         Logger.info(`>command MESSAGE | id = ${id} | type ${type}`);

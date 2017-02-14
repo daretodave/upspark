@@ -7,11 +7,12 @@ import {CommandArgument} from "../../model/command/command-argument";
 import {CommandUpdate} from "../../model/command/command-update/command-update";
 import {Executor} from "../executor";
 import {merge} from "lodash";
+import {EOL} from "os";
 export class PlatformExecutor implements Executor {
 
     private pool = new Map<string, ChildProcess>();
 
-    cancel(id: string) {
+    cancel(task:CommandTask, id: string) {
         let process:ChildProcess = this.pool.get(id);
         if (process === null) {
             Logger.info(`>process ${id} not found to cancel`);
@@ -23,21 +24,23 @@ export class PlatformExecutor implements Executor {
         } catch(error) {
             Logger.error(error);
         }
+
+        task.error('Aborted<br><br>');
     }
 
     message(task:CommandTask, id: string, message:string) {
-        let process:ChildProcess = this.pool.get(id);
-        if (process === null) {
+        let childProcess:ChildProcess = this.pool.get(id);
+
+        if (childProcess === null) {
             Logger.info(`>process ${id} not found to send message`);
             return;
         }
 
         try {
-            process.send(message);
 
-            let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
+            task.out(`<div class="block"><span class="accent">&rightarrow;</span>&nbsp;&nbsp;${message}</div>`);
 
-            commandUpdate.messages.push(`> ${message}`);
+            childProcess.stdin.write(message+ EOL);
 
         } catch(error) {
             Logger.error(error);

@@ -115,6 +115,10 @@ export class Host {
         this.executor(type).message(task, id, message);
     }
 
+    cancel(task:CommandTask, id:string, type:CommandRuntime) {
+        this.executor(type).cancel(task, id);
+    }
+
     executor(runtime:CommandRuntime):Executor {
         return this._executor.get(runtime);
     }
