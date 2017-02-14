@@ -25,6 +25,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
 let settingsWindow: any;
 let runnerWindow: any;
 let safeWindow: any;
+let splashWindow: any;
 
 let tray: any;
 let quit:boolean = false;
@@ -55,6 +56,8 @@ let host:Host = new Host(
 );
 
 let init = () => {
+
+    initSplash();
 
     let external:string = path.join(app.getPath('appData'), 'upspark');
     let home:string = path.join(app.getPath('home'), '.upspark');
@@ -137,7 +140,14 @@ let init = () => {
         return new Promise<any>(executor);
     })
     .then(() => adhereSettings())
-    .then(() => Logger.finish('boot'))
+    .then(() => {
+        Logger.finish('boot');
+        setTimeout(() => {
+            splashWindow.hide();
+
+            runnerWindow.show();
+        }, 1000);
+    })
     .catch((e) => Logger.finish('boot', e));
 
 };
@@ -928,6 +938,43 @@ let initSettings = () => {
                 Logger.error(reason);
             }
         });
+    });
+};
+
+let initSplash = () => {
+    let options: any = {};
+
+    options.frame = false;
+    options.resizable = false;
+    options.movable = false;
+    options.maximizable = false;
+    options.minimizable = false;
+    options.transparent = true;
+    options.alwaysOnTop = true;
+    options.skipTaskbar = true;
+    options.width  = 350;
+    options.height = 350;
+    options.title = 'Upspark ';
+    options.show = false;
+
+    options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
+
+    splashWindow = new BrowserWindow(options);
+    splashWindow.loadURL(www('splash'));
+
+    splashWindow.webContents.on('did-finish-load', () => {
+        Logger.info('opening splash');
+
+        splashWindow.show();
+    });
+
+    splashWindow.on('close', (e:any) => {
+        if(quit) {
+            splashWindow = null;
+        } else {
+            e.preventDefault();
+            splashWindow.hide();
+        }
     });
 };
 

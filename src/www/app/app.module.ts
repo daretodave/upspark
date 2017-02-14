@@ -12,6 +12,7 @@ import {RunnerModule} from "./runner/runner.module";
 import {RouterModule} from "@angular/router";
 import {SafeModule} from "./safe/safe.module";
 import { Angulartics2Module, Angulartics2GoogleAnalytics } from 'angulartics2';
+import {SplashModule} from "./splash/splash.module";
 
 // GA
 require('./util/analytics');
@@ -25,6 +26,7 @@ require('bootstrap');
         SettingsModule,
         SafeModule,
         RunnerModule,
+        SplashModule,
         RouterModule.forRoot([], {
             useHash: true            
         }),

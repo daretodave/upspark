@@ -23,7 +23,9 @@ export class AppComponent implements OnInit {
         });
     }
 
-    constructor(private angulartics2: Angulartics2, private angulartics2GoogleAnalytics: Angulartics2GoogleAnalytics, private location:Location,private router:Router) {
+    constructor(private angulartics2: Angulartics2,
+                private angulartics2GoogleAnalytics: Angulartics2GoogleAnalytics,
+                private location:Location,private router:Router) {
     }
 
 }

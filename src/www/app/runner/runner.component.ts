@@ -1,7 +1,4 @@
-import {
-    Component, OnInit, ViewChild, QueryList, ElementRef, ViewChildren, style, animate,
-    transition, trigger, NgZone, ChangeDetectionStrategy
-} from "@angular/core";
+import {Component, OnInit, ViewChild, QueryList, ElementRef, ViewChildren} from "@angular/core";
 import {SystemService} from "../shared/system/system.service";
 import {CommandService} from "./command/command.service";
 import {SystemEvent} from "../shared/system/system-event";
@@ -9,9 +6,7 @@ import {CommandListComponent} from "./command/command-list.component";
 import {CommandIntent} from "../../../app/model/command/command-intent";
 import {CommandArgumentComponent} from "./command-argument/command-argument.component";
 import {CommandArgument} from "../../../app/model/command/command-argument";
-import {Command} from "../../../app/model/command/command";
 import {CommandWrapper} from "./command/command-wrapper";
-import {CommandIntentDigest} from "../../../app/model/command/command-intent-digest";
 import {CommandUpdate} from "../../../app/model/command/command-update/command-update";
 import {CommandRuntime} from "../../../app/model/command/command-runtime";
 
