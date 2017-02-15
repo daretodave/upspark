@@ -26,6 +26,7 @@ let settingsWindow: any;
 let runnerWindow: any;
 let safeWindow: any;
 let splashWindow: any;
+let alertWindow: any;
 
 let tray: any;
 let quit:boolean = false;
@@ -58,6 +59,7 @@ let host:Host = new Host(
 let init = () => {
 
     initSplash();
+    //initAlert();
 
     let external:string = path.join(app.getPath('appData'), 'upspark');
     let home:string = path.join(app.getPath('home'), '.upspark');
@@ -83,6 +85,7 @@ let init = () => {
             .start('boot');
         
         return Promise.all([
+
             host.resources().load('settings'),
             host.resources().load('runner-style'),
             host.resources().load('global-style'),
@@ -141,6 +144,8 @@ let init = () => {
     })
     .then(() => adhereSettings())
     .then(() => {
+       // alertWindow = null;
+
         Logger.finish('boot');
         setTimeout(() => {
             splashWindow.hide();
@@ -975,6 +980,30 @@ let initSplash = () => {
             e.preventDefault();
             splashWindow.hide();
         }
+    });
+};
+
+let initAlert = () => {
+    let options: any = {};
+
+    options.resizable = false;
+    options.maximizable = false;
+    options.minimizable = false;
+    options.alwaysOnTop = true;
+    options.width  = 350;
+    options.height = 350;
+    options.title = 'Upspark - Startup Error';
+   // options.show = false;
+
+    options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
+
+    alertWindow = new BrowserWindow(options);
+    alertWindow.loadURL(www('alert'));
+
+    alertWindow.on('close', (e:any) => {
+        app.quit();
+
+        alertWindow = null;
     });
 };
 
