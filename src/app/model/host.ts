@@ -81,6 +81,14 @@ export class Host {
         this._settingsWindow = settingsWindow;
     }
 
+    clearRunnerWindow() {
+        this._runnerWindow.webContents.send('clear-tasks');
+    }
+
+    endAllTasks() {
+        this._runnerWindow.webContents.send('end-tasks');
+    }
+
     openDEVToolsForRunner() {
         this._runnerWindow.webContents.openDevTools();
     }

@@ -12,6 +12,10 @@ import {Dev} from "./commands/dev";
 import {Settings} from "./commands/settings";
 import {Config} from "./commands/config";
 import {Resources} from "./commands/resources";
+import {Hide} from "./commands/hide";
+import {Exit} from "./commands/exit";
+import {Clear} from "./commands/clear";
+import {End} from "./commands/end";
 export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
@@ -25,6 +29,10 @@ export class InternalCommandExecutor implements Executor {
     }
     
     constructor() {
+        this.commands.set('end', End);
+        this.commands.set('clear', Clear);
+        this.commands.set('exit', Exit);
+        this.commands.set('hide', Hide);
         this.commands.set('reload', Reload);
         this.commands.set('cd', Cd);
         this.commands.set('env', Env);

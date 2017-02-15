@@ -71,6 +71,9 @@ export class RunnerComponent implements OnInit {
         this.system.subscribeToBroadcast('cwd-update', (event:SystemEvent) => {
             this.cwd = event.get<string>('cwd');
         }, true, 'cwd');
+        this.system.subscribeToBroadcast('clear-tasks', (event:SystemEvent) => this.clear(true), true);
+        this.system.subscribeToBroadcast('end-tasks', (event:SystemEvent) => this.endTasks(), true);
+
         this.runnerInput.nativeElement.focus();
     }
 
@@ -128,6 +131,31 @@ export class RunnerComponent implements OnInit {
         this.update();
     }
 
+    clear(clearHistory:boolean = false) {
+        this.commandList.scrollToTop();
+        this.commandService.resetNavigation();
+        this.runnerInput.nativeElement.focus();
+        this.intent.arguments = [];
+        this.intent.command = "";
+        this.resetCommandFocus();
+
+        if(clearHistory) {
+            this.commandList.toStaleState();
+        }
+    }
+
+    endTasks() {
+        this.commandService.getCommands().forEach((wrapper:CommandWrapper) => {
+            if(!wrapper.reference.completed) {
+                console.log('END', wrapper.reference.id);
+
+                let type:CommandRuntime = CommandRuntime.get(wrapper.reference.intent.command);
+
+                this.system.send('command-end', wrapper.reference.id, type);
+            }
+        });
+    }
+
     onRunnerKeyDown(event: KeyboardEvent): boolean {
         const {code, shiftKey, ctrlKey} = event;
         const args = this.argumentList.length;
@@ -148,18 +176,7 @@ export class RunnerComponent implements OnInit {
         }
 
         if("Escape" === code) {
-
-            this.commandList.scrollToTop();
-            this.commandService.resetNavigation();
-            this.runnerInput.nativeElement.focus();
-            this.intent.arguments = [];
-            this.intent.command = "";
-            this.resetCommandFocus();
-
-            if(shiftKey) {
-                this.commandList.toStaleState();
-            }
-
+            this.clear(shiftKey);
             return false;
         }
 
