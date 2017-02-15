@@ -84,7 +84,8 @@ export class SystemCommandExecutor implements Executor {
                 options['shell'] = true;
                 options['env'] = merge({}, process.env, task.host.getENV());
 
-                if(task.digest.command.content === "node" || task.digest.command.content === "python") {
+                if(!task.digest.argument.length && (task.digest.command.content === "node"
+                    || task.digest.command.content === "python")) {
                     task.digest.argument.unshift("-i");
                 }
 
@@ -119,7 +120,8 @@ export class SystemCommandExecutor implements Executor {
         });
 
         childProcess.stdout.on('data', (message:any) => {
-            if(task.digest.command.content === "node") {
+            if(!task.digest.argument.length
+             && task.digest.command.content === "node") {
                 let blocks:string[] = message.split(/(?:\r\n|\r|\n)/);
 
                 message = blocks.filter(block => block.trim() !== ">").join('\n');
