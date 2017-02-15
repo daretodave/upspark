@@ -1,36 +1,32 @@
 .sticky-bottom {
-
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  margin-bottom: 0;
-
 }
 
 .sticky-top {
-
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-
 }
 
 .safe-content {
-  margin-bottom: 54px;
-  padding-top:54px;
-
+  margin-bottom: 40px;
+  padding-top:40px;
 }
 
 .nav-link:hover {
   cursor: pointer;
+
 }
 
 .safe-key-value {
   padding: 20px;
   border-bottom: 1px dotted rgba(0,0,0, .5);
   display:flex;
+
   a:hover {
     cursor: pointer;
   }

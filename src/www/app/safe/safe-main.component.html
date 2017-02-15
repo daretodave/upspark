@@ -1,13 +1,14 @@
-<nav class="sticky-top navbar navbar-inverse">
-    <ul class="nav navbar-nav create-action-container">
-        <li class="nav-item">
-            <a class="nav-link" routerLink="/safe/new">Create</a>
-        </li>
-    </ul>
+<div class="sticky-top">
 
-    <input class="form-control search-filter" type="text" placeholder="Filter" name="filter" [(ngModel)]="filter">
+    <div class="input-group">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="button" routerLink="/safe/new">Add</button>
+      </span>
+        <input type="text" class="form-control" name="filter" [(ngModel)]="filter" placeholder="Filter">
+    </div>
 
-</nav>
+
+</div>
 
 <div *ngIf="values" class="safe-content">
     <div class="safe-content__inner">
@@ -25,21 +26,22 @@
     </div>
 </div>
 
-<nav class="sticky-bottom navbar navbar-inverse">
-    <ul class="nav navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link" (click)="lock()">Lock</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-success" routerLink="/safe/export">Export</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link text-success" routerLink="/safe/import">Import</a>
-        </li>
-    </ul>
-    <ul class="nav navbar-nav pull-right">
-        <li class="nav-item">
-            <a class="nav-link" routerLink="/safe/update">Password</a>
-        </li>
-    </ul>
-</nav>
+
+<div class="sticky-bottom">
+
+    <div class="btn-group btn-group-justified" role="group">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default" (click)="lock()">Lock</button>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default" routerLink="/safe/export">Export</button>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default" routerLink="/safe/import">Import</button>
+        </div>
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default" routerLink="/safe/update">Password</button>
+        </div>
+    </div>
+
+</div>
