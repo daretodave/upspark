@@ -71,8 +71,12 @@ export class ResourceHandle<T extends ResourceModel> {
 
             if(err === null) {
                 Logger.info(`resource '${this.key}' is ${reload ? 're' : ''}loaded`);
-                this.model  = <T>this.translator.deserialize(this.type, data);
-                resolve(this.model);
+                try {
+                    this.model  = <T>this.translator.deserialize(this.type, data);
+                    resolve(this.model);
+                } catch(error) {
+                    reject(`There was an error when reading the '${this.key}' resource\n\t${this.path} \n\n${error.message || error}`);
+                }
                 return;
             }
 

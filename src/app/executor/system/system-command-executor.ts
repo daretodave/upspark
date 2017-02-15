@@ -3,7 +3,6 @@ import {ChildProcess, spawn, execFile} from "child_process";
 import {Logger} from "../../model/logger/logger";
 import {CommandRuntime} from "../../model/command/command-runtime";
 import {Executor} from "../executor";
-import {inspect} from "util";
 import ReadableStream = NodeJS.ReadableStream;
 import {Socket} from "net";
 import ErrnoException = NodeJS.ErrnoException;
@@ -133,7 +132,8 @@ export class SystemCommandExecutor implements Executor {
             task.out(message, false, true);
         });
         childProcess.stderr.on('data', (message:any) => {
-            if(task.digest.command.content === "node") {
+            if(!task.digest.argument.length
+            &&  task.digest.command.content === "node") {
                 let blocks:string[] = message.split(/(?:\r\n|\r|\n)/);
 
                 message = blocks.filter(block => block.trim() !== ">").join('\n');

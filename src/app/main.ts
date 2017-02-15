@@ -59,7 +59,7 @@ let host:Host = new Host(
 let init = () => {
 
     initSplash();
-    //initAlert();
+    initAlert();
 
     let external:string = path.join(app.getPath('appData'), 'upspark');
     let home:string = path.join(app.getPath('home'), '.upspark');
@@ -144,16 +144,32 @@ let init = () => {
     })
     .then(() => adhereSettings())
     .then(() => {
-       // alertWindow = null;
+       alertWindow = null;
 
         Logger.finish('boot');
         setTimeout(() => {
             splashWindow.hide();
+            splashWindow = null;
 
             runnerWindow.show();
         }, 1000);
     })
-    .catch((e) => Logger.finish('boot', e));
+    .catch((e) => {
+        Logger.finish('boot', e);
+
+        alertWindow.loadURL(www('alert'));
+        alertWindow.webContents.on('did-finish-load', () => {
+            alertWindow.webContents.send('alert-error', e);
+            alertWindow.show();
+
+            splashWindow.hide();
+
+            tray = null;
+            splashWindow = null;
+            runnerWindow = null;
+            settingsWindow = null;
+        });
+    });
 
 };
 
@@ -197,7 +213,6 @@ let adhereSettings = (log:boolean = true):Promise<any> => {
         if (log) {
             Logger.info(`setting global theme to '${globalTheme}' | theme.css.length = ${css.length} bytes`);
         }
-
         settingsWindow.webContents.send('style-settings', css);
         safeWindow.webContents.send('style-safe', css);
     } else {
@@ -423,6 +438,8 @@ let initSafe = () => {
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
     safeWindow = new BrowserWindow(options);
+    safeWindow.setMenu(null);
+
     if(host.safe().created) {
         safeWindow.loadURL(www('safe/auth'));
     } else {
@@ -713,6 +730,7 @@ let initSettings = () => {
 
     settingsWindow = new BrowserWindow(options);
     settingsWindow.loadURL(www('settings'));
+    settingsWindow.setMenu(null);
 
     host.attachSettingsWindow(settingsWindow);
 
@@ -969,8 +987,8 @@ let initSplash = () => {
 
     splashWindow.webContents.on('did-finish-load', () => {
         Logger.info('opening splash');
-
-        splashWindow.show();
+        if(splashWindow !== null)
+            splashWindow.show();
     });
 
     splashWindow.on('close', (e:any) => {
@@ -990,20 +1008,30 @@ let initAlert = () => {
     options.maximizable = false;
     options.minimizable = false;
     options.alwaysOnTop = true;
-    options.width  = 350;
+    options.width  = 500;
     options.height = 350;
     options.title = 'Upspark - Startup Error';
-   // options.show = false;
+    options.show = false;
 
     options.icon = path.join(__dirname, 'static', 'icon', 'bulb.ico');
 
     alertWindow = new BrowserWindow(options);
-    alertWindow.loadURL(www('alert'));
+
+    alertWindow.setMenu(null);
+
+    ipcMain.on('alert-log', () => {
+        alertWindow.hide();
+        alertWindow = null;
+
+        electron.shell.openItem(path.join(host.resources().root, 'upspark.log'));
+
+        app.quit();
+    });
 
     alertWindow.on('close', (e:any) => {
-        app.quit();
-
         alertWindow = null;
+
+        app.quit();
     });
 };
 
@@ -1025,6 +1053,7 @@ let initRunner = () => {
 
     runnerWindow = new BrowserWindow(options);
     runnerWindow.loadURL(www('runner'));
+
 
     host.attachRunnerWindow(runnerWindow);
 
