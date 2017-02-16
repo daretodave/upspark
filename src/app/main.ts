@@ -431,7 +431,7 @@ let initTray = () => {
 let initSafe = () => {
     let options: any = {};
 
-    options.width  = 650;
+    options.width  = 400;
     options.height = 640;
     options.show = false;
     options.title = 'Upspark - Safe';

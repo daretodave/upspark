@@ -1,4 +1,4 @@
-import {Component, AfterViewInit} from '@angular/core';
+import {Component, AfterViewInit, NgZone} from '@angular/core';
 import {Router} from "@angular/router";
 import {KeyValue} from "../shared/key-value";
 import {KeyValueService} from "../shared/key-value.service";
@@ -15,7 +15,7 @@ require('./safe.component.scss');
 })
 export class SafeComponent  implements AfterViewInit {
 
-    constructor(private router: Router, private keyValueService:KeyValueService) {
+    constructor(private router: Router, private keyValueService:KeyValueService, private zone:NgZone) {
     }
 
     ngAfterViewInit(): void {
@@ -46,26 +46,38 @@ export class SafeComponent  implements AfterViewInit {
             }
         });
         ipcRenderer.on('safe-main', (event:any, mappings:any) => {
-            let data:KeyValue[] = [];
-            for (let key in mappings) {
-                if (mappings.hasOwnProperty(key)) {
-                    let keyValue = new KeyValue();
-                    keyValue.key = key;
-                    keyValue.value = mappings[key];
+            this.zone.run(() => {
 
-                    data.push(keyValue);
+                this.router.navigate(['/safe/main']);
+
+                let data:KeyValue[] = [];
+                for (let key in mappings) {
+
+                    if (mappings.hasOwnProperty(key)) {
+                        let keyValue = new KeyValue();
+                        keyValue.key = key;
+                        keyValue.value = mappings[key];
+
+                        data.push(keyValue);
+                    }
                 }
-            }
-            this.keyValueService.init = true;
-            this.keyValueService.data = data;
 
-            this.router.navigate(['/safe/main']);
+                this.keyValueService.init = true;
+                this.keyValueService.data = data;
+
+
+            });
+
         });
         ipcRenderer.on('safe-create', () => {
-            this.router.navigate(['/safe/create']);
+            this.zone.run(() => {
+                this.router.navigate(['/safe/create']);
+            });
         });
         ipcRenderer.on('safe-auth', () => {
-            this.router.navigate(['/safe/auth']);
+            this.zone.run(() => {
+                this.router.navigate(['/safe/auth']);
+            });
         });
     }
 

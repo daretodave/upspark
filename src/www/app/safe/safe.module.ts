@@ -14,6 +14,7 @@ import {SafeNewComponent} from "./safe-new.component";
 import {SafeUpdateComponent} from "./safe-update.component";
 import {KeyValueFilterPipe} from "../shared/key-value-filter.pipe";
 import {SafeImportSelectComponent} from "./safe-import-select.component";
+import {KeyValueService} from "../shared/key-value.service";
 
 @NgModule({
     imports: [
@@ -34,7 +35,7 @@ import {SafeImportSelectComponent} from "./safe-import-select.component";
         SafeEditComponent,
         SafeNewComponent,
         SafeUpdateComponent,
-        KeyValueFilterPipe
+        KeyValueFilterPipe,
     ],
     providers: [
     ]

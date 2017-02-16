@@ -36,6 +36,7 @@ export class SafeAuthComponent implements AfterViewInit {
             return;
         }
         this.submitted = true;
+
         ipcRenderer.send('safe-auth', this.password);
     }
 

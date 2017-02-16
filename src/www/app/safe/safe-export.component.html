@@ -8,14 +8,14 @@
         </div>
     </div>
     <div class="keys-control-group btn-group" role="group">
-        <button type="button" class="btn btn-secondary" (click)="selectAll(true)">All</button>
-        <button type="button" class="btn btn-secondary" (click)="selectAll(false)">None</button>
+        <button type="button" class="btn bg-primary" (click)="selectAll(true)">All</button>
+        <button type="button" class="btn bg-primary" (click)="selectAll(false)">None</button>
     </div>
     <hr>
     <div class="input-group">
         <input disabled readonly type="text" class="form-control" name="export-loc" [(ngModel)]="exportLocation" placeholder="Export Location">
         <span class="input-group-btn">
-        <button class="btn btn-secondary" type="button" (click)="selectFileLocation()">Select</button>
+        <button class="btn bg-primary" type="button" (click)="selectFileLocation()">Select</button>
       </span>
     </div>
     <hr>

@@ -27,9 +27,9 @@ export class SafeNewComponent implements OnInit, AfterViewInit {
         });
     }
 
-    private model:KeyValue;
-    private createValueForm: FormGroup;
-    private submitted:boolean;
+    model:KeyValue;
+    createValueForm: FormGroup;
+    submitted:boolean;
 
     constructor(private fb: FormBuilder, private zone: NgZone) {
     }

@@ -40,6 +40,7 @@ export class SafeMainComponent implements OnInit {
 
     del(keyValue:KeyValue) {
         let idx:number = this.values.indexOf(keyValue);
+
         this.values.splice(idx, 1);
 
         ipcRenderer.send('safe-delete', keyValue.key);
