@@ -24,12 +24,12 @@ export namespace  PlatformMessage {
 
         if (typeof message === 'undefined') {
             message = {
-                intent: PlatformMessage.INTENT_LOG,
+                intent: PlatformMessage.INTENT_OUT,
                 payload: ''
             }
         } else if (typeof message === 'string' || Array.isArray(message)) {
             message = {
-                intent: PlatformMessage.INTENT_LOG,
+                intent: PlatformMessage.INTENT_OUT,
                 payload: message
             }
         } else if (typeof message === "number") {

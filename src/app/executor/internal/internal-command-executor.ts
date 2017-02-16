@@ -17,6 +17,7 @@ import {Exit} from "./commands/exit";
 import {Clear} from "./commands/clear";
 import {End} from "./commands/end";
 import {Safe} from "./commands/safe";
+import {Log} from "./commands/log";
 export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
@@ -30,6 +31,7 @@ export class InternalCommandExecutor implements Executor {
     }
     
     constructor() {
+        this.commands.set('log', Log);
         this.commands.set('end', End);
         this.commands.set('safe', Safe);
         this.commands.set('clear', Clear);

@@ -93,7 +93,9 @@ export class PlatformBootstrapper {
                 Logger.info(`transpiling ${name} | ${data.length} bytes`);
                 let options:any = {};
                 options.presets = [];
-                options.presets.push("latest");
+                options.presets.push(["latest", {
+                    "modules": false
+                }]);
 
                 let contextSwitch:string = `
                     (function(location, mappings, context) {

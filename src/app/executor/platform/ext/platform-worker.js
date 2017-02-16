@@ -1,18 +1,25 @@
-(function(argv) {
+(function(argv, id) {
     if(!Array.isArray(argv)) {
-        argv = [0, 0, argv];
+        if(arguments.length < 2) {
+            upspark['__internal'].fatal('no id provided for platform worker');
+            return;
+        }
+
+        argv = [0, 0, id, argv];
     }
 
-    if(argv.length < 2) {
-        upspark['__internal'].fatal('no command to execute');
+    if(argv.length < 4) {
+        upspark['__internal'].fatal('no command + command id to execute');
         return;
     }
 
-    let title = argv[2];
+    id = id || argv[2];
+
+    let title = argv[3];
     let parameters = [];
 
-    if(argv.length > 2) {
-        for(let i = 3; i < argv.length; i++) {
+    if(argv.length > 3) {
+        for(let i = 4; i < argv.length; i++) {
             parameters.push(argv[i]);
         }
     }
@@ -44,7 +51,7 @@
         log(`[${parameters.join(", ")}]`);
     }
 
-    upspark['util'].resolve(command.processor, parameters, function(result) {
+    upspark['util'].resolve(id, command.processor, parameters, function(result) {
         process.send({
             intent: 'result',
             payload: result

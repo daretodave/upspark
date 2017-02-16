@@ -386,21 +386,14 @@ export class RunnerComponent implements OnInit {
             return;
         }
 
-        let isNavigating:boolean = this.commandService.isNavigating();
 
         this.savedIntent = null;
         this.savedReplIntent = null;
 
-        if(isNavigating) {
-            this.commandList.scrollToTop();
-            this.commandService.resetNavigation();
-        }
+        this.commandList.scrollToTop();
+        this.commandService.resetNavigation();
 
         this.command = this.commandService.execute(new CommandIntent(this.intent));
-
-        if(isNavigating) {
-            this.commandService.navigate(true);
-        }
 
         this.intent.arguments = [];
         this.intent.command = "";

@@ -17,6 +17,7 @@ import {Host} from "./model/host";
 import {CommandUpdateEmitter} from "./model/command/command-update/command-update-emitter";
 import {CommandTask} from "./model/command/command-task";
 import {CommandRuntime} from "./model/command/command-runtime";
+import {inspect} from "util";
 
 const path = require('path');
 const electron = require('electron');
@@ -159,7 +160,7 @@ let init = () => {
 
         alertWindow.loadURL(www('alert'));
         alertWindow.webContents.on('did-finish-load', () => {
-            alertWindow.webContents.send('alert-error', e);
+            alertWindow.webContents.send('alert-error', inspect(e, true, null));
             alertWindow.show();
 
             splashWindow.hide();

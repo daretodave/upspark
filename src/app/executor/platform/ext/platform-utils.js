@@ -1,5 +1,6 @@
 let upspark = {};
 
+upspark.init = Date.now();
 upspark.util = {};
 
 upspark.util.parameters = function(func) {
@@ -78,7 +79,7 @@ upspark.util.isPrimitive = (function(primitives) {
             || primitives.indexOf(typeof argument) !== -1;
     };
 })(["boolean", "number", "string", "symbol", "undefined"]);
-upspark.util.resolve = function(entity, parameters, callback, errCallback, depth) {
+upspark.util.resolve = function(id, entity, parameters, callback, errCallback, depth) {
     depth = depth ? depth+1 : 0;
 
     if(upspark.util.isPrimitive(entity, true) || (upspark.util.isArray(entity, 0))) {
@@ -86,9 +87,81 @@ upspark.util.resolve = function(entity, parameters, callback, errCallback, depth
         return;
     }
     if(upspark.util.isFunction(entity)) {
-        entity = entity.apply(upspark, parameters);
 
-        upspark['util'].resolve(entity, parameters, callback, errCallback, depth);
+        entity = entity.apply({
+
+            depth: depth,
+            start: upspark.init,
+            id: id,
+
+            abort: function(message, nonError) {
+               if(arguments.length > 0) {
+                   if(nonError) {
+                       process.send({
+                           intent: 'result',
+                           payload: message
+                       })
+                   } else {
+                       process.send({
+                           intent: 'error',
+                           payload: message
+                       })
+                   }
+               }
+
+                process.exit();
+            },
+
+            message: function(type, message) {
+                if(arguments.length < 2) {
+                    message = type;
+                    type = 'out';
+                }
+
+                process.send({
+                    intent: type,
+                    payload: message
+                })
+            },
+
+            log: (message, error) => process.send({
+                intent: error ? 'log-error' : 'log',
+                payload: message
+            }),
+
+            complete: (message) => process.send({
+                intent: 'result',
+                payload: message
+            }),
+
+            error: (message) => process.send({
+                intent: 'error',
+                payload: message
+            }),
+
+            progress: function(progress, message) {
+                if(arguments.length > 1) {
+                    progress = {
+                        progress: progress,
+                        message: message
+                    }
+                }
+
+                process.send({
+                    intent: 'progress',
+                    payload: progress
+                });
+            },
+
+        }, parameters);
+
+
+        if(depth === 0 && typeof entity === 'undefined') {
+            //user is handling their own process
+            return;
+        }
+
+        upspark['util'].resolve(id, entity, parameters, callback, errCallback, depth);
         return;
     }
 
@@ -118,7 +191,7 @@ upspark.util.resolve = function(entity, parameters, callback, errCallback, depth
             };
 
             results.forEach(function(result) {
-                upspark['__internal'].resolve(result, parameters, handler, handler, depth);
+                upspark['__internal'].resolve(id, result, parameters, handler, handler, depth);
             });
         })
         .catch(errCallback);

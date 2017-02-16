@@ -60,7 +60,7 @@ export class PlatformExecutor implements Executor {
             task.id,
             childProcess =
                 fork(task.host.resources().platform,
-                    [task.digest.command.normalized].concat(
+                    [task.id, task.digest.command.normalized].concat(
                         task.digest.argument
                     ),
                     {
