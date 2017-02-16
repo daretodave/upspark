@@ -21,6 +21,7 @@ export class Host {
 
     private _settingsWindow:any;
     private _runnerWindow:any;
+    private _safeWindow:any;
 
     private _reloadSettings: () => Promise<any>;
     private _reloadTheme: () => Promise<any>;
@@ -81,6 +82,10 @@ export class Host {
         this._settingsWindow = settingsWindow;
     }
 
+    attachSafeWindow(safeWindow:any) {
+        this._safeWindow = safeWindow;
+    }
+
     clearRunnerWindow() {
         this._runnerWindow.webContents.send('clear-tasks');
     }
@@ -99,6 +104,10 @@ export class Host {
 
     openSettingsWindow() {
         this._settingsWindow.show();
+    }
+
+    openSafeWindow() {
+        this._safeWindow.show();
     }
 
     cwd(cwd:string = null): string {

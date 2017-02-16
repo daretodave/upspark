@@ -440,6 +440,8 @@ let initSafe = () => {
     safeWindow = new BrowserWindow(options);
     safeWindow.setMenu(null);
 
+    host.attachSafeWindow(safeWindow);
+
     if(host.safe().created) {
         safeWindow.loadURL(www('safe/auth'));
     } else {

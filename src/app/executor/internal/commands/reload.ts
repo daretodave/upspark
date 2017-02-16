@@ -57,21 +57,21 @@ export class Reload extends InternalCommand {
 
             let count:number = platform.size();
 
-            return `RELOADED ${count} COMMAND${count === 0 || count !== 1 ? 'S' : ''}`;
+            return `Reloaded ${count} command${count === 0 || count !== 1 ? 'S' : ''}`;
         });
     }
 
     reloadSettings(): Promise<string> {
         return this.task.host.reloadSettings()
             .then(() => {
-                return `RELOADED SETTINGS`;
+                return `Reloaded settings`;
             });
     }
 
     reloadTheme(): Promise<string> {
         return this.task.host.reloadTheme()
             .then(() => {
-                return `RELOADED THEME`;
+                return `Reloaded theme`;
             });
     }
 

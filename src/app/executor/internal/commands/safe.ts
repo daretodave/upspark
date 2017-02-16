@@ -4,15 +4,15 @@ import * as path from 'path';
 import * as fs from 'fs';
 import ErrnoException = NodeJS.ErrnoException;
 
-export class Hide extends InternalCommand {
+export class Safe extends InternalCommand {
 
     onExecute(): any {
 
-        Logger.info('Hiding window from :hide command');
+        Logger.info('Launching the safe');
 
-        this.task.host.hideRunnerWindow();
+        this.task.host.openSafeWindow();
 
-        return 'Runner window was hidden';
+        return 'Launched the Safe';
 
     }
 
