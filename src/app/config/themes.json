@@ -19,6 +19,34 @@
         "backgroundColor": "#060606",
         "descColor": "#888888"
       }
+    },
+    {
+      "name": "Paper",
+      "description": "Material is the metaphor",
+      "location": "./static/themes/global/paper.css",
+      "palette": {
+        "textColor": "black",
+        "backgroundColor": "white",
+        "descColor": "#3498db"
+      }
+    },{
+      "name": "United",
+      "description": "Ubuntu orange and unique font",
+      "location": "./static/themes/global/united.css",
+      "palette": {
+        "textColor": "#dd4814",
+        "backgroundColor": "white",
+        "descColor": "black"
+      }
+    },{
+      "name": "Darkly",
+      "description": "Flat and modern in night mode",
+      "location": "./static/themes/global/darkly.css",
+      "palette": {
+        "textColor": "white",
+        "backgroundColor": "rgb(34, 34, 34)",
+        "descColor": "#3498db"
+      }
     }
   ],
 
