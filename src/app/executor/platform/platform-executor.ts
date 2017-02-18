@@ -72,9 +72,8 @@ export class PlatformExecutor implements Executor {
         );
 
         childProcess.on('close', (code: number) => {
+            Logger.info(`#command '${task.digest.command.display}' process has finished [] > exit code = ${code}`);
             if (!task.isCompleted()) {
-                Logger.info(`#command '${task.digest.command.display}' process has finished [] > exit code = ${code}`);
-
                 task.complete();
             }
 
@@ -82,151 +81,167 @@ export class PlatformExecutor implements Executor {
         });
 
         childProcess.on('message', (message: PlatformMessage) => {
-
-            let log = (error: boolean, message: any) => {
-                if (typeof message === 'string' && message.length < 50) {
-                    Logger.log(error, `#${message}`);
-                } else if (Array.isArray(message)) {
-                    Logger.log.apply(Logger, [error].concat(message));
-                } else {
-                    Logger.log(message);
-                }
-            };
-
-            message = PlatformMessage.sanitize(message);
-
-            //log(false, `MESSAGE FROM PROCESS ${task.id}`);
-
-            let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
-
-            switch (message.intent) {
-
-                case PlatformMessage.INTENT_COMMS:
-                    task.host.getPlatformCOMMS().onProcessMessage(childProcess, message);
-                    break;
-
-                case PlatformMessage.INTENT_INTERNAL_LOG:
-                    log(false, message.payload);
-                    break;
-
-                case PlatformMessage.INTENT_ABORT:
-                case PlatformMessage.INTENT_FATAL_ERROR:
-                    let context: string =
-                        message.intent === PlatformMessage.INTENT_FATAL_ERROR
-                            ? 'Suffered a fatal error'
-                            : 'Task made process abort request';
-
-                    if (message.payload) {
-                        Logger.error(message.payload);
-                    }
-
-                    log(true, `${context}, killing child process | task.id = ${task.id}`);
-
-                    try {
-                        childProcess.kill();
-                    } catch (error) {
-                        Logger.error(error);
-
-                        log(true, `Failed to end the child process, ${error.message}`);
-                    }
-
-
-                    commandUpdate.progress = 100;
-                    commandUpdate.canceled = true;
-                    commandUpdate.completed = true;
-                    commandUpdate.out(message.payload, true);
-
-                    break;
-                case PlatformMessage.INTENT_PROGRESS:
-
-                    if (message.payload.hasOwnProperty("progress")) {
-                        commandUpdate.progress = parseInt(message.payload['progress'], 10);
+            try {
+                let log = (error: boolean, message: any) => {
+                    if (typeof message === 'string' && message.length < 50) {
+                        Logger.log(error, `\t\t#${message}`);
+                    } else if (Array.isArray(message)) {
+                        Logger.log.apply(Logger, [error].concat(message));
                     } else {
-                        commandUpdate.progress = parseInt(message.payload, 10);
-                    }
-
-                    if (message.payload.hasOwnProperty("message")) {
-                        let logIsError: boolean = message.payload["error"] === true;
-                        let logMessage: string = CommandUpdate.getSanitizedMessage(message.payload['message'], logIsError);
-
-                        log(logIsError, logMessage);
-
-                        commandUpdate[logIsError ? "errors" : "messages"].push(logMessage);
-                        commandUpdate.error = logIsError;
-
-                    } else {
-                        log(false, `progress update | ${commandUpdate.progress}`);
-                    }
-
-                    break;
-                case PlatformMessage.INTENT_RESULT:
-                    let output: string = null;
-
-                    if (typeof message.payload === 'string') {
-                        output = message.payload;
-                    } else if (typeof message === 'object') {
-                        commandUpdate.absorb(message.payload);
-
-                        output = commandUpdate.response;
-                    }
-
-                    if (!output) {
-                        if (commandUpdate.response === null) {
-                            commandUpdate.response = CommandUpdate.DEFAULT_SUCCESS_MESSAGE;
+                        if(typeof message !== 'string') {
+                            message = inspect(message, false, null)
                         }
-                        output = commandUpdate.response;
+
+                        Logger.log(error, message);
                     }
+                };
 
-                    commandUpdate.out(output);
+                message = PlatformMessage.sanitize(message);
 
-                    let separation: string = output.length > 50 ? '\n' : ' = ';
+                //log(false, `MESSAGE FROM PROCESS ${task.id}`);
 
-                    Logger.log(
-                        !!commandUpdate.error,
-                        `#command '${task.digest.command.display}'${separation}${output}`
-                    );
+                let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
 
-                    commandUpdate.progress = 100;
-                    commandUpdate.completed = true;
+                switch (message.intent) {
 
-                    break;
+                    case PlatformMessage.INTENT_COMMS:
+                        task.host.getPlatformCOMMS().onProcessMessage(childProcess, message);
+                        break;
 
-                case PlatformMessage.INTENT_UPDATE:
-                    log(message.payload["error"] === true, `update | ${inspect(message.payload)}`);
+                    case PlatformMessage.INTENT_INTERNAL_LOG:
+                        log(false, message.payload);
+                        break;
 
-                    commandUpdate.absorb(message.payload);
-                    break;
+                    case PlatformMessage.INTENT_ABORT:
+                    case PlatformMessage.INTENT_FATAL_ERROR:
+                        let context: string =
+                            message.intent === PlatformMessage.INTENT_FATAL_ERROR
+                                ? 'Suffered a fatal error'
+                                : 'Task made process abort request';
 
-                case PlatformMessage.INTENT_OUT_ERROR:
-                case PlatformMessage.INTENT_OUT:
-                    let isOutError: boolean = message.intent === PlatformMessage.INTENT_OUT_ERROR;
+                        if (message.payload) {
+                            Logger.error(message.payload);
+                        }
 
-                    log(isOutError, message.payload);
+                        log(true, `${context}, killing child process | task.id = ${task.id}`);
 
-                    commandUpdate.out(message.payload, isOutError);
+                        try {
+                            childProcess.kill();
+                        } catch (error) {
+                            Logger.error(error);
 
-                    break;
+                            log(true, `Failed to end the child process, ${error.message}`);
+                        }
 
-                case PlatformMessage.INTENT_LOG:
-                case PlatformMessage.INTENT_LOG_ERROR:
-                    let isError: boolean = message.intent === PlatformMessage.INTENT_LOG_ERROR;
+                        commandUpdate.progress = 100;
+                        commandUpdate.canceled = true;
+                        commandUpdate.completed = true;
+                        commandUpdate.out(message.payload, true);
 
-                    log(isError, message.payload);
+                        break;
+                    case PlatformMessage.INTENT_PROGRESS:
 
-                    commandUpdate[isError ? "errors" : "messages"].push(
-                        CommandUpdate.getSanitizedMessage(
-                            message.payload,
-                            isError,
-                        )
-                    );
-                    break;
+                        if (message.payload.hasOwnProperty("progress")) {
+                            commandUpdate.progress = parseInt(message.payload['progress'], 10);
+                        } else {
+                            commandUpdate.progress = parseInt(message.payload, 10);
+                        }
 
-                default:
-                    Logger.info(`#command '${task.digest.command.display}' | process = '${childProcess.pid}'`, message);
-                    break;
+                        if (message.payload.hasOwnProperty("message")) {
+                            let logIsError: boolean = message.payload["error"] === true;
+                            let logMessage: string = CommandUpdate.getSanitizedMessage(message.payload['message'], logIsError);
+
+                            log(logIsError, logMessage);
+
+                            commandUpdate[logIsError ? "errors" : "messages"].push(logMessage);
+                            commandUpdate.error = logIsError;
+
+                        } else {
+                            log(false, `progress update | ${commandUpdate.progress}`);
+                        }
+
+                        break;
+                    case PlatformMessage.INTENT_RESULT:
+                        let output: string = null;
+
+                        if (typeof message.payload === 'string') {
+                            output = message.payload;
+                        } else if (typeof message === 'object') {
+                            commandUpdate.absorb(message.payload);
+
+                            output = commandUpdate.response;
+                        }
+
+                        if (!output) {
+                            if (commandUpdate.response === null) {
+                                commandUpdate.response = CommandUpdate.DEFAULT_SUCCESS_MESSAGE;
+                            }
+                            output = commandUpdate.response;
+                        }
+
+                        commandUpdate.out(output);
+
+                        let separation: string = output.length > 50 ? '\n' : ' = ';
+
+                        commandUpdate.progress = 100;
+                        commandUpdate.completed = true;
+
+                        try {
+                            childProcess.kill();
+                        } catch (error) {
+                            Logger.error(error);
+
+                            log(true, `Failed to end the child process, ${error.message}`);
+                        }
+
+                        Logger.log(
+                            !!commandUpdate.error,
+                            `#command '${task.digest.command.display}'${separation}${output}`
+                        );
+
+                        break;
+
+                    case PlatformMessage.INTENT_UPDATE:
+                        log(message.payload["error"] === true, `update | ${inspect(message.payload)}`);
+
+                        commandUpdate.absorb(message.payload);
+                        break;
+
+                    case PlatformMessage.INTENT_OUT_ERROR:
+                    case PlatformMessage.INTENT_OUT:
+                        let isOutError: boolean = message.intent === PlatformMessage.INTENT_OUT_ERROR;
+
+                        log(isOutError, message.payload);
+
+                        commandUpdate.out(message.payload, isOutError);
+
+                        break;
+
+                    case PlatformMessage.INTENT_LOG:
+                    case PlatformMessage.INTENT_LOG_ERROR:
+                        let isError: boolean = message.intent === PlatformMessage.INTENT_LOG_ERROR;
+
+                        log(isError, message.payload);
+
+                        commandUpdate[isError ? "errors" : "messages"].push(
+                            CommandUpdate.getSanitizedMessage(
+                                message.payload,
+                                isError,
+                            )
+                        );
+                        break;
+
+                    default:
+                        Logger.info(`#command '${task.digest.command.display}' | process = '${childProcess.pid}'`, message);
+                        break;
+                }
+
+                task.update(commandUpdate);
+            } catch(err) {
+                Logger.info(`ERROR WHEN HANDLING TASK PAYLOAD | ${task.id}`);
+
+                Logger.error(err);
             }
-
-            task.update(commandUpdate);
         });
 
         childProcess.on('uncaughtException', (err: any) => {
