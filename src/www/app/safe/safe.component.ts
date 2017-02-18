@@ -77,6 +77,9 @@ export class SafeComponent  implements AfterViewInit {
         ipcRenderer.on('safe-auth', () => {
             this.zone.run(() => {
                 this.router.navigate(['/safe/auth']);
+
+                this.keyValueService.init = false;
+                this.keyValueService.data = [];
             });
         });
     }

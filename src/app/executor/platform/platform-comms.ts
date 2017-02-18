@@ -59,7 +59,7 @@ export class PlatformComms {
             message.payload["action"],
             message.payload["parameters"]
         ).then((result: String) => {
-            Logger.info(`COMMS result for ${result}`);
+            Logger.info(`COMMS result for ${message.payload["action"]}`);
 
             childProcess.send({
                 id:id,

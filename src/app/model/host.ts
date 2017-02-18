@@ -92,6 +92,25 @@ export class Host {
         this._safeWindow = safeWindow;
     }
 
+    sendSafeMessage(message:string, ...args:any[]) {
+        return this._safeWindow.webContents.send.apply(
+            this._safeWindow.webContents,
+            [message].concat(args)
+        );
+    }
+    sendSettingsMessage(message:string, ...args:any[]) {
+        return this._settingsWindow.webContents.send.apply(
+            this._settingsWindow.webContents,
+            [message].concat(args)
+        );
+    }
+    sendRunnerMessage(message:string, ...args:any[]) {
+        return this._runnerWindow.webContents.send.apply(
+            this._runnerWindow.webContents,
+            [message].concat(args)
+        );
+    }
+
     clearRunnerWindow() {
         this._runnerWindow.webContents.send('clear-tasks');
     }

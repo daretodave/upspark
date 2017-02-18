@@ -72,20 +72,20 @@ export abstract class PlatformCommsHandler {
 
         try {
             let response = plan.handler(
-                parameters,
                 this.host,
+                parameters,
                 resolve,
                 (message?:string,syntax:boolean = false) => {
                     message = `${this.title}.${plan.title}<br><hr><span class="error-subtext">${message}</span>`;
                     if (syntax && plan.example) {
-                        message += `<br><hr>`;
+                        message += `<hr>`;
                         message += `${plan.example}`;
                     }
 
                     reject(message);
                 }
             );
-            if (typeof response === 'string') {
+            if (typeof response !== 'undefined') {
                 resolve(response);
             }
 

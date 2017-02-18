@@ -33,7 +33,7 @@ up-runner {
 
 .method-comment {
   font-size: 12px;
-  margin-left: -15px;
+  margin-left: 10px;
   margin-top: 4px;
   color: #00a379;
 }
@@ -50,4 +50,6 @@ up-runner {
 .error-subtext {
   color: white;
   font-style: italic;
+  display:block;
+  min-width:150px;
 }

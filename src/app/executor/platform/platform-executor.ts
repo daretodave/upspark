@@ -160,20 +160,19 @@ export class PlatformExecutor implements Executor {
 
                         break;
                     case PlatformMessage.INTENT_RESULT:
-                        let output: string = null;
+                        let output:any = message.payload;
 
-                        if (typeof message.payload === 'string') {
-                            output = message.payload;
-                        } else if (typeof message === 'object') {
-                            commandUpdate.absorb(message.payload);
-
-                            output = commandUpdate.response;
+                        if (typeof output === 'object') {
+                           output = inspect(output, true, null);
+                        } else {
+                            output = output.toString();
                         }
 
-                        if (!output) {
+                        if (typeof output === 'undefined') {
                             if (commandUpdate.response === null) {
                                 commandUpdate.response = CommandUpdate.DEFAULT_SUCCESS_MESSAGE;
                             }
+
                             output = commandUpdate.response;
                         }
 

@@ -131,6 +131,10 @@ export class Safe {
         return this.vault.has(key);
     }
 
+    get(key:string): string {
+        return this.vault.get(key);
+    }
+
     export(password: string, exportLocation: string, options: string[]): Promise<boolean> {
         let self:Safe = this;
         let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
