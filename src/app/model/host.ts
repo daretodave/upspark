@@ -8,6 +8,8 @@ import {InternalCommandExecutor} from "../executor/internal/internal-command-exe
 import {CommandTask} from "./command/command-task";
 import {SystemCommandExecutor} from "../executor/system/system-command-executor";
 import {EnvMap} from "./env-map";
+import {PlatformCommsHandler} from "../executor/platform/platform-comms-handler";
+import {PlatformComms} from "../executor/platform/platform-comms";
 export class Host {
     
     private _resources:Resource;
@@ -27,6 +29,8 @@ export class Host {
     private _reloadTheme: () => Promise<any>;
     private _reload: () => Promise<any>;
 
+    private _comms: PlatformComms;
+
     constructor(
         reload:() => Promise<any>,
         reloadTheme:() => Promise<any>,
@@ -41,6 +45,8 @@ export class Host {
         this._executor.set(CommandRuntime.SYSTEM, new SystemCommandExecutor(CommandRuntime.SYSTEM));
         this._executor.set(CommandRuntime.BASH, new SystemCommandExecutor(CommandRuntime.BASH));
         this._executor.set(CommandRuntime.BASH_EXTERNAL, new SystemCommandExecutor(CommandRuntime.BASH_EXTERNAL));
+
+        this._comms = new PlatformComms(this);
     }
 
     reload(): Promise<any> {
@@ -122,6 +128,10 @@ export class Host {
 
         }
         return this._cwd;
+    }
+
+    getPlatformCOMMS(): PlatformComms {
+        return this._comms;
     }
     
     execute(task:CommandTask) {

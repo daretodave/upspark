@@ -65,7 +65,7 @@ export class PlatformExecutor implements Executor {
                     ),
                     {
                         cwd: task.host.cwd(),
-                        env: merge({}, process.env, task.host.getENV())
+                        env: merge({}, process.env, task.host.getENV()),
                     }
                 )
 
@@ -91,12 +91,18 @@ export class PlatformExecutor implements Executor {
                 }
             };
 
-
             message = PlatformMessage.sanitize(message);
 
             let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
 
             switch (message.intent) {
+
+                case PlatformMessage.INTENT_COMMS:
+                    log(false, `comms request`);
+                    log(false, message);
+
+                    //task.host.getPlatformCOMMS().onProcessMessage(childProcess, message);
+                    break;
 
                 case PlatformMessage.INTENT_INTERNAL_LOG:
                     log(false, message.payload);

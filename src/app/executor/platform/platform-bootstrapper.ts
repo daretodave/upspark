@@ -1,7 +1,7 @@
 import {PlatformPackage, DEFAULT_MAIN} from "./platform-package";
 import * as path from "path";
 import * as fs from "fs";
-import {Platform, excludes, apiModules} from "./platform";
+import {Platform, excludes, apiModules, apiComms} from "./platform";
 import MemoryUsage = NodeJS.MemoryUsage;
 import {Logger} from "../../model/logger/logger";
 import {Resource} from "../../model/resource/resource";
@@ -38,6 +38,7 @@ export class PlatformBootstrapper {
             }
             this.memory.writeFileSync(`/__internal__${apiModule}.js`, apiModules[apiModule]);
         }
+        this.memory.writeFileSync(`/__internal__comms.js`, apiComms);
 
         const statOrig = this.memory.stat.bind(this.memory);
         const readFileOrig = this.memory.readFile.bind(this.memory);
@@ -186,6 +187,8 @@ export class PlatformBootstrapper {
             config.resolve = {};
             config.resolve.root = path.join(context, 'node_modules');
             config.resolve.alias = {};
+
+            config.resolve.alias[`comms`] = `/__internal__comms.js`;
 
             for(const apiModule in apiModules) {
                 config.resolve.alias[`upspark/${apiModule}`] = `/__internal__${apiModule}.js`;

@@ -6,10 +6,12 @@ const util = require('util');
 const tryRequire = require('try-require');
 
 const excludes:string[] = require('builtin-modules');
+const apiComms:string = require('raw!./modules/comms.js');
 const apiModules:any = {
     safe: require('raw!./modules/safe.js')
 };
-export {excludes, apiModules};
+
+export {excludes, apiModules, apiComms};
 
 export class Platform {
 
