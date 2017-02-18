@@ -57,6 +57,7 @@
             payload: result
         });
     }, function(error) {
+
         process.send({
             intent: 'error',
             payload: error

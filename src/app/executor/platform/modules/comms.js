@@ -30,16 +30,6 @@ function getGUID() {
 Comms.message = function (action, parameters) {
     return new Promise(function(resolve, reject) {
 
-        process.send({
-            intent: 'log-internal',
-            payload: resolve
-        });
-
-        process.send({
-            intent: 'log-internal',
-            payload: reject
-        });
-
         let id = getGUID();
 
         processors[id] = (message) => {
@@ -53,8 +43,6 @@ Comms.message = function (action, parameters) {
                 resolve(message);
             }
         };
-
-        resolve(id);
 
         process.send({
             intent: 'comms',

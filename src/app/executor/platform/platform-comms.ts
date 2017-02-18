@@ -4,9 +4,7 @@ import {SafeComms} from "./comms/safe-comms";
 import {ChildProcess} from "child_process";
 import {PlatformMessage} from "./platform-message";
 import {Logger} from "../../model/logger/logger";
-/**
- * Created by David on 2/17/2017.
- */
+
 export class PlatformComms {
 
     private handlers: Map<string, PlatformCommsHandler>;
@@ -55,11 +53,13 @@ export class PlatformComms {
     onProcessMessage(childProcess: ChildProcess, message: PlatformMessage) {
         const id:string = message.payload["id"];
 
+        Logger.info(`COMMS request for ${message.payload["action"]}`);
+
         this.handle(
             message.payload["action"],
             message.payload["parameters"]
         ).then((result: String) => {
-            Logger.info(id, 'COMMS result');
+            Logger.info(`COMMS result for ${result}`);
 
             childProcess.send({
                 id:id,

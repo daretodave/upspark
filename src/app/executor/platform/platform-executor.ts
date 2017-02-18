@@ -37,12 +37,12 @@ export class PlatformExecutor implements Executor {
         }
 
         try {
-
             task.out(`<div class="block"><span class="accent">&rightarrow;</span>&nbsp;&nbsp;${message}</div>`);
 
             childProcess.stdin.write(message+ EOL);
 
         } catch(error) {
+            Logger.error('ERROR PASSING MESSAGE');
             Logger.error(error);
         }
     }
@@ -77,13 +77,15 @@ export class PlatformExecutor implements Executor {
 
                 task.complete();
             }
+
             this.pool.delete(task.id);
         });
 
         childProcess.on('message', (message: PlatformMessage) => {
+
             let log = (error: boolean, message: any) => {
                 if (typeof message === 'string' && message.length < 50) {
-                    Logger.log(error, `\t\t# ${message}`);
+                    Logger.log(error, `#${message}`);
                 } else if (Array.isArray(message)) {
                     Logger.log.apply(Logger, [error].concat(message));
                 } else {
@@ -93,15 +95,14 @@ export class PlatformExecutor implements Executor {
 
             message = PlatformMessage.sanitize(message);
 
+            //log(false, `MESSAGE FROM PROCESS ${task.id}`);
+
             let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
 
             switch (message.intent) {
 
                 case PlatformMessage.INTENT_COMMS:
-                    log(false, `comms request`);
-                    log(false, message);
-
-                    //task.host.getPlatformCOMMS().onProcessMessage(childProcess, message);
+                    task.host.getPlatformCOMMS().onProcessMessage(childProcess, message);
                     break;
 
                 case PlatformMessage.INTENT_INTERNAL_LOG:
@@ -228,7 +229,10 @@ export class PlatformExecutor implements Executor {
             task.update(commandUpdate);
         });
 
-        childProcess.on('uncaughtException', (err: any) => task.error(err));
+        childProcess.on('uncaughtException', (err: any) => {
+            Logger.error(`ERROR...`);
+            Logger.error(err);
+        });
     }
 
 }
