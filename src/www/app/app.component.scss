@@ -30,3 +30,24 @@ up-runner {
 .ng-invalid:not(form)  {
     border-left: 5px solid #a94442; /* red */
 }
+
+.method-comment {
+  font-size: 12px;
+  margin-left: -15px;
+  margin-top: 4px;
+  color: #00a379;
+}
+.method-signature,.method-bracket {
+  color: #2196f3;
+}
+.method-arg {
+  text-align: right;
+  color: #1f79a3;
+}
+.method-chain,.method-semicolon {
+  color: #c27f05;
+}
+.error-subtext {
+  color: white;
+  font-style: italic;
+}

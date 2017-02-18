@@ -4,17 +4,24 @@ import {Host} from "../../../model/host";
 export class SafeComms extends PlatformCommsHandler {
 
     constructor(host:Host) {
-        super(host, 'SAFE');
+        super(host, 'Safe');
     }
 
-    init(handlers: Map<string, PlatformCommsAction>) {
-        handlers.set('GET', this.getSafeValue);
+    init() {
+        this.add('get', this.getSafeValue, {
+            'key': 'safe value\'s key'
+        });
     }
 
     getSafeValue(parameters: any,
                  host:Host,
                  resolve: (message?: string) => any,
-                 reject: (message?: string) => any) {
+                 reject: (message?: string, syntax?:boolean) => any) {
+
+        if(!parameters) {
+            reject(`Provide the key argument when getting values from the safe.`, true);
+            return;
+        }
 
         return 'TEST RESPONSE';
     }

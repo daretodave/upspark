@@ -98,8 +98,6 @@ export class PlatformExecutor implements Executor {
 
                 message = PlatformMessage.sanitize(message);
 
-                //log(false, `MESSAGE FROM PROCESS ${task.id}`);
-
                 let commandUpdate: CommandUpdate = new CommandUpdate(task.id);
 
                 switch (message.intent) {
