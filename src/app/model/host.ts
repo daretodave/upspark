@@ -49,6 +49,10 @@ export class Host {
         this._comms = new PlatformComms(this);
     }
 
+    getInternalCommands(): string[] {
+        return (<InternalCommandExecutor>this._executor.get(CommandRuntime.INTERNAL)).getCommands();
+    }
+
     reload(): Promise<any> {
         return this._reload();
     }

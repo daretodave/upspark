@@ -171,35 +171,11 @@ upspark.util.resolve = function (id, entity, parameters, callback, errCallback, 
         Promise
             .all(upspark.util.isArray(entity) ? entity : [entity])
             .then(function (results) {
-                let tree = {};
-                let count = 0;
-
-                let handler = function (result) {
-
-                    tree[results.indexOf(result)] = result;
-                    count += 1;
-
-                    if (count === results.length) {
-                        let leafs = Object.values(tree);
-
-                        if (leafs.length === 0) {
-                            callback(null);
-                        } else if (leafs.length === 1) {
-
-                            callback(leafs[0]);
-                        } else {
-                            callback(upspark.util.inspect(leafs, {
-                                depth: null,
-                                showHidden: true
-                            }));
-                        }
-                    }
-                };
-
-                results.forEach(function (result) {
-
-                    upspark.util.resolve(id, result, parameters, handler, handler, depth);
-                });
+                if(results.length === 1) {
+                    callback(results[0]);
+                } else {
+                    callback(result[1]);
+                }
             })
             .catch(err => {
                 errCallback(err);

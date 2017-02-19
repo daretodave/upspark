@@ -8,7 +8,8 @@ const tryRequire = require('try-require');
 const excludes:string[] = require('builtin-modules');
 const apiComms:string = require('raw!./modules/comms.js');
 const apiModules:any = {
-    safe: require('raw!./modules/safe.js')
+    safe: require('raw!./modules/safe.js'),
+    platform: require('raw!./modules/platform.js')
 };
 
 export {excludes, apiModules, apiComms};
@@ -26,6 +27,10 @@ export class Platform {
 
     public hasCommandMapped(command:string): boolean {
         return this.commands.hasOwnProperty(command);
+    }
+
+    public getCommands() : any[] {
+        return this.commands;
     }
 
     public getMessage():string {

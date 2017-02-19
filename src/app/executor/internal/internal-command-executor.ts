@@ -23,6 +23,10 @@ export class InternalCommandExecutor implements Executor {
 
     private commands = new Map<string, { new(...args: any[]): InternalCommand }>();
 
+    public getCommands(): string[] {
+        return [...Array.from(this.commands.keys())];
+    }
+
     cancel(task:CommandTask, id: string) {
         task.error('Aborted<br><br>');
     }

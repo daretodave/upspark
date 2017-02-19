@@ -4,6 +4,7 @@ import {SafeComms} from "./comms/safe-comms";
 import {ChildProcess} from "child_process";
 import {PlatformMessage} from "./platform-message";
 import {Logger} from "../../model/logger/logger";
+import {PlatformUtilComms} from "./comms/platform-util-comms";
 
 export class PlatformComms {
 
@@ -13,6 +14,7 @@ export class PlatformComms {
         this.handlers = new Map<string, PlatformCommsHandler>();
 
         this.handlers.set("SAFE", new SafeComms(host));
+        this.handlers.set("PLATFORM", new PlatformUtilComms(host));
     }
 
     handle(message: string, parameters?: any): Promise<string> {
@@ -58,8 +60,10 @@ export class PlatformComms {
         this.handle(
             message.payload["action"],
             message.payload["parameters"]
-        ).then((result: String) => {
+        ).then((result: any) => {
             Logger.info(`COMMS result for ${message.payload["action"]}`);
+
+            console.log(result);
 
             childProcess.send({
                 id:id,
