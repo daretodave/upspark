@@ -9,6 +9,7 @@ import {CommandArgument} from "../../../app/model/command/command-argument";
 import {CommandWrapper} from "./command/command-wrapper";
 import {CommandUpdate} from "../../../app/model/command/command-update/command-update";
 import {CommandRuntime} from "../../../app/model/command/command-runtime";
+import {Command} from "../../../app/model/command/command";
 
 require('./runner.component.scss');
 
@@ -68,11 +69,29 @@ export class RunnerComponent implements OnInit {
             },
             true
         );
+
+        this.system.subscribeToBroadcast('get-tasks', (event:SystemEvent) => {
+            let commands:Command[] = this.commandService
+                .getCommands()
+                .map(wrapper => wrapper.reference);
+
+            console.log('GET-TASKS', commands.length, 'TO', event.value);
+
+            this.system.send('system-message', {
+                id: event.value,
+                payload: commands,
+                error: false
+            });
+
+        });
+
         this.system.subscribeToBroadcast('cwd-update', (event:SystemEvent) => {
             this.cwd = event.get<string>('cwd');
         }, true, 'cwd');
         this.system.subscribeToBroadcast('clear-tasks', (event:SystemEvent) => this.clear(true), true);
         this.system.subscribeToBroadcast('end-tasks', (event:SystemEvent) => this.endTasks(), true);
+
+        this.system.subscribeToBroadcast('end-task', (event:SystemEvent) => this.endTask(event.value), true);
 
         this.runnerInput.nativeElement.focus();
     }
@@ -142,6 +161,21 @@ export class RunnerComponent implements OnInit {
         if(clearHistory) {
             this.commandList.toStaleState();
         }
+    }
+
+    endTask(id:string) {
+        let command:CommandWrapper = this.commandService.getCommands().find(command => command.reference.id === id);
+
+        console.log('END', id);
+
+        if (command === null) {
+            console.error(`Could not find task with id ${id}`);
+            return;
+        }
+
+        let type:CommandRuntime = CommandRuntime.get(command.reference.intent.command);
+
+        this.system.send('command-end', command.reference.id, type);
     }
 
     endTasks() {

@@ -41,13 +41,22 @@ export class SystemService {
 
             let event:SystemEvent = new SystemEvent(attachment, ipcEvent, contents.length > 1 ? contents[1] : null);
             if(zoned) {
-                self._ngZone.run(() => listener(event))
+                self._ngZone.run(() => {
+                    let result:any = listener(event);
+                    if (typeof result !== undefined) {
+                        ipcEvent.returnValue = result;
+                    }
+                })
             } else {
-                listener(event);
+                let result:any = listener(event);
+                if (typeof result !== undefined) {
+                    ipcEvent.returnValue = result;
+                }
             }
 
         });
     }
+
 
     public handleStyleBroadcast(...event:string[]) {
         event.forEach((message) => {

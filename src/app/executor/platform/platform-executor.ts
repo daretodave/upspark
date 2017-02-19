@@ -136,6 +136,8 @@ export class PlatformExecutor implements Executor {
                         commandUpdate.completed = true;
                         commandUpdate.out(message.payload, true);
 
+                        commandUpdate.message = message.payload;
+
                         break;
                     case PlatformMessage.INTENT_PROGRESS:
 
@@ -175,6 +177,8 @@ export class PlatformExecutor implements Executor {
 
                             output = commandUpdate.response;
                         }
+
+                        commandUpdate.message = message.payload;
 
                         commandUpdate.out(output);
 

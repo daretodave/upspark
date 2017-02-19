@@ -9,7 +9,8 @@ const excludes:string[] = require('builtin-modules');
 const apiComms:string = require('raw!./modules/comms.js');
 const apiModules:any = {
     safe: require('raw!./modules/safe.js'),
-    platform: require('raw!./modules/platform.js')
+    platform: require('raw!./modules/platform.js'),
+    runner: require('raw!./modules/runner.js')
 };
 
 export {excludes, apiModules, apiComms};

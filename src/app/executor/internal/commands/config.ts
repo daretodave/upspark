@@ -1,9 +1,7 @@
 import {InternalCommand} from "../internal-command";
 import {Logger} from "../../../model/logger/logger";
-import * as path from 'path';
-import * as fs from 'fs';
+import * as path from "path";
 import ErrnoException = NodeJS.ErrnoException;
-import {Stats} from "fs";
 
 const shell = require('electron').shell;
 

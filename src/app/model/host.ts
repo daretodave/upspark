@@ -10,6 +10,10 @@ import {SystemCommandExecutor} from "../executor/system/system-command-executor"
 import {EnvMap} from "./env-map";
 import {PlatformCommsHandler} from "../executor/platform/platform-comms-handler";
 import {PlatformComms} from "../executor/platform/platform-comms";
+import {Logger} from "./logger/logger";
+
+const generatedUUID = require('uuid/v1');
+
 export class Host {
     
     private _resources:Resource;
@@ -28,6 +32,7 @@ export class Host {
     private _reloadSettings: () => Promise<any>;
     private _reloadTheme: () => Promise<any>;
     private _reload: () => Promise<any>;
+    private _messages: any;
 
     private _comms: PlatformComms;
 
@@ -36,6 +41,7 @@ export class Host {
         reloadTheme:() => Promise<any>,
         reloadSettings:() => Promise<any>
     ) {
+        this._messages = {};
         this._reload = reload;
         this._reloadTheme = reloadTheme;
         this._reloadSettings = reloadSettings;
@@ -94,6 +100,42 @@ export class Host {
 
     attachSafeWindow(safeWindow:any) {
         this._safeWindow = safeWindow;
+    }
+
+    handleMessage(id:string, message:any, error:boolean) {
+
+        Logger.log(error, `system message from ${id}`);
+        Logger.log(error, message);
+
+        if(!this._messages.hasOwnProperty(id)) {
+            Logger.error(`subscriber for system message ${id} could not be found`);
+            return;
+        }
+
+        if(error) {
+            this._messages[id].reject(message);
+        } else {
+            this._messages[id].resolve(message);
+        }
+    }
+
+    sendRunnerRequest(command:string, ...args:any[]): Promise<any> {
+        return this.sendMessage(this._runnerWindow.webContents, command, ...args);
+    }
+
+    sendMessage(sender:any, command:string, ...args:any[]): Promise<any> {
+        let id:string = generatedUUID();
+
+        let executor = (resolve: (value?: any) => void, reject: (reason?: any) => void) => {
+
+            this._messages[id] = {
+                id, resolve, reject
+            };
+
+            sender.send(command, id, ...args);
+        };
+
+        return new Promise<any>(executor);
     }
 
     sendSafeMessage(message:string, ...args:any[]) {

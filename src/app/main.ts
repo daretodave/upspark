@@ -59,6 +59,14 @@ let host:Host = new Host(
 
 let init = () => {
 
+    ipcMain.on('system-message', (event:any, contents:any) => {
+        host.handleMessage(
+            contents.id,
+            contents.payload,
+            contents.error
+        );
+    });
+
     initSplash();
     initAlert();
 

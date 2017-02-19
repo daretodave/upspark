@@ -6,6 +6,8 @@ import {CommandLogEntry} from "../command-log-entry";
 
 export class CommandUpdate extends Command {
 
+    message:any;
+
     constructor(id: string,
                 public messages: string[] = [],
                 public errors: string[] = []) {
@@ -143,6 +145,7 @@ export namespace CommandUpdate {
 
         update.completed = true;
         update.error = error;
+        update.message = message;
 
         if(response) {
             update.response = message;
