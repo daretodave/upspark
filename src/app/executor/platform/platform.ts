@@ -17,7 +17,7 @@ export class Platform {
 
     private commands:any;
 
-    constructor(public process:Process) {
+    constructor(public process:Process, public script:string) {
     }
 
     public size():number {

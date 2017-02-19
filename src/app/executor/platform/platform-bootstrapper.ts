@@ -299,14 +299,16 @@ export class PlatformBootstrapper {
                 return Promise.all([
                     this.exists(main, original),
                     path.join(main, '../'),
-                    path.basename(main)
-
+                    path.basename(main),
+                    main
                 ]);
 
             })
             .then((values:any[]) => {
                 let path: string = values[1];
                 let entry: string = values[2];
+                let main:string = values[3];
+
                 if(!values[0]) {
                     reject(this.error(
                         `The entry point ${entry}, could not be found at '${path}'`,
@@ -320,14 +322,18 @@ export class PlatformBootstrapper {
                     this.collect(path, this.memory, path),
                     path,
                     entry,
+                    main
                 ]);
             })
             .then((values:any[]) => {
-                return this.webpack(values[2], values[3], values[0]);
+                return Promise.all([
+                    this.webpack(values[2], values[3], values[0]),
+                    values[4]
+                ]);
             })
 
-            .then((source:string) => {
-                let platform: Platform = new Platform(process);
+            .then(([source, main]) => {
+                let platform: Platform = new Platform(process, main);
                 Logger.info('testing platform')
                         .line()
                         .line('SOURCE::WEBPACKED')
