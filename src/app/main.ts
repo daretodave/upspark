@@ -805,8 +805,9 @@ let initSettings = () => {
     options.alwaysOnTop = true;
 
     settingsWindow = new BrowserWindow(options);
+
     settingsWindow.loadURL(www('settings'));
-    settingsWindow.setMenu(null);
+
 
     host.attachSettingsWindow(settingsWindow);
 
@@ -1130,6 +1131,7 @@ let initRunner = () => {
     runnerWindow = new BrowserWindow(options);
     runnerWindow.loadURL(www('runner'));
 
+    //runnerWindow.webContents.openDevTools();
 
     host.attachRunnerWindow(runnerWindow);
 
@@ -1198,7 +1200,7 @@ app.on('activate', () => runnerWindow.show());
 app.on('before-quit', () => quit = true);
 
 function www(path = '') {
-    let __root = './index.html/#/';
+    let __root = `file://${__dirname}/index.html#/`;
     
     if (process.env.ENV === 'development') {
         __root = 'http://localhost:8080/#/';

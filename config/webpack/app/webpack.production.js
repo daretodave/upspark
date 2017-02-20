@@ -1,10 +1,18 @@
 import common from './webpack.common';
 import merge from 'webpack-merge';
 import Webpack from 'webpack';
+import Helpers from '../../helpers';
 
 let {DefinePlugin} = Webpack;
 
 let config = {};
+
+(function(output) {
+
+    output.path = Helpers.path('dist');
+    output.filename = '[name].js';
+
+})(config.output = {});
 
 (function(plugins) {
 
@@ -13,8 +21,16 @@ let config = {};
         return new DefinePlugin(config);
     })({});
 
+    let uglify = (function(config) {
+        config.compress = {};
+        config.compress.warnings = false;
+
+        return new Webpack.optimize.UglifyJsPlugin(config);
+    })({});
+
     plugins.push(
-        env
+        env,
+        uglify
     );
 
 })(config.plugins = []);

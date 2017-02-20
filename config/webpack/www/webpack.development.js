@@ -1,5 +1,4 @@
 import merge from 'webpack-merge';
-import electron from 'webpack-target-electron-renderer';
 import Webpack from 'webpack';
 
 
@@ -51,6 +50,6 @@ config = merge(
     config
 );
 
-config.entry['bundle'].unshift("webpack-dev-server/client?http://localhost:8080/", "webpack/hot/dev-server");
+//config.entry['bundle'].unshift("webpack-dev-server/client?http://localhost:8080/", "webpack/hot/dev-server");
 
 export default config;
