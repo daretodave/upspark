@@ -2,9 +2,19 @@
   "name": "upspark",
   "version": "0.0.1",
   "main": "dist/main.js",
+  "description": "A command runner for your desktop.",
   "scripts": {
     "build": "./node_modules/.bin/webpack",
-    "electron": "electron ./dist/main.js"
+    "electron": "electron ./dist/main.js",
+    "build-win-32": "electron-packager ./dist upspark --platform win32 --arch ia32 --out ./dist --icon src/static/icon/bulb.ico",
+    "build-win-64": "electron-packager ./dist upspark --platform win32 --arch x64 --out ./dist --icon src/static/icon/bulb.ico",
+    "installer-win-32": "electron-installer-windows --src dist/upspark-win32-ia32/ --dest dist/installers/ia32/ --config config.json",
+    "installer-win-64": "electron-installer-windows --src dist/upspark-win32-x64/ --dest dist/installers/x64/ --config config.json"
+  },
+  "author": {
+    "name": "David Rehmat",
+    "email": "me@dave.blue",
+    "url": "https://upspark.io/"
   },
   "devDependencies": {
     "angular2-template-loader": "^0.4.0",
@@ -15,6 +25,8 @@
     "babel-register": "^6.16.3",
     "css-loader": "^0.25.0",
     "del": "^2.2.2",
+    "electron-installer-windows": "^0.2.0",
+    "electron-packager": "^8.5.2",
     "file-loader": "^0.9.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-run-electron": "^3.0.1",
