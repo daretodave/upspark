@@ -4,7 +4,7 @@ import {Settings} from "../../../window/runner/settings";
 import {RunnerStyle} from "../../../window/runner-style";
 export class SettingsComms extends PlatformCommsHandler {
 
-    constructor(host:Host) {
+    constructor(host: Host) {
         super(host, 'Settings');
     }
 
@@ -18,7 +18,7 @@ export class SettingsComms extends PlatformCommsHandler {
         this.add('setHotkey', SettingsComms.setHotkey, {
             hotkey: 'E.G \'Control+`\' or \'A\''
         });
-        
+
         this.add('setRotation', SettingsComms.setRotation);
         this.add('setSize', SettingsComms.setSize);
         this.add('setWidth', SettingsComms.setWidth);
@@ -48,23 +48,25 @@ export class SettingsComms extends PlatformCommsHandler {
         this.add('getOffsetY', SettingsComms.getOffsetY);
     }
 
-    static reload(host:Host,
-                  args:any,
+    static reload(host: Host,
+                  args: any,
                   resolve: (message?: any) => any,
                   reject: (message?: string, syntax?: boolean) => any) {
         host.reloadSettings()
             .then(() => resolve(true))
-            .catch((error:any) => reject(error));
+            .catch((error: any) => reject(error));
     }
 
-    static get(host:Host) {
+    static get(host: Host) {
         return host.resources().syncGet<Settings>('settings');
     }
-    static getGlobalCustomCSS(host:Host) {
+
+    static getGlobalCustomCSS(host: Host) {
         return host.resources().syncGet<RunnerStyle>('global-style').content;
     }
-    static setGlobalCustomCSS(host:Host,
-                              css:string,
+
+    static setGlobalCustomCSS(host: Host,
+                              css: string,
                               resolve: (message?: any) => any,
                               reject: (message?: string, syntax?: boolean) => any) {
 
@@ -74,11 +76,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true));
     }
-    static getRunnerCustomCSS(host:Host) {
+
+    static getRunnerCustomCSS(host: Host) {
         return host.resources().syncGet<RunnerStyle>('runner-style').content;
     }
-    static setRunnerCustomCSS(host:Host,
-                              css:any,
+
+    static setRunnerCustomCSS(host: Host,
+                              css: any,
                               resolve: (message?: any) => any,
                               reject: (message?: string, syntax?: boolean) => any) {
 
@@ -88,11 +92,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true));
     }
-    static getRotation(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getRotation(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.rotation;
     }
-    static setRotation(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setRotation(host: Host, value: any, resolve: (message?: any) => any,
                        reject: (message?: string, syntax?: boolean) => any) {
         value = value || 0;
         value = parseFloat(value);
@@ -101,13 +107,15 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getHotkey(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getHotkey(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.hotkey;
     }
-    static setHotkey(host:Host,hotkey:any,resolve: (message?: any) => any,
+
+    static setHotkey(host: Host, hotkey: any, resolve: (message?: any) => any,
                      reject: (message?: string, syntax?: boolean) => any) {
-        if(!hotkey) {
+        if (!hotkey) {
             reject('Provide the hotkey to use to toggle the runner.', true);
             return;
         }
@@ -117,14 +125,15 @@ export class SettingsComms extends PlatformCommsHandler {
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
 
-    static getGlobalTheme(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+    static getGlobalTheme(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.theme.global;
     }
-    static setGlobalTheme(host:Host,
-                              theme:string,
-                              resolve: (message?: any) => any,
-                              reject: (message?: string, syntax?: boolean) => any) {
+
+    static setGlobalTheme(host: Host,
+                          theme: string,
+                          resolve: (message?: any) => any,
+                          reject: (message?: string, syntax?: boolean) => any) {
 
         theme = theme || "";
 
@@ -132,12 +141,14 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getRunnerTheme(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getRunnerTheme(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.theme.runner;
     }
-    static setRunnerTheme(host:Host,
-                          theme:string,
+
+    static setRunnerTheme(host: Host,
+                          theme: string,
                           resolve: (message?: any) => any,
                           reject: (message?: string, syntax?: boolean) => any) {
 
@@ -147,11 +158,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getSize(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getSize(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.size;
     }
-    static setSize(host:Host,size:any,resolve: (message?: any) => any,
+
+    static setSize(host: Host, size: any, resolve: (message?: any) => any,
                    reject: (message?: string, syntax?: boolean) => any) {
         size.w = size.w || 1;
         size.h = size.h || .3;
@@ -166,11 +179,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getWidth(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getWidth(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.size.width;
     }
-    static setWidth(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setWidth(host: Host, value: any, resolve: (message?: any) => any,
                     reject: (message?: string, syntax?: boolean) => any) {
         value = value || 1;
         value = parseFloat(value);
@@ -179,11 +194,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getHeight(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getHeight(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.size.height;
     }
-    static setHeight(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setHeight(host: Host, value: any, resolve: (message?: any) => any,
                      reject: (message?: string, syntax?: boolean) => any) {
         value = value || .3;
         value = parseFloat(value);
@@ -192,15 +209,16 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getLocation(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getLocation(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return {
             x: settings.location.x,
             y: settings.location.y
         };
     }
 
-    static setLocation(host:Host,location:any,resolve: (message?: any) => any,
+    static setLocation(host: Host, location: any, resolve: (message?: any) => any,
                        reject: (message?: string, syntax?: boolean) => any) {
 
         location.x = location.x || 0;
@@ -209,7 +227,7 @@ export class SettingsComms extends PlatformCommsHandler {
         location.x = parseFloat(location.x);
         location.y = parseFloat(location.y);
 
-        let settings:Settings =  host.resources().syncGet<Settings>('settings');
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
 
         settings.location.x = location.x;
         settings.location.y = location.y;
@@ -217,11 +235,12 @@ export class SettingsComms extends PlatformCommsHandler {
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
 
-    static getScreen(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+    static getScreen(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.location.screen;
     }
-    static setScreen(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setScreen(host: Host, value: any, resolve: (message?: any) => any,
                      reject: (message?: string, syntax?: boolean) => any) {
         value = value || 0;
         value = parseFloat(value);
@@ -230,11 +249,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getX(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getX(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.location.x;
     }
-    static setX(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setX(host: Host, value: any, resolve: (message?: any) => any,
                 reject: (message?: string, syntax?: boolean) => any) {
         value = value || 0;
         value = parseFloat(value);
@@ -243,11 +264,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getY(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getY(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.location.y;
     }
-    static setY(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setY(host: Host, value: any, resolve: (message?: any) => any,
                 reject: (message?: string, syntax?: boolean) => any) {
         value = value || 0;
         value = parseFloat(value);
@@ -256,11 +279,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getOffsetX(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getOffsetX(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.location.offsetX;
     }
-    static setOffsetX(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setOffsetX(host: Host, value: any, resolve: (message?: any) => any,
                       reject: (message?: string, syntax?: boolean) => any) {
         value = value || 0;
         value = parseFloat(value);
@@ -269,11 +294,13 @@ export class SettingsComms extends PlatformCommsHandler {
 
         host.adhereSettings().then(_ => resolve(true)).catch(error => reject(error));
     }
-    static getOffsetY(host:Host) {
-        let settings:Settings = host.resources().syncGet<Settings>('settings');
+
+    static getOffsetY(host: Host) {
+        let settings: Settings = host.resources().syncGet<Settings>('settings');
         return settings.location.offsetY;
     }
-    static setOffsetY(host:Host,value:any,resolve: (message?: any) => any,
+
+    static setOffsetY(host: Host, value: any, resolve: (message?: any) => any,
                       reject: (message?: string, syntax?: boolean) => any) {
         value = value || 0;
         value = parseFloat(value);
