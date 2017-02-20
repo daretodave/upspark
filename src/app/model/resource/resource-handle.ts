@@ -44,6 +44,33 @@ export class ResourceHandle<T extends ResourceModel> {
         return new Promise<T>(executor);
     }
 
+    deleteIfExists(log:boolean = true): Promise<boolean> {
+        if(log) {
+            Logger.info(`deleting ${this.path} if file exists`);
+        }
+        let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
+            fs.exists(this.path, (exists: boolean) => {
+
+                if(!exists) {
+                    Logger.info(`not deleting ${this.path}`);
+                    resolve(true);
+                    return;
+                }
+
+                fs.unlink(this.path, (err:any) => {
+                    if(err) {
+                       reject(err);
+                       return;
+                    }
+
+                    resolve(true);
+                });
+
+            });
+        };
+        return new Promise<boolean>(executor);
+    }
+
     get(): T {
         return this.model;
     }

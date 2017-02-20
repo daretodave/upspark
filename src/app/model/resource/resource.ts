@@ -76,6 +76,12 @@ export class Resource {
         }
     }
 
+    deleteIfExists<T extends ResourceModel>(key: string, log: boolean = true): Promise<boolean> {
+        this.validateProvidedKey(key, true);
+
+        return this.resources.get(key).deleteIfExists(log);
+    }
+
     save<T extends ResourceModel>(key: string, log: boolean = true): Promise<boolean> {
         this.validateProvidedKey(key, true);
 

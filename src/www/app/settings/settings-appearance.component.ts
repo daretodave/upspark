@@ -3,6 +3,8 @@ import {Themes} from "./themes";
 import {ThemeService} from "./theme.service";
 import {SettingsService} from "./settings.service";
 
+const {ipcRenderer} = require('electron');
+
 require('./settings-appearance.component.scss');
 
 @Component({
@@ -20,6 +22,15 @@ export class SettingsAppearanceComponent implements OnInit {
     ngOnInit() {
         this.global = this.themes.getThemes('global');
         this.runner = this.themes.getThemes('runner');
+
+        ipcRenderer.removeAllListeners('settings-theme-load');
+
+        ipcRenderer.on('settings-theme-load', () => {
+            console.log('themes updated');
+
+            this.global = this.themes.getThemes('global');
+            this.runner = this.themes.getThemes('runner');
+        });
     }
 
     select(themes:Themes, selection:string) {

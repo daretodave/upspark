@@ -32,6 +32,7 @@ export class Host {
     private _reloadSettings: () => Promise<any>;
     private _reloadTheme: () => Promise<any>;
     private _reload: () => Promise<any>;
+    private _adhereSettings: () => Promise<any>
     private _messages: any;
 
     private _comms: PlatformComms;
@@ -39,12 +40,14 @@ export class Host {
     constructor(
         reload:() => Promise<any>,
         reloadTheme:() => Promise<any>,
-        reloadSettings:() => Promise<any>
+        reloadSettings:() => Promise<any>,
+        adhereSettings:() => Promise<any>
     ) {
         this._messages = {};
         this._reload = reload;
         this._reloadTheme = reloadTheme;
         this._reloadSettings = reloadSettings;
+        this._adhereSettings = adhereSettings;
 
         this._executor.set(CommandRuntime.INTERNAL, new InternalCommandExecutor());
         this._executor.set(CommandRuntime.PLATFORM, new PlatformExecutor());
@@ -53,6 +56,10 @@ export class Host {
         this._executor.set(CommandRuntime.BASH_EXTERNAL, new SystemCommandExecutor(CommandRuntime.BASH_EXTERNAL));
 
         this._comms = new PlatformComms(this);
+    }
+
+    adhereSettings(): Promise<any> {
+        return this._adhereSettings();
     }
 
     isRunnerWindowVisible(): boolean {

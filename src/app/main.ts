@@ -54,6 +54,70 @@ let host:Host = new Host(
         return host.resources().reload('settings').then(() => {
             return adhereSettings(true);
         });
+    },
+    () => {
+
+        let promises = [];
+        let settings:Settings = host
+            .resources()
+            .syncGet<Settings>('settings');
+
+        promises.push(settings.theme.global ? Themes.load('global', settings.theme.global) : null);
+        promises.push(settings.theme.runner ? Themes.load('runner', settings.theme.runner) : null);
+        return Promise.all(promises).then(([globalTheme, runnerTheme]) => {
+            if (globalTheme !== null) {
+                Themes.setTheme('global', settings.theme.global, globalTheme);
+            } else {
+                Themes.setTheme('global', settings.theme.global, '');
+            }
+            if (runnerTheme !== null) {
+                Themes.setTheme('runner', settings.theme.runner, runnerTheme);
+            } else {
+                Themes.setTheme('runner', settings.theme.runner, '');
+            }
+            return adhereSettings()
+        }).then(() => {
+
+            settingsWindow.webContents.send('settings-metrics-load');
+            settingsWindow.webContents.send('display-updated');
+            settingsWindow.webContents.send('settings-display-load');
+            settingsWindow.webContents.send('settings-hotkey-load');
+            settingsWindow.webContents.send('settings-theme-load');
+
+            let promises:Promise<any>[] = [
+                host.resources().save('settings')
+            ];
+
+            let globalCSS:string = host
+                .resources()
+                .syncGet<RunnerStyle>('global-style').content;
+
+            let runnerCSS:string = host
+                .resources()
+                .syncGet<RunnerStyle>('runner-style').content;
+
+            if (!globalCSS) {
+                promises.push(
+                    host.resources().deleteIfExists('global-style')
+                )
+            } else {
+                promises.push(
+                    host.resources().save('global-style')
+                )
+            }
+
+            if (!runnerCSS) {
+                promises.push(
+                    host.resources().deleteIfExists('runner-style')
+                )
+            } else {
+                promises.push(
+                    host.resources().save('runner-style')
+                )
+            }
+
+            return Promise.all(promises);
+        });
     }
 );
 
@@ -118,6 +182,7 @@ let init = () => {
         if(settings.theme.global || settings.theme.runner) {
             Logger.start('theme');
         }
+
         promises.push(settings.theme.global ? Themes.load('global', settings.theme.global) : null);
         promises.push(settings.theme.runner ? Themes.load('runner', settings.theme.runner) : null);
 
