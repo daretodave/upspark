@@ -107,7 +107,8 @@ export class PlatformExecutor implements Executor {
                         break;
 
                     case PlatformMessage.INTENT_INTERNAL_LOG:
-                        log(false, message.payload);
+                    case PlatformMessage.INTENT_INTERNAL_LOG_ERROR:
+                        log(message.intent === PlatformMessage.INTENT_INTERNAL_LOG_ERROR, message.payload);
                         break;
 
                     case PlatformMessage.INTENT_ABORT:

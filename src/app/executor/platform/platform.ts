@@ -10,7 +10,9 @@ const apiComms:string = require('raw!./modules/comms.js');
 const apiModules:any = {
     safe: require('raw!./modules/safe.js'),
     platform: require('raw!./modules/platform.js'),
-    runner: require('raw!./modules/runner.js')
+    runner: require('raw!./modules/runner.js'),
+    settings: require('raw!./modules/settings.js'),
+    logger: require('raw!./modules/logger.js')
 };
 
 export {excludes, apiModules, apiComms};

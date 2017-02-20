@@ -1,5 +1,5 @@
 import {CommandUpdate} from "../../model/command/command-update/command-update";
-type PlatformMessageIntent = "result" | "error" | "log-error" | "log-internal" | "update" | "progress" | "abort" | "log" | "out" | "out-error" | "comms";
+type PlatformMessageIntent = "result" | "error" | "log-error" | "log-internal" | "log-internal-error" | "update" | "progress" | "abort" | "log" | "out" | "out-error" | "comms";
 
 export interface PlatformMessage {
 
@@ -13,6 +13,7 @@ export namespace  PlatformMessage {
     export const INTENT_COMMS: PlatformMessageIntent = "comms";
     export const INTENT_UPDATE: PlatformMessageIntent = "update";
     export const INTENT_INTERNAL_LOG: PlatformMessageIntent = "log-internal";
+    export const INTENT_INTERNAL_LOG_ERROR: PlatformMessageIntent = "log-internal-error";
     export const INTENT_FATAL_ERROR: PlatformMessageIntent = "error";
     export const INTENT_PROGRESS: PlatformMessageIntent = "progress";
     export const INTENT_ABORT: PlatformMessageIntent = "abort";

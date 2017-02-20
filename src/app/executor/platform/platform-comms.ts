@@ -6,6 +6,7 @@ import {PlatformMessage} from "./platform-message";
 import {Logger} from "../../model/logger/logger";
 import {PlatformUtilComms} from "./comms/platform-util-comms";
 import {RunnerComms} from "./comms/runner-comms";
+import {SettingsComms} from "./comms/settings-comms";
 
 export class PlatformComms {
 
@@ -17,6 +18,7 @@ export class PlatformComms {
         this.handlers.set("SAFE", new SafeComms(host));
         this.handlers.set("RUNNER", new RunnerComms(host));
         this.handlers.set("PLATFORM", new PlatformUtilComms(host));
+        this.handlers.set("SETTINGS", new SettingsComms(host));
     }
 
     handle(message: string, parameters?: any): Promise<string> {
