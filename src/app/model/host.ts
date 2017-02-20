@@ -55,6 +55,23 @@ export class Host {
         this._comms = new PlatformComms(this);
     }
 
+    isRunnerWindowVisible(): boolean {
+        return this._runnerWindow.isVisible()
+    }
+
+    showRunnerWindow() {
+        this._runnerWindow.show();
+    }
+
+    toggleRunnerWindow() {
+        if(this._runnerWindow.isVisible()) {
+            this._runnerWindow.hide();
+        } else {
+            this._runnerWindow.show();
+            this._runnerWindow.focus();
+        }
+    }
+
     getInternalCommands(): string[] {
         return (<InternalCommandExecutor>this._executor.get(CommandRuntime.INTERNAL)).getCommands();
     }
