@@ -10,6 +10,8 @@ import {CommandWrapper} from "./command/command-wrapper";
 import {CommandUpdate} from "../../../app/model/command/command-update/command-update";
 import {CommandRuntime} from "../../../app/model/command/command-runtime";
 import {Command} from "../../../app/model/command/command";
+import {BrowserStore} from "../../../app/model/browser-store";
+import {CommandIntentDigest} from "../../../app/model/command/command-intent-digest";
 
 require('./runner.component.scss');
 
@@ -31,8 +33,8 @@ export class RunnerComponent implements OnInit {
     private savedReplIntent: CommandIntent;
     private savedCursor: number = -1;
     private command: CommandWrapper;
-    private cwd:string = '';
-    private repl:boolean = false;
+    private cwd: string = '';
+    private repl: boolean = false;
 
     constructor(private system: SystemService,
                 private commandService: CommandService) {
@@ -53,9 +55,9 @@ export class RunnerComponent implements OnInit {
         );
         this.system.subscribeToBroadcast(
             'command-state-change',
-            (event: SystemEvent) =>  {
+            (event: SystemEvent) => {
                 let update: CommandUpdate = event.value;
-                let isCompleted:boolean = this.commandService.onStateChange(update);
+                let isCompleted: boolean = this.commandService.onStateChange(update);
 
                 if (this.repl
                     && isCompleted
@@ -70,8 +72,8 @@ export class RunnerComponent implements OnInit {
             true
         );
 
-        this.system.subscribeToBroadcast('get-tasks', (event:SystemEvent) => {
-            let commands:Command[] = this.commandService
+        this.system.subscribeToBroadcast('get-tasks', (event: SystemEvent) => {
+            let commands: Command[] = this.commandService
                 .getCommands()
                 .map(wrapper => wrapper.reference);
 
@@ -85,15 +87,19 @@ export class RunnerComponent implements OnInit {
 
         });
 
-        this.system.subscribeToBroadcast('cwd-update', (event:SystemEvent) => {
+        this.system.subscribeToBroadcast('cwd-update', (event: SystemEvent) => {
             this.cwd = event.get<string>('cwd');
         }, true, 'cwd');
-        this.system.subscribeToBroadcast('clear-tasks', (event:SystemEvent) => this.clear(true), true);
-        this.system.subscribeToBroadcast('end-tasks', (event:SystemEvent) => this.endTasks(), true);
+        this.system.subscribeToBroadcast('clear-tasks', (event: SystemEvent) => this.clear(true), true);
+        this.system.subscribeToBroadcast('end-tasks', (event: SystemEvent) => this.endTasks(), true);
 
-        this.system.subscribeToBroadcast('end-task', (event:SystemEvent) => this.endTask(event.value), true);
+        this.system.subscribeToBroadcast('end-task', (event: SystemEvent) => this.endTask(event.value), true);
 
         this.runnerInput.nativeElement.focus();
+
+        BrowserStore
+            .getCollection<CommandIntent>(Command.STORAGE_KEY)
+            .then((intents: CommandIntent[]) => this.commandService.adhoc(...intents));
     }
 
     onCommandClick(command: CommandWrapper) {
@@ -113,7 +119,7 @@ export class RunnerComponent implements OnInit {
     }
 
     resetCommandFocus() {
-        if(this.command !== null) {
+        if (this.command !== null) {
             this.command.repl = false;
             this.command = null;
         }
@@ -121,14 +127,14 @@ export class RunnerComponent implements OnInit {
         this.update();
     }
 
-    toCommand(command: CommandWrapper, fromPristine:boolean = false, requestFocus:boolean = true) {
+    toCommand(command: CommandWrapper, fromPristine: boolean = false, requestFocus: boolean = true) {
         console.log('NAVIGATE TO COMMAND', command, fromPristine);
-        if(!command) {
+        if (!command) {
             return;
         }
 
         if (this.command) {
-            if((this.command.reference.id !== command.reference.id)) {
+            if ((this.command.reference.id !== command.reference.id)) {
                 this.command.active = false;
             }
             this.command.repl = false;
@@ -143,14 +149,14 @@ export class RunnerComponent implements OnInit {
 
         this.intent = new CommandIntent(command.reference.intent);
 
-        if(requestFocus) {
+        if (requestFocus) {
             this.runnerInput.nativeElement.focus();
         }
 
         this.update();
     }
 
-    clear(clearHistory:boolean = false) {
+    clear(clearHistory: boolean = false) {
         this.commandList.scrollToTop();
         this.commandService.resetNavigation();
         this.runnerInput.nativeElement.focus();
@@ -158,13 +164,13 @@ export class RunnerComponent implements OnInit {
         this.intent.command = "";
         this.resetCommandFocus();
 
-        if(clearHistory) {
+        if (clearHistory) {
             this.commandList.toStaleState();
         }
     }
 
-    endTask(id:string) {
-        let command:CommandWrapper = this.commandService.getCommands().find(command => command.reference.id === id);
+    endTask(id: string) {
+        let command: CommandWrapper = this.commandService.getCommands().find(command => command.reference.id === id);
 
         console.log('END', id);
 
@@ -173,17 +179,17 @@ export class RunnerComponent implements OnInit {
             return;
         }
 
-        let type:CommandRuntime = CommandRuntime.get(command.reference.intent.command);
+        let type: CommandRuntime = CommandRuntime.get(command.reference.intent.command);
 
         this.system.send('command-end', command.reference.id, type);
     }
 
     endTasks() {
-        this.commandService.getCommands().forEach((wrapper:CommandWrapper) => {
-            if(!wrapper.reference.completed) {
+        this.commandService.getCommands().forEach((wrapper: CommandWrapper) => {
+            if (!wrapper.reference.completed) {
                 console.log('END', wrapper.reference.id);
 
-                let type:CommandRuntime = CommandRuntime.get(wrapper.reference.intent.command);
+                let type: CommandRuntime = CommandRuntime.get(wrapper.reference.intent.command);
 
                 this.system.send('command-end', wrapper.reference.id, type);
             }
@@ -194,13 +200,13 @@ export class RunnerComponent implements OnInit {
         const {code, shiftKey, ctrlKey} = event;
         const args = this.argumentList.length;
 
-        if("KeyC" === code
+        if ("KeyC" === code
             && ctrlKey
             && this.command
             && this.command.active
             && !this.command.reference.completed) {
 
-            let type:CommandRuntime = CommandRuntime.get(this.command.reference.intent.command);
+            let type: CommandRuntime = CommandRuntime.get(this.command.reference.intent.command);
 
             console.log('CANCEL', this.command.reference.id, type, this.command);
 
@@ -209,34 +215,34 @@ export class RunnerComponent implements OnInit {
             return false;
         }
 
-        if("Escape" === code) {
+        if ("Escape" === code) {
             this.clear(shiftKey);
             return false;
         }
 
-        if("Space" === code && ((shiftKey && args) || ctrlKey)) {
+        if ("Space" === code && ((shiftKey && args) || ctrlKey)) {
 
-            let focusedIndex:number = -1;
-            this.argumentList.forEach((argument:CommandArgumentComponent, index:number) => {
-                if(document.activeElement === argument.content.nativeElement) {
+            let focusedIndex: number = -1;
+            this.argumentList.forEach((argument: CommandArgumentComponent, index: number) => {
+                if (document.activeElement === argument.content.nativeElement) {
                     focusedIndex = index;
                 }
             });
 
-            if(shiftKey) {
-                if(focusedIndex > 0) {
-                    this.argumentList.toArray()[focusedIndex-1].content.nativeElement.focus();
+            if (shiftKey) {
+                if (focusedIndex > 0) {
+                    this.argumentList.toArray()[focusedIndex - 1].content.nativeElement.focus();
                     return false;
-                } else if(focusedIndex !== 0) {
-                    this.argumentList.toArray()[args-1].content.nativeElement.focus();
+                } else if (focusedIndex !== 0) {
+                    this.argumentList.toArray()[args - 1].content.nativeElement.focus();
                     return false;
                 }
                 this.runnerInput.nativeElement.focus();
                 return false;
             }
 
-            if(focusedIndex !== -1 && focusedIndex !== args -1) {
-                this.argumentList.toArray()[focusedIndex+1].content.nativeElement.focus();
+            if (focusedIndex !== -1 && focusedIndex !== args - 1) {
+                this.argumentList.toArray()[focusedIndex + 1].content.nativeElement.focus();
                 return false;
             }
 
@@ -246,22 +252,22 @@ export class RunnerComponent implements OnInit {
 
         if ("Enter" === code || "NumpadEnter" === code) {
 
-            if(ctrlKey && shiftKey) {
+            if (ctrlKey && shiftKey) {
                 this.intent = new CommandIntent();
                 this.runnerInput.nativeElement.focus();
                 return false;
             }
 
             if (shiftKey) {
-                if(args === 0) {
+                if (args === 0) {
                     this.intent.command = '';
                     this.runnerInput.nativeElement.focus();
                     return false;
                 }
-                if(args === 1) {
+                if (args === 1) {
                     this.runnerInput.nativeElement.focus();
                 } else {
-                    this.argumentList.toArray()[args-2].content.nativeElement.focus();
+                    this.argumentList.toArray()[args - 2].content.nativeElement.focus();
                 }
                 this.intent.arguments.pop();
                 return false;
@@ -269,7 +275,7 @@ export class RunnerComponent implements OnInit {
 
             if (ctrlKey || document.activeElement === this.runnerInput.nativeElement) {
 
-                if(this.repl) {
+                if (this.repl) {
                     this.sendToREPL();
                 } else {
                     this.execute();
@@ -285,7 +291,12 @@ export class RunnerComponent implements OnInit {
             isUpArrow: boolean = event.code === "ArrowUp",
             isDownArrow: boolean = event.code === "ArrowDown";
 
-        if (!(isLeftArrow && this.commandService.isNavigating()) && !isRightArrow && !isUpArrow && !isDownArrow) {
+        if (!(isLeftArrow && this.commandService.isNavigating())
+            && !(isRightArrow && ((this.commandService.isNavigating() && this.command
+            && !this.command.reference.completed
+            && !CommandRuntime.is(this.command.reference.intent.command, CommandRuntime.INTERNAL)) || event.altKey))
+            && !isUpArrow
+            && !isDownArrow) {
 
             return true;
         }
@@ -302,16 +313,16 @@ export class RunnerComponent implements OnInit {
             }
         } else if (isLeftArrow) {
 
-            if(!this.repl) {
+            if (!this.repl) {
                 this.resetCommandList(this.commandService.getCursor(), event.altKey);
             } else {
                 this.restorePreREPLIntent();
             }
 
         } else if (isRightArrow) {
-            if(event.altKey) {
+            if (event.altKey) {
                 this.resetCachedCommandList();
-            } else if(this.commandService.isNavigating()
+            } else if (this.commandService.isNavigating()
                 && this.command
                 && !this.command.reference.completed
                 && !CommandRuntime.is(this.command.reference.intent.command, CommandRuntime.INTERNAL)) {
@@ -355,14 +366,14 @@ export class RunnerComponent implements OnInit {
     }
 
     restorePreREPLIntent() {
-        if(this.repl) {
+        if (this.repl) {
             this.repl = false;
 
-            if(this.command) {
+            if (this.command) {
                 this.command.repl = false;
             }
 
-            if(this.savedReplIntent !== null) {
+            if (this.savedReplIntent !== null) {
                 this.intent = new CommandIntent(this.savedReplIntent);
             }
         }
@@ -375,27 +386,27 @@ export class RunnerComponent implements OnInit {
         const {command} = this.commandService.goToCursor(this.savedCursor);
 
         this.savedIntent = this.intent;
-        
+
         this.commandList.lock(command);
 
         this.intent = new CommandIntent(command.reference.intent);
 
         this.command = command;
-        
+
         this.savedCursor = -1;
     }
 
     sendToREPL() {
         console.log('REPL', this.command);
 
-        if(!this.command
+        if (!this.command
             || !this.command.repl
             || !this.command.active
             || this.command.reference.completed) {
             return;
         }
 
-        let command:string = this.intent.command;
+        let command: string = this.intent.command;
         if (this.intent.arguments.length) {
             this.intent.arguments.map(arg => arg.content).join(" ");
         }
@@ -405,7 +416,7 @@ export class RunnerComponent implements OnInit {
 
         this.runnerInput.nativeElement.focus();
 
-        let type:CommandRuntime = CommandRuntime.get(this.command.reference.intent.command);
+        let type: CommandRuntime = CommandRuntime.get(this.command.reference.intent.command);
 
         console.log('REPL-CMD', this.command.reference.id, type, command);
 
@@ -416,7 +427,7 @@ export class RunnerComponent implements OnInit {
     execute() {
         console.log('EXECUTE', this.intent, this.command);
 
-        if(!this.intent.command.trim()) {
+        if (!this.intent.command.trim()) {
             return;
         }
 
@@ -427,14 +438,24 @@ export class RunnerComponent implements OnInit {
         this.commandList.scrollToTop();
         this.commandService.resetNavigation();
 
-        this.command = this.commandService.execute(new CommandIntent(this.intent));
+        const intent: CommandIntent = new CommandIntent(this.intent);
+
+        this.command = this.commandService.execute(intent);
 
         this.intent.arguments = [];
         this.intent.command = "";
 
         this.runnerInput.nativeElement.focus();
-    }
 
+        BrowserStore.rollingCollectionAppend(
+            Command.STORAGE_KEY,
+            Command.STORAGE_LIMIT,
+            new CommandIntent(intent)
+        ).catch(err => {
+            console.error('Could not save command to local storage');
+            console.error(err);
+        });
+    }
 
 
 }

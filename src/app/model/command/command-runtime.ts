@@ -25,6 +25,27 @@ export namespace CommandRuntime {
         return from(input.substring(0, 1)) || CommandRuntime.PLATFORM
     };
 
+    export const flagFor = (runtime:CommandRuntime, excludePlatform:boolean = false):string => {
+
+        if(CommandRuntime.BASH === runtime) {
+            return FLAG_BASH;
+        }
+        if(CommandRuntime.BASH_EXTERNAL === runtime) {
+            return FLAG_BASH_EXTERNAL;
+        }
+        if(CommandRuntime.SYSTEM === runtime) {
+            return FLAG_SYSTEM;
+        }
+        if(CommandRuntime.INTERNAL === runtime) {
+            return FLAG_INTERNAL;
+        }
+        if(!excludePlatform && CommandRuntime.PLATFORM === runtime) {
+            return FLAG_PLATFORM;
+        }
+
+        return '';
+    };
+
     export const from = (flag: string):CommandRuntime => {
         if(!flag || !(flag = flag.trim()).length) {
             return null;

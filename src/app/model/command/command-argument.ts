@@ -1,9 +1,12 @@
 export class CommandArgument {
 
-    constructor(argument:CommandArgument = null) {
-        if(argument !== null) {
+    constructor(argument?:CommandArgument | string) {
+        if(argument instanceof CommandArgument) {
             this.title = argument.title;
             this.content = argument.content;
+        }
+        if(typeof argument === 'string') {
+            this.content = argument;
         }
     }
     

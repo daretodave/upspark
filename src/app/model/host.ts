@@ -8,9 +8,11 @@ import {InternalCommandExecutor} from "../executor/internal/internal-command-exe
 import {CommandTask} from "./command/command-task";
 import {SystemCommandExecutor} from "../executor/system/system-command-executor";
 import {EnvMap} from "./env-map";
-import {PlatformCommsHandler} from "../executor/platform/platform-comms-handler";
 import {PlatformComms} from "../executor/platform/platform-comms";
 import {Logger} from "./logger/logger";
+import {BrowserStore} from "./browser-store";
+import {Command} from "./command/command";
+import {CommandIntent} from "./command/command-intent";
 
 const generatedUUID = require('uuid/v1');
 

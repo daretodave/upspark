@@ -8,6 +8,7 @@ import {CommandWrapper} from "./command-wrapper";
 import {CommandLogEntry} from "../../../../app/model/command/command-log-entry";
 import {Command} from "../../../../app/model/command/command";
 import {CommandLike} from "../../../../app/model/command/command-like";
+import {CommandArgument} from "../../../../app/model/command/command-argument";
 
 const generatedUUID = require('uuid/v1');
 
@@ -20,13 +21,18 @@ export class CommandService {
     constructor(private system: SystemService) {
     }
 
-    execute(intent: CommandIntent):CommandWrapper {
-        const command: CommandWrapper = new CommandWrapper(generatedUUID(), intent);
-
+    add(command: CommandWrapper) {
         this.commands.push(command);
-        if (this.cursor+1 === this.commands.length) {
+
+        if (this.cursor + 1 === this.commands.length) {
             this.cursor++;
         }
+    }
+
+    execute(intent: CommandIntent): CommandWrapper {
+        const command: CommandWrapper = new CommandWrapper(generatedUUID(), intent);
+
+        this.add(command);
 
         this.system.send('command-run', command.reference);
 
@@ -75,7 +81,7 @@ export class CommandService {
             (message: string) => reference.log.unshift(new CommandLogEntry(message, CommandLogEntry.ERROR))
         );
 
-        if(update.output) {
+        if (update.output) {
             reference.output.unshift(...update.output.reverse());
         }
 
@@ -169,8 +175,8 @@ export class CommandService {
     }
 
     getCursorForCommand(command: CommandWrapper) {
-        for(let i = 0; i < this.commands.length; i++) {
-            if(command.reference.id === this.commands[i].reference.id) {
+        for (let i = 0; i < this.commands.length; i++) {
+            if (command.reference.id === this.commands[i].reference.id) {
                 return i;
             }
 
@@ -179,4 +185,32 @@ export class CommandService {
         return 0;
     }
 
+    adhoc(...intents: CommandIntent[]) {
+        intents
+            .forEach((resolve, index) => {
+                let intent:CommandIntent = new CommandIntent();
+
+                intent.display = resolve.display;
+                intent.command = resolve.command;
+                intent.arguments = resolve.arguments.map(arg => {
+                   let argument:CommandArgument = new CommandArgument();
+
+                   argument.content = arg.content;
+                   argument.title = arg.title;
+
+                   return argument;
+                });
+
+                let wrapper:CommandWrapper = new CommandWrapper(generatedUUID(), intent);
+
+                wrapper.reference.completed = true;
+                wrapper.reference.progress = 100;
+                wrapper.reference.update = Date.now() - (intents.length*10) + (index*10);
+
+                wrapper.historical = true;
+                wrapper.stale = true;
+
+                this.add(wrapper);
+            });
+    }
 }

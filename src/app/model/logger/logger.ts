@@ -35,6 +35,7 @@ export class Logger {
         this.max = max;
         this.save = save;
         this.blocks = [];
+        this.error = this._error.bind(this);
 
         let self: any = this;
         return self;
@@ -247,7 +248,9 @@ export class Logger {
             Logger.info.apply(this, args);
     }
 
-    public static error(...args: any[]): ILogger {
+    public static error: (...args:any[]) => ILogger;
+
+    public static _error(...args: any[]): ILogger {
         args = args.map(Logger.clean);
 
         let self: ILogger = this.push(true, false, args.join('\n'));

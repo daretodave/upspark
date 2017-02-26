@@ -2,7 +2,11 @@ import {CommandIntent} from "./command-intent";
 import {CommandLogEntry} from "./command-log-entry";
 import {CommandLike} from "./command-like";
 import {CommandRuntime} from "./command-runtime";
+
 export class Command implements CommandLike {
+
+    static STORAGE_KEY:string = 'commands';
+    static STORAGE_LIMIT:number = 200;
 
     constructor(public id: string,
                 public intent: CommandIntent,

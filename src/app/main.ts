@@ -131,6 +131,8 @@ let init = () => {
         );
     });
 
+    host.resources()
+
     initSplash();
     initAlert();
 
@@ -1129,7 +1131,6 @@ let initRunner = () => {
 
     runnerWindow = new BrowserWindow(options);
     runnerWindow.loadURL(www('runner'));
-
 
     host.attachRunnerWindow(runnerWindow);
 

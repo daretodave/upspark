@@ -14,9 +14,7 @@
          [@slide]>
 
         <div class="command__title__text">
-            <div class="command__title__text__main">
-                {{command.reference.intent.display || command.reference.intent.command}}
-            </div>
+            <div class="command__title__text__main" [innerHTML]="command.reference.intent.display || command.reference.intent.command"></div>
             <div class="command__title__text__tag"
                  *ngIf="command.reference.tag"
                  [innerHTML]="command.reference.tag"
@@ -25,9 +23,10 @@
         </div>
 
         <div class="command__title__indicator"
-             [class.command__title__indicator--intermediate]="!command.reference.completed && command.reference.progress < 0"
-             [class.command__title__indicator--success]="command.reference.completed && !command.reference.error"
-             [class.command__title__indicator--error]="command.reference.completed && command.reference.error">
+             [class.command__title__indicator--historical]="command.historical"
+             [class.command__title__indicator--intermediate]="command.loading"
+             [class.command__title__indicator--success]="command.completed"
+             [class.command__title__indicator--error]=" command.error">
 
             <div class="command__title__indicator__progress"
                  *ngIf="!command.reference.completed && command.reference.progress > -1"

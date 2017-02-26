@@ -12,6 +12,7 @@ export class CommandWrapper {
         public hover:boolean = false,
         public stale:boolean = false,
         public active:boolean = false,
+        public historical:boolean = false,
         public repl:boolean = false
     ) {
         this.reference = new Command(id, intent);
@@ -19,6 +20,18 @@ export class CommandWrapper {
 
     public isIdle():boolean {
         return this.stale  || this.active || !this.reference.completed;
+    }
+
+    get error():boolean {
+        return !this.historical && this.reference.completed && this.reference.error;
+    }
+
+    get loading():boolean {
+        return !this.historical && !this.reference.completed && this.reference.progress < 0;
+    }
+
+    get completed():boolean {
+        return !this.historical && this.reference.completed && !this.reference.error;
     }
 
 }

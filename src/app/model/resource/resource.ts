@@ -29,6 +29,8 @@ export class Resource {
         if(validateExists && !this.resources.has(key)) {
             throw Error(`Key provided can not be found in resource map! Key = [${key}]`);
         }
+
+
     }
 
     init(resolve: () => void, reject: (reason? : any) => void) {

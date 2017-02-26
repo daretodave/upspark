@@ -1,16 +1,16 @@
 export class UpText {
 
-    public display:string;
-    public normalized:string;
+    public display: string;
+    public normalized: string;
 
     constructor(private text: string = '') {
         this.content = text;
     }
 
-    set content(content:string) {
+    set content(content: string) {
         this.text = content || '';
 
-        if(!this.text.trim()) {
+        if (!this.text.trim()) {
             this.display = '';
             this.normalized = '';
 
@@ -61,7 +61,7 @@ export namespace UpText {
         return name
             .replace(uppercaseLetterPattern, ' $1')
             .toLowerCase()
-            .trim();
+            .trim()
     };
 
 }

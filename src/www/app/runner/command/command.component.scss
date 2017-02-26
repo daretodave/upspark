@@ -54,6 +54,9 @@ $background-indicator-loading: #fdba2c;
 .command__title__indicator--success {
   background: $background-indicator-success;
 }
+.command__title__indicator--historical {
+  background: dimgrey;
+}
 .command__title__indicator__progress {
   background: $background-indicator-success;
   height: 100%;
@@ -86,6 +89,10 @@ $background-indicator-loading: #fdba2c;
 }
 .command__title__indicator--intermediate .command__title__indicator__bar {
   display: inline;
+}
+
+.command-runtime {
+  color: rgba(255, 255, 255, 0.71);
 }
 
 @keyframes loading {

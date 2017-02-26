@@ -32,7 +32,6 @@ export class InternalCommandExecutor implements Executor {
     }
 
     message(task:CommandTask, id: string, message:string) {
-
     }
     
     constructor() {
