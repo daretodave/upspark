@@ -44,6 +44,7 @@ export class Logger {
 
     private static sanitize(content: string): string {
         content = content.replace(/(<([^>]+)>)/ig, '');
+        content = content.replace(/&nbsp;/g, '');
 
         return content;
     }

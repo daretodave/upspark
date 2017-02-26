@@ -2,6 +2,7 @@ import {InternalCommand} from "../internal-command";
 import {inspect} from "util";
 import ErrnoException = NodeJS.ErrnoException;
 import {Logger} from "../../../model/logger/logger";
+import {CommandUpdate} from "../../../model/command/command-update/command-update";
 
 declare type EnvAction = [string, {errorMessage: string, argCount: number, callback: (env: Env, key: string, value: string) => string}];
 
@@ -37,12 +38,11 @@ export class Env extends InternalCommand {
                 return `No temporary environment variables have been set.<br><br>
                         Add variables with -- <br><br>\t\t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <span class="accent">:</span>env set <strong>key</strong> <strong class="accent">value</strong><br><br>Environment variables attached to the process --\n\n
-                        <br><br>${inspect(process.env, {showHidden:true, depth:null})}`.replace(/,/g, ',<br>');
+                        <br><br>${CommandUpdate.syntaxHighlight(process.env)}`;
             }
-
             return `Temporary environment variables\n\n<br><br>${inspect(this.task.host.getENV(), true, 5)}
             <br><br>Environment variables attached to the process. These will be replaced by replaced by variables above with the same key --\n\n
-            <br><br>${inspect(process.env, {showHidden:true, depth:null})}`.replace(/,/g, ',<br>');
+            <br><br>${CommandUpdate.syntaxHighlight(process.env)}`;
         }
 
         const tag: string = mode.toUpperCase().trim();

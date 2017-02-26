@@ -12,8 +12,10 @@ export class PlatformExecutor implements Executor {
 
     private pool = new Map<string, ChildProcess>();
 
-    cancel(task:CommandTask, id: string) {
-        let process:ChildProcess = this.pool.get(id);
+
+
+    cancel(task: CommandTask, id: string) {
+        let process: ChildProcess = this.pool.get(id);
         if (process === null) {
             Logger.info(`>process ${id} not found to cancel`);
             return;
@@ -21,15 +23,15 @@ export class PlatformExecutor implements Executor {
 
         try {
             process.kill();
-        } catch(error) {
+        } catch (error) {
             Logger.error(error);
         }
 
         task.error('Aborted<br><br>');
     }
 
-    message(task:CommandTask, id: string, message:string) {
-        let childProcess:ChildProcess = this.pool.get(id);
+    message(task: CommandTask, id: string, message: string) {
+        let childProcess: ChildProcess = this.pool.get(id);
 
         if (childProcess === null) {
             Logger.info(`>process ${id} not found to send message`);
@@ -39,15 +41,15 @@ export class PlatformExecutor implements Executor {
         try {
             task.out(`<div class="block"><span class="accent">&rightarrow;</span>&nbsp;&nbsp;${message}</div>`);
 
-            childProcess.stdin.write(message+ EOL);
+            childProcess.stdin.write(message + EOL);
 
-        } catch(error) {
+        } catch (error) {
             Logger.error('ERROR PASSING MESSAGE');
             Logger.error(error);
         }
     }
 
-    public execute(task:CommandTask) {
+    public execute(task: CommandTask) {
         Logger.info(`#command ${task.digest.command.display}`);
 
         if (!task.host.platform().hasCommandMapped(task.digest.command.normalized)) {
@@ -68,7 +70,6 @@ export class PlatformExecutor implements Executor {
                         env: merge({}, process.env, task.host.getENV()),
                     }
                 )
-
         );
 
         childProcess.on('close', (code: number) => {
@@ -88,7 +89,7 @@ export class PlatformExecutor implements Executor {
                     } else if (Array.isArray(message)) {
                         Logger.log.apply(Logger, [error].concat(message));
                     } else {
-                        if(typeof message !== 'string') {
+                        if (typeof message !== 'string') {
                             message = inspect(message, false, null)
                         }
 
@@ -164,20 +165,15 @@ export class PlatformExecutor implements Executor {
 
                         break;
                     case PlatformMessage.INTENT_RESULT:
-                        let output:any = message.payload;
-
-                        if (typeof output === 'object') {
-                           output = inspect(output, true, null);
-                        } else {
-                            output = output.toString();
-                        }
+                        let output: any = message.payload;
 
                         if (typeof output === 'undefined') {
                             if (commandUpdate.response === null) {
                                 commandUpdate.response = CommandUpdate.DEFAULT_SUCCESS_MESSAGE;
                             }
-
                             output = commandUpdate.response;
+                        } else if (typeof output !== 'string') {
+                            output = CommandUpdate.syntaxHighlight(output);
                         }
 
                         commandUpdate.message = message.payload;
@@ -240,7 +236,7 @@ export class PlatformExecutor implements Executor {
                 }
 
                 task.update(commandUpdate);
-            } catch(err) {
+            } catch (err) {
                 Logger.info(`ERROR WHEN HANDLING TASK PAYLOAD | ${task.id}`);
 
                 Logger.error(err);

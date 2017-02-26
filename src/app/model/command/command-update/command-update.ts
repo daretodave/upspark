@@ -6,7 +6,7 @@ import {CommandLogEntry} from "../command-log-entry";
 
 export class CommandUpdate extends Command {
 
-    message:any;
+    message: any;
 
     constructor(id: string,
                 public messages: string[] = [],
@@ -18,8 +18,8 @@ export class CommandUpdate extends Command {
         this.update = Date.now();
     }
 
-    out(message:any, error:boolean = false, isText:boolean = false) {
-        if(this.output == null) {
+    out(message: any, error: boolean = false, isText: boolean = false) {
+        if (this.output == null) {
             this.output = [];
         }
 
@@ -82,7 +82,36 @@ export namespace CommandUpdate {
     const NBSP = '&nbsp;';
     const TAB_REPLACEMENT = NBSP.repeat(8);
 
-    export const getSanitizedMessage = (message: any, error: boolean, isText:boolean = false): string => {
+    export const highlight = (text: string) => {
+
+        text = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return text.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            let cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        }).replace(/(?:\r\n|\r|\n)/g, '<br>').replace(/\t/g, TAB_REPLACEMENT).replace(/    /g, NBSP);;
+    };
+
+    export const syntaxHighlight = (message: any): string => {
+        let result: string = CommandUpdate.highlight(JSON.stringify(message, undefined, 4));
+
+        if (message !== null && typeof message !== 'undefined' && message.constructor && message.constructor.name) {
+            result = `${message.constructor.name + (Array.isArray(message) ? ` [${message.length}]` : '')}<br>\n${result}`;
+        }
+        return result;
+    };
+
+    export const getSanitizedMessage = (message: any, error: boolean, isText: boolean = false): string => {
 
         if (typeof message === 'undefined'
             || message === null
@@ -98,6 +127,8 @@ export namespace CommandUpdate {
             message = message["getMessage"].bind(message)();
         }
 
+        console.log('OOOH', message.toString().slice(0, 200), '....', isText, typeof message);
+
         if (Array.isArray(message)) {
             message = getMessageFromCollection(message, error);
         }
@@ -105,7 +136,7 @@ export namespace CommandUpdate {
             message = inspect(message);
         }
 
-        if(isText) {
+        if (isText) {
             message = message.replace(/(?:\r\n|\r|\n)/g, '<br>');
             message = message.replace(/\t/g, TAB_REPLACEMENT);
             message = message.replace(/ /g, NBSP);
@@ -114,7 +145,7 @@ export namespace CommandUpdate {
         return message;
     };
 
-    export const getMessageFromCollection = (args: any[], error:boolean): string => {
+    export const getMessageFromCollection = (args: any[], error: boolean): string => {
 
         if (args.length === 1) {
             return getSanitizedMessage(args[0], error);
@@ -125,7 +156,7 @@ export namespace CommandUpdate {
         )}</ul>`;
     };
 
-    export const out = (id: string, message: any, error: boolean = false, isText:boolean = false) => {
+    export const out = (id: string, message: any, error: boolean = false, isText: boolean = false) => {
 
         let update: CommandUpdate = new CommandUpdate(id);
 
@@ -138,7 +169,7 @@ export namespace CommandUpdate {
         return update;
     };
 
-    export const completed = (id: string, error: boolean = false, message: any = null, response:boolean = false) => {
+    export const completed = (id: string, error: boolean = false, message: any = null, response: boolean = false) => {
         message = getSanitizedMessage(message, error);
 
         let update: CommandUpdate = new CommandUpdate(id);
@@ -147,7 +178,7 @@ export namespace CommandUpdate {
         update.error = error;
         update.message = message;
 
-        if(response) {
+        if (response) {
             update.response = message;
         } else {
             update.out(message, error);
@@ -158,7 +189,7 @@ export namespace CommandUpdate {
         return update;
     };
 
-    export const error = (id: string, message: any = null, response:boolean = false): CommandUpdate => {
+    export const error = (id: string, message: any = null, response: boolean = false): CommandUpdate => {
         return completed(id, true, message, response);
     };
 
