@@ -40,7 +40,7 @@ export const cleanStaticFiles = () => del(['dist/static']);
 export const webpackAppForDev  = webpack('app', 'development');
 export const webpackAppForProd = webpack('app', 'production');
 export const webpackWWWForProd = webpack('www', 'production');
-export const deploy = () => series(clean, webpackAppForProd, webpackWWWForProd);
+
 export const copyStaticFiles = () =>
     src('./src/static/**/*', {
         base: './src/static/'
@@ -102,5 +102,6 @@ export const launch = () => {
 
 
 export const dev = series(clean, copyStaticFiles, webpackAppForDev, parallel(observeChanges, launch));
+export const deploy = series(clean, copyStaticFiles, webpackAppForProd, webpackWWWForProd);
 
 export default dev;
