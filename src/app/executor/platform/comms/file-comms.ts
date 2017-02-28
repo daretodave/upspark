@@ -2,17 +2,68 @@ import {PlatformCommsHandler} from "../platform-comms-handler";
 import {Host} from "../../../model/host";
 import * as path from 'path';
 import * as fs from 'fs-promise';
+
+type FS_WRITE_OPTIONS = { encoding?: string | null; mode?: string | number; flag?: string; } | string | undefined | null;
+type FS_READ_OPTIONS = { encoding?: "buffer" | null; flag?: string; } | "buffer" | null;
+
 export class FileComms extends PlatformCommsHandler {
 
     constructor(host: Host) {
         super(host, 'File');
     }
 
+
     init() {
+
         this.add('write', FileComms.write, {
-            'path': 'File location to write contents to',
-            'contents': 'The contents of the file'
+            'path': 'File location to write the contents to',
+            'contents': 'The contents of the file',
+            'options': 'Optional options for fs.writeFile'
         });
+
+        this.add('rename', FileComms.rename, {
+            'path': 'Directory or file to rename',
+            'name': 'The path\'s new name'
+        });
+
+        this.add('createFile', FileComms.createFile, {
+            'path': 'File location to write the contents to',
+            'contents': 'The contents of the file',
+            'options': 'Optional options for fs.writeFile'
+        });
+
+        this.add('append', FileComms.append, {
+            'path': 'File location to append the contents to',
+            'contents': 'The contents to append to the existing file contents',
+            'options': 'Optional options for fs.appendFile'
+        });
+
+        this.add('move', FileComms.move, {
+            'src': 'The source file or directory',
+            'dst': 'The destination file or directory'
+        });
+
+        this.add('copy', FileComms.copy, {
+            'src': 'The source file or directory',
+            'dst': 'The destination file or directory'
+        });
+
+        this.add('read', FileComms.read, {
+            'path': 'File location to read the contents from',
+            'options': 'Optional options for fs.readFile'
+        });
+
+        this.add('remove', FileComms.remove, {
+            'path': 'Directory or file to delete'
+        });
+
+        this.add('list', FileComms.list, {
+            'path': 'Directory to crawl and search for files',
+        });
+        this.add('createPath', FileComms.createPath, {
+            'path': 'Directory to create, only if not created',
+        });
+
     }
 
     static resolveContents(contents:any):string {
@@ -45,17 +96,170 @@ export class FileComms extends PlatformCommsHandler {
         return _path;
     }
 
+    static read(host:Host,
+                {path, options}: any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        fs.readFile(
+                path,
+                <FS_READ_OPTIONS>options
+           ).then(contents => resolve(contents.toString()))
+            .catch(reject)
+    }
+
+    static list(host:Host,
+                {path}: any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        fs.readdir(path)
+            .then((files:string[]) => resolve(files))
+            .catch(reject);
+    }
+
+    static remove(host:Host,
+                {path}: any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        fs.remove(path)
+            .then(() => resolve(''))
+            .catch(reject);
+    }
+
+    static move(host:Host,
+                {src, dst}:any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        src = FileComms.resolvePath(
+            host,
+            src
+        );
+
+        dst = FileComms.resolvePath(
+            host,
+            dst
+        );
+
+        if(!src) {
+            reject('No source path provided', true);
+            return;
+        }
+
+        if(!dst) {
+            reject('No destination path provided', true);
+            return;
+        }
+
+        fs.move(src, dst)
+            .then(() => resolve(''))
+            .catch(reject)
+    }
+
+    static copy(host:Host,
+        {src, dst}:any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        src = FileComms.resolvePath(
+            host,
+            src
+        );
+
+        dst = FileComms.resolvePath(
+            host,
+            dst
+        );
+
+        if(!src) {
+            reject('No source path provided', true);
+            return;
+        }
+
+        if(!dst) {
+            reject('No destination path provided', true);
+            return;
+        }
+
+        fs.copy(src, dst)
+            .then(() => resolve(''))
+            .catch(reject)
+    }
+
+    static rename(host:Host,
+                 {target, name}: any,
+                  resolve: (message?: any) => any,
+                  reject: (message?: string, syntax?: boolean) => any) {
+
+        target = FileComms.resolvePath(
+            host,
+            target
+        );
+
+        if(!target) {
+            reject('No path provided', true);
+            return;
+        }
+
+        if(!name) {
+            reject('No new name provided', true);
+            return;
+        }
+
+        name = path.join(
+            path.dirname(target),
+            name
+        );
+
+        fs.rename(target, name)
+            .then(() => resolve(''))
+            .catch(reject);
+    }
+
     static write(host:Host,
-                 options: any,
+                {contents, path, options}: any,
                  resolve: (message?: any) => any,
                  reject: (message?: string, syntax?: boolean) => any) {
 
-        let path:string = FileComms.resolvePath(
+        path = FileComms.resolvePath(
             host,
-            options.path
+            path
         );
-        let contents:string = FileComms.resolveContents(
-            options.contents
+
+        contents = FileComms.resolveContents(
+            contents
         );
 
         if(!path) {
@@ -65,10 +269,89 @@ export class FileComms extends PlatformCommsHandler {
 
         fs.writeFile(
             path,
-            contents
+            contents,
+            <FS_WRITE_OPTIONS> options
         )
-        .then(() => resolve(''))
-        .catch(reject);
+            .then(() => resolve(''))
+            .catch(reject);
+    }
+
+    static createFile(host:Host,
+                {contents, path, options}: any,
+                 resolve: (message?: any) => any,
+                 reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        contents = FileComms.resolveContents(
+            contents
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        fs.ensureFile(path)
+            .then(() => {
+                return fs.writeFile(
+                    path,
+                    contents,
+                    <FS_WRITE_OPTIONS> options
+                )
+            })
+            .then(() => resolve(''))
+            .catch(reject);
+    }
+
+    static append(host:Host,
+        {contents, path, options}: any,
+                 resolve: (message?: any) => any,
+                 reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        contents = FileComms.resolveContents(
+            contents
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        fs.appendFile(
+                path,
+                contents,
+                <FS_WRITE_OPTIONS> options
+            )
+            .then(() => resolve(''))
+            .catch(reject);
+    }
+
+    static createPath(host:Host,
+                {path}: any,
+                 resolve: (message?: any) => any,
+                 reject: (message?: string, syntax?: boolean) => any) {
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        fs.ensureDir(path)
+            .then(() => resolve(''))
+            .catch(reject);
     }
 
 }
