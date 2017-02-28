@@ -13,7 +13,9 @@ const apiModules:any = {
     runner: require('raw!./modules/runner.js'),
     settings: require('raw!./modules/settings.js'),
     logger: require('raw!./modules/logger.js'),
-    desktop: require('raw!./modules/desktop.js')
+    desktop: require('raw!./modules/desktop.js'),
+    file: require('raw!./modules/file.js'),
+    net: require('raw!./modules/net.js')
 };
 
 export {excludes, apiModules, apiComms};

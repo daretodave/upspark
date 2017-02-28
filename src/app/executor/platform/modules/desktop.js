@@ -80,9 +80,6 @@ Desktop.getFindText = function() {
     return comms.message('DESKTOP.getFindText');
 };
 
-
-
-
 Desktop.beep = function() {
     return comms.message('DESKTOP.BEEP');
 };
