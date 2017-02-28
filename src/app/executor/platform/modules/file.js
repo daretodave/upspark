@@ -32,6 +32,12 @@ File.createPath = (path) => comms.message(
     }
 );
 
+File.resolve = (...path) => comms.message(
+    'FILE.resolve', {
+        path: [...path]
+    }
+);
+
 File.createFile = (path, contents, options) => comms.message(
     'FILE.createFile', {
         path, contents, options

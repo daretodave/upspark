@@ -99,7 +99,7 @@ export namespace CommandUpdate {
                 cls = 'null';
             }
             return '<span class="' + cls + '">' + match + '</span>';
-        }).replace(/(?:\r\n|\r|\n)/g, '<br>').replace(/\t/g, TAB_REPLACEMENT).replace(/    /g, NBSP);;
+        }).replace(/(?:\r\n|\r|\n)/g, '<br>').replace(/\t/g, TAB_REPLACEMENT).replace(/  /g, NBSP);;
     };
 
     export const syntaxHighlight = (message: any): string => {

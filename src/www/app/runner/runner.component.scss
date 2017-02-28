@@ -115,13 +115,14 @@ body {
   display: flex;
   align-items: center;
   height: 100%;
-  max-width: 60%;
+  width: 100%;
 }
 .runner__output {
   color: white;
   position: relative;
   height: 100%;
   overflow: auto;
+  width: 100%;
 }
 .runner__output__text--error {
   color: #ff4d43;

@@ -53,6 +53,10 @@ export class FileComms extends PlatformCommsHandler {
             'options': 'Optional options for fs.readFile'
         });
 
+        this.add('resolve', FileComms.resolve, {
+            '...path': 'The path to construct from the CWD'
+        });
+
         this.add('remove', FileComms.remove, {
             'path': 'Directory or file to delete'
         });
@@ -60,6 +64,7 @@ export class FileComms extends PlatformCommsHandler {
         this.add('list', FileComms.list, {
             'path': 'Directory to crawl and search for files',
         });
+
         this.add('createPath', FileComms.createPath, {
             'path': 'Directory to create, only if not created',
         });
@@ -136,6 +141,24 @@ export class FileComms extends PlatformCommsHandler {
         fs.readdir(path)
             .then((files:string[]) => resolve(files))
             .catch(reject);
+    }
+
+    static resolve(host:Host,
+                {path}: any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        resolve(path);
     }
 
     static remove(host:Host,
