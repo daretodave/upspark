@@ -38,7 +38,7 @@ export class SafeComms extends PlatformCommsHandler {
                 .then(() => {
                     host.sendSafeMessage('safe-main', host.safe().getMappings());
 
-                    resolve(true);
+                    resolve('');
                 }).catch(() => {
                     reject('Password is not correct.');
                 }),

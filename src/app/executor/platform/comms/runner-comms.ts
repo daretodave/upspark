@@ -55,7 +55,7 @@ export class RunnerComms extends PlatformCommsHandler {
 
         host.setENV(env.key, env.value);
 
-        resolve(true);
+        resolve('');
     }
 
     static setCWD(host:Host,
@@ -70,8 +70,7 @@ export class RunnerComms extends PlatformCommsHandler {
 
         host.cwd(cwd);
 
-        resolve(true);
-
+        resolve('');
     }
 
     static getCWD(host:Host) {

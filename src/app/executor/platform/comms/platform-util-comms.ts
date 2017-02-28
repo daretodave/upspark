@@ -83,7 +83,7 @@ export class PlatformUtilComms extends PlatformCommsHandler {
 
         Promise
             .all(promises)
-            .then(() => resolve(true))
+            .then(() => resolve(''))
             .catch((error:any) => reject(error));
     }
 

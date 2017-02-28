@@ -127,8 +127,6 @@ export namespace CommandUpdate {
             message = message["getMessage"].bind(message)();
         }
 
-        console.log('OOOH', message.toString().slice(0, 200), '....', isText, typeof message);
-
         if (Array.isArray(message)) {
             message = getMessageFromCollection(message, error);
         }
