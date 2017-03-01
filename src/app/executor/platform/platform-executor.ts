@@ -95,6 +95,7 @@ export class PlatformExecutor implements Executor {
 
                         Logger.log(error, message);
                     }
+                    Logger.persist();
                 };
 
                 message = PlatformMessage.sanitize(message);
@@ -110,7 +111,6 @@ export class PlatformExecutor implements Executor {
                     case PlatformMessage.INTENT_INTERNAL_LOG:
                     case PlatformMessage.INTENT_INTERNAL_LOG_ERROR:
                         log(message.intent === PlatformMessage.INTENT_INTERNAL_LOG_ERROR, message.payload);
-                        Logger.persist()
                         break;
 
                     case PlatformMessage.INTENT_ABORT:
@@ -166,15 +166,6 @@ export class PlatformExecutor implements Executor {
                         break;
                     case PlatformMessage.INTENT_RESULT:
                         let output: any = message.payload;
-
-                        if (typeof output === 'undefined') {
-                            if (commandUpdate.response === null) {
-                                commandUpdate.response = CommandUpdate.DEFAULT_SUCCESS_MESSAGE;
-                            }
-                            output = commandUpdate.response;
-                        } else if (typeof output !== 'string') {
-                            output = CommandUpdate.syntaxHighlight(output);
-                        }
 
                         commandUpdate.message = message.payload;
 

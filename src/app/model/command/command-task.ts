@@ -36,7 +36,8 @@ export class CommandTask implements CommandUpdateEmitter {
     public complete: (message?: any,
                       error?: boolean,
                       response?: boolean,
-                      log?: any) => any;
+                      log?: any,
+                      isText?:boolean) => any;
 
     public error: (message?: any,
                    response?: boolean,

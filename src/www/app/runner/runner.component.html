@@ -19,7 +19,8 @@
             <div class="runner__output">
                 <div class="runner__output__text"
                      *ngFor="let out of command.reference.output"
-                     [class.runner__output__text--error]="out.type === 'error'" [innerHTML]="out.message"></div>
+                     [class.runner__output__text--error]="out.type === 'error'"
+                     [innerHTML]="out.message"></div>
             </div>
         </div>
 

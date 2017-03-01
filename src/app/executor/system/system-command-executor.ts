@@ -97,7 +97,7 @@ export class SystemCommandExecutor implements Executor {
                 Logger.info('>BASE', options);
 
                 (<Socket>childProcess.stdout).setEncoding('utf8');
-                (<Socket>childProcess.stdin).setEncoding('utf8');
+                (<any>childProcess.stdin).setEncoding('utf8');
                 (<Socket>childProcess.stderr).setEncoding('utf8');
 
                 break;

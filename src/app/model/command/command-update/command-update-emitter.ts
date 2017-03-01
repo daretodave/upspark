@@ -54,12 +54,13 @@ export class CommandUpdateEmitter {
         ), log);
     }
 
-    public complete(message: any = null, error: boolean = false, response: boolean = false, log: any = null) {
+    public complete(message: any = null, error: boolean = false, response: boolean = false, log: any = null, isText: boolean = false) {
         return this.update(CommandUpdate.completed(
             this.id,
             error,
             message,
-            response
+            response,
+            isText
         ), log);
     }
 

@@ -23,12 +23,23 @@ export class CommandUpdate extends Command {
             this.output = [];
         }
 
-        this.output.push(new CommandLogEntry(
-            CommandUpdate.getSanitizedMessage(
+        if(isText) {
+            message = CommandUpdate.getSanitizedMessage(
                 message,
-                error,
-                isText
-            ), error ? CommandLogEntry.ERROR : CommandLogEntry.INFO)
+                error
+            );
+        } else if(typeof message !== 'string') {
+            message = CommandUpdate.syntaxHighlight(message);
+        }
+
+        if (typeof message === 'undefined') {
+            return;
+        }
+
+        this.output.push(new CommandLogEntry(
+                message,
+                error ? CommandLogEntry.ERROR : CommandLogEntry.INFO
+            )
         );
     }
 
@@ -98,20 +109,25 @@ export namespace CommandUpdate {
             } else if (/null/.test(match)) {
                 cls = 'null';
             }
-            return '<span class="' + cls + '">' + match + '</span>';
-        }).replace(/(?:\r\n|\r|\n)/g, '<br>').replace(/\t/g, TAB_REPLACEMENT).replace(/  /g, NBSP);;
+            return '<span class="json-' + cls + '">' + match + '</span>';
+        });
     };
 
     export const syntaxHighlight = (message: any): string => {
         let result: string = CommandUpdate.highlight(JSON.stringify(message, undefined, 4));
 
-        if (message !== null && typeof message !== 'undefined' && message.constructor && message.constructor.name) {
-            result = `${message.constructor.name + (Array.isArray(message) ? ` [${message.length}]` : '')}<br>\n${result}`;
+        if (message !== null
+            && typeof message !== 'undefined'
+            && message.constructor
+            && message.constructor.name
+            && message.constructor.name !== 'Object') {
+
+            result = `${message.constructor.name + (Array.isArray(message) ? ` [${message.length}]` : '')}<br>${result}`;
         }
         return result;
     };
 
-    export const getSanitizedMessage = (message: any, error: boolean, isText: boolean = false): string => {
+    export const getSanitizedMessage = (message: any, error: boolean): string => {
 
         if (typeof message === 'undefined'
             || message === null
@@ -129,15 +145,6 @@ export namespace CommandUpdate {
 
         if (Array.isArray(message)) {
             message = getMessageFromCollection(message, error);
-        }
-        if (typeof message !== 'string') {
-            message = inspect(message);
-        }
-
-        if (isText) {
-            message = message.replace(/(?:\r\n|\r|\n)/g, '<br>');
-            message = message.replace(/\t/g, TAB_REPLACEMENT);
-            message = message.replace(/ /g, NBSP);
         }
 
         return message;
@@ -167,9 +174,7 @@ export namespace CommandUpdate {
         return update;
     };
 
-    export const completed = (id: string, error: boolean = false, message: any = null, response: boolean = false) => {
-        message = getSanitizedMessage(message, error);
-
+    export const completed = (id: string, error: boolean = false, message: any = null, response: boolean = false, isText:boolean = false) => {
         let update: CommandUpdate = new CommandUpdate(id);
 
         update.completed = true;
@@ -179,7 +184,7 @@ export namespace CommandUpdate {
         if (response) {
             update.response = message;
         } else {
-            update.out(message, error);
+            update.out(message, error, isText);
         }
 
         update.progress = 100;

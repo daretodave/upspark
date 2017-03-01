@@ -37,7 +37,7 @@ const parameters:string =
     .map((action, index) => action[0])
     .sort()
     .reduce((left:string, right:string):string => {
-        return left + `\n\t\t\t<li>${right}</li>`;
+        return left + `<li>${right}</li>`;
     }, '');
 
 export class Reload extends InternalCommand {
@@ -80,8 +80,8 @@ export class Reload extends InternalCommand {
         const tag: string = arg.toUpperCase().trim();
         if (!actions.has(tag)) {
             this.reject(
-                `<strong>${tag}</strong> is not a valid argument for a reload task. <br><br>\n\n` +
-                `\t\tAvailable arguments are &hyphen;<ul>${parameters}</blockquote></ul>\n`
+                `<strong>${tag}</strong> is not a valid argument for a reload task.<br><br>` +
+                `Available arguments are &hyphen;<ul>${parameters}</blockquote></ul>`
             );
             return;
         }

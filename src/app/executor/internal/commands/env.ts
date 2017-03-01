@@ -27,7 +27,7 @@ const parameters: string =
         .map((action, index) => action[0])
         .sort()
         .reduce((left: string, right: any): string => {
-            return left + `\n\t\t\t<li>${right} | <span class="accent">:env ${right.toLowerCase()} ${actions.get(right).errorMessage}</span></li>`;
+            return left + `<li>${right} | <span class="accent">:env ${right.toLowerCase()} ${actions.get(right).errorMessage}</span></li>`;
         }, '');
 
 export class Env extends InternalCommand {
@@ -35,21 +35,15 @@ export class Env extends InternalCommand {
     onExecute(mode: string, key: string, value: string): string {
         if (!arguments.length) {
             if (!Object.keys(this.task.host.getENV()).length) {
-                return `No temporary environment variables have been set.<br><br>
-                        Add variables with -- <br><br>\t\t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span class="accent">:</span>env set <strong>key</strong> <strong class="accent">value</strong><br><br>Environment variables attached to the process --\n\n
-                        <br><br>${CommandUpdate.syntaxHighlight(process.env)}`;
+                return `No temporary environment variables have been set.<br><br>Add variables with -- <br><br><span class="accent">:</span>env set <strong>key</strong> <strong class="accent">value</strong><br><br>Environment variables attached to the process --<br><br>${CommandUpdate.syntaxHighlight(process.env)}`;
             }
-            return `Temporary environment variables\n\n<br><br>${inspect(this.task.host.getENV(), true, 5)}
-            <br><br>Environment variables attached to the process. These will be replaced by replaced by variables above with the same key --\n\n
-            <br><br>${CommandUpdate.syntaxHighlight(process.env)}`;
+            return `Temporary environment variables<br><br>${CommandUpdate.syntaxHighlight(this.task.host.getENV())}<br><br>Environment variables attached to the process. These will be replaced by replaced by variables above with the same key --<br><br>${CommandUpdate.syntaxHighlight(process.env)}`;
         }
 
         const tag: string = mode.toUpperCase().trim();
         if (!actions.has(tag)) {
             this.reject(
-                `<strong>${tag}</strong> is not a valid argument for the env task. <br><br>\n\n` +
-                `\t\tAvailable options are &hyphen;<ul>${parameters}</blockquote></ul>\n`
+                `<strong>${tag}</strong> is not a valid argument for the env task.<br><br>Available options are &hyphen;<ul>${parameters}</blockquote></ul>`
             );
             return;
         }
@@ -58,8 +52,7 @@ export class Env extends InternalCommand {
         if ((action.argCount + 1) > arguments.length) {
             let missingArgs: number = (action.argCount + 1) - arguments.length;
 
-            this.reject(`<strong>${tag}</strong> needs ${(missingArgs === 1 ? 'atleast one more argument' : `${missingArgs} more arguments`)}
-                        <br><br>\t\t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="accent">:env ${tag.toLowerCase()} ${action.errorMessage}</span>`);
+            this.reject(`<strong>${tag}</strong> needs ${(missingArgs === 1 ? 'atleast one more argument' : `${missingArgs} more arguments`)}<br><br><span class="accent">:env ${tag.toLowerCase()} ${action.errorMessage}</span>`);
             return;
         }
 

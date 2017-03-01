@@ -73,6 +73,6 @@ export class InternalCommandExecutor implements Executor {
 
         runner.task = task;
 
-        return runner.execute().then((message:string) => task.complete(message)).catch((error:any) => task.error(error));
+        return runner.execute().then((message:string) => task.complete(message, false, false, false, true)).catch((error:any) => task.error(error));
     }
 }
