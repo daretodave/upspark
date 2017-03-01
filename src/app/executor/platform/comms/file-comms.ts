@@ -4,6 +4,9 @@ import * as path from 'path';
 import * as fs from 'fs-promise';
 import {WriteJsonOptions} from "fs-promise";
 import {ReadJsonOptions} from "fs-promise";
+import {Stats} from "fs";
+import * as _ from "lodash";
+import ErrnoException = NodeJS.ErrnoException;
 
 type FS_WRITE_OPTIONS = { encoding?: string;
     mode?: number;
@@ -16,8 +19,33 @@ export class FileComms extends PlatformCommsHandler {
         super(host, 'File');
     }
 
-
     init() {
+
+        this.add('access', FileComms.access, {
+            'path': 'Path to confirm access against',
+            'mode': 'The permission to check the path against'
+        });
+
+        this.add('stat', FileComms.stat, {
+            'path': 'Path to collect stats on',
+        });
+
+        this.add('chmod', FileComms.chmod, {
+            'path': 'Path to change permissions on',
+            'mode': 'The new file permission'
+        });
+
+        this.add('chown', FileComms.chown, {
+            'path': 'Path to modify owner of',
+            'uid': 'Path\'s new User ID',
+            'gid': 'Path\'s new Group ID'
+        });
+
+        this.add('write', FileComms.write, {
+            'path': 'File location to write the contents to',
+            'contents': 'The contents of the file',
+            'options': 'Optional options for fs.writeFile'
+        });
 
         this.add('write', FileComms.write, {
             'path': 'File location to write the contents to',
@@ -87,7 +115,7 @@ export class FileComms extends PlatformCommsHandler {
     }
 
     static resolveContents(contents:any):string {
-        if(typeof contents === 'undefined') {
+        if(typeof contents === 'undefined' || contents === null) {
             return '';
         }
 
@@ -99,7 +127,7 @@ export class FileComms extends PlatformCommsHandler {
     }
 
     static resolvePath(host:Host, _path:any):string {
-        if (typeof _path === 'undefined') {
+        if (typeof _path === 'undefined' || _path === null) {
             return null;
         }
 
@@ -114,6 +142,38 @@ export class FileComms extends PlatformCommsHandler {
         }
 
         return _path;
+    }
+
+    static access(host:Host,
+                {path, mode}: any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        if(mode === null) {
+            mode = undefined;
+        }
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        fs.access(
+            path,
+            mode,
+            (err:any) => {
+                if(err) {
+                    reject(err);
+                    return;
+                }
+                resolve('')
+            }
+        )
     }
 
     static read(host:Host,
@@ -136,6 +196,41 @@ export class FileComms extends PlatformCommsHandler {
                 <FS_READ_OPTIONS>options
            ).then(contents => resolve(contents.toString()))
             .catch(reject)
+    }
+
+    static stat(host:Host,
+                {path}: any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        fs.stat(
+            path,
+        ).then((stat:Stats) => {
+            let response:any = {};
+
+            _.merge(response, stat);
+
+            response.file = stat.isFile();
+            response.directory = stat.isDirectory();
+            response.blockDevice = stat.isBlockDevice();
+            response.characterDevice = stat.isCharacterDevice();
+            response.symbolicLink = stat.isSymbolicLink();
+            response.fifo = stat.isFIFO();
+            response.socket = stat.isSocket();
+
+            resolve(response);
+        })
+         .catch(reject)
     }
 
     static readJSON(host:Host,
@@ -276,6 +371,61 @@ export class FileComms extends PlatformCommsHandler {
         fs.copy(src, dst)
             .then(() => resolve(''))
             .catch(reject)
+    }
+
+    static chmod(host:Host,
+                 {path, mode}: any,
+                  resolve: (message?: any) => any,
+                  reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        if(mode === null) {
+            reject('No mode provided', true);
+            return;
+        }
+
+        fs.chmod(path, mode)
+            .then(() => resolve(''))
+            .catch(reject);
+    }
+
+    static chown(host:Host,
+                {path, uid, gid}: any,
+                 resolve: (message?: any) => any,
+                 reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        if(uid === null) {
+            reject('No user id provided', true);
+            return;
+        }
+
+        if(gid === null) {
+            reject('No group id provided', true);
+            return;
+        }
+
+        fs.chown(path, uid, gid)
+            .then(() => resolve(''))
+            .catch(reject);
     }
 
     static rename(host:Host,

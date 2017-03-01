@@ -2,6 +2,33 @@ const comms = require('comms');
 
 File = module.exports = {};
 
+File.access = (path, mode = null) => comms.message(
+    'FILE.access', {
+        path, mode
+    }
+);
+
+File.stat = (path) => comms.message(
+    'FILE.stat', {
+        path
+    }
+);
+
+File.chmod = (path, mode = null) => comms.message(
+    'FILE.chmod', {
+        path,
+        mode
+    }
+);
+
+File.chown = (path, uid = null, gid = null) => comms.message(
+    'FILE.chmod', {
+        path,
+        uid,
+        gid
+    }
+);
+
 File.write = (path, contents, options) => comms.message(
     'FILE.write', {
         path, contents, options
