@@ -43,6 +43,9 @@ export class Logger {
     }
 
     private static sanitize(content: string): string {
+        content = content.replace(/<br>/g, '\n');
+        content = content.replace(/<hr>/g, '\n');
+        content = content.replace(/<\/div create-line>/g, '\n');
         content = content.replace(/(<([^>]+)>)/ig, '');
         content = content.replace(/&nbsp;/g, '');
 

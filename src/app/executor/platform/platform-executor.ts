@@ -124,7 +124,7 @@ export class PlatformExecutor implements Executor {
                             Logger.error(message.payload);
                         }
 
-                        log(true, `${context}, killing child process | task.id = ${task.id}`);
+                        //log(true, `${context}, killing child process | task.id = ${task.id}`);
 
                         try {
                             childProcess.kill();

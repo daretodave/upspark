@@ -20,6 +20,18 @@ File.read = (path, options) => comms.message(
     }
 );
 
+File.readJSON = (path, options) => comms.message(
+    'FILE.readJSON', {
+        path, options
+    }
+);
+
+File.writeJSON = (path, contents, options) => comms.message(
+    'FILE.writeJSON', {
+        path, contents, options
+    }
+);
+
 File.list = (path) => comms.message(
     'FILE.list', {
         path

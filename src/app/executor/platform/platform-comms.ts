@@ -75,8 +75,6 @@ export class PlatformComms {
         ).then((result: any) => {
             Logger.info(`COMMS result for ${message.payload["action"]}`);
 
-            console.log(result);
-
             childProcess.send({
                 id:id,
                 message:{
@@ -86,8 +84,6 @@ export class PlatformComms {
             });
 
         }).catch((reason: string) => {
-            Logger.error(id, 'COMMS error', reason);
-
             childProcess.send({
                 id:id,
                 message:{
@@ -95,7 +91,6 @@ export class PlatformComms {
                     error: true
                 }
             });
-
         });
     }
 

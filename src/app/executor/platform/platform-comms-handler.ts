@@ -22,27 +22,25 @@ export abstract class PlatformCommsHandler {
     static method(args:any, ...chain:string[]):string {
         let methodText:string = '';
 
-        methodText += `<div class="method-signature"><span class="method-chain">${chain.join(`</span>.<span class="method-chain">`)}</span>`
-        methodText += `<span class="method-bracket">(</span></div>`
+        methodText += `<div class="method-signature"><span class="method-chain">${chain.join(`</span>.<span class="method-chain">`)}</span>`;
+        methodText += `</div create-line>`;
 
         for(let arg in args) {
             methodText += '<div>';
-            methodText += `    <div class='col-xs-3'>`;
-            methodText += `        <div class='method-arg'>`;
-            methodText += `            ${arg}`;
-            methodText += `        </div>`;
-            methodText += `    </div>`;
-            methodText += `    <div class='col-xs-8'>`;
-            methodText += `        <div class='method-comment'>`;
-            methodText += `            /* ${args[arg]} */`;
-            methodText += `        </div>`;
-            methodText += `    </div>`;
-            methodText += '</div>';
+            methodText += `<div class='col-xs-3'>`;
+            methodText += `<div class='method-arg'>`;
+            methodText += `> ${arg.trim()}`;
+            methodText += `</div>`;
+            methodText += `</div>`;
+            methodText += `<div class='col-xs-8'>`;
+            methodText += `<div class='method-comment'>`;
+            methodText += ` /* ${args[arg].trim()} */`;
+            methodText += `</div>`;
+            methodText += `</div>`;
+            methodText += '</div create-line>';
         }
 
-        methodText += `<div class="clearfix"></div><span class="method-bracket">)</span><span class="method-semicolon">;</span>`
-
-        return methodText;
+        return methodText.trim();
     }
 
     add(key:string, handler:PlatformCommsAction, example?:string|any) {

@@ -2,8 +2,12 @@ import {PlatformCommsHandler} from "../platform-comms-handler";
 import {Host} from "../../../model/host";
 import * as path from 'path';
 import * as fs from 'fs-promise';
+import {WriteJsonOptions} from "fs-promise";
+import {ReadJsonOptions} from "fs-promise";
 
-type FS_WRITE_OPTIONS = { encoding?: string | null; mode?: string | number; flag?: string; } | string | undefined | null;
+type FS_WRITE_OPTIONS = { encoding?: string;
+    mode?: number;
+    flag?: string;};
 type FS_READ_OPTIONS = { encoding?: "buffer" | null; flag?: string; } | "buffer" | null;
 
 export class FileComms extends PlatformCommsHandler {
@@ -51,6 +55,17 @@ export class FileComms extends PlatformCommsHandler {
         this.add('read', FileComms.read, {
             'path': 'File location to read the contents from',
             'options': 'Optional options for fs.readFile'
+        });
+
+        this.add('writeJSON', FileComms.writeJSON, {
+            'path': 'File location to write the JSON to',
+            'contents': 'The serializable object',
+            'options': 'The options to pass to JSON parser'
+        });
+
+        this.add('readJSON', FileComms.readJSON, {
+            'path': 'File location to read the JSON from',
+            'options': 'Optional options for the JSON parser'
         });
 
         this.add('resolve', FileComms.resolve, {
@@ -121,6 +136,28 @@ export class FileComms extends PlatformCommsHandler {
                 <FS_READ_OPTIONS>options
            ).then(contents => resolve(contents.toString()))
             .catch(reject)
+    }
+
+    static readJSON(host:Host,
+                {path, options}: any,
+                resolve: (message?: any) => any,
+                reject: (message?: string, syntax?: boolean) => any) {
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        fs.readJSON(
+            path,
+            <ReadJsonOptions>options
+        ).then(contents => resolve(contents))
+         .catch(reject)
     }
 
     static list(host:Host,
@@ -290,13 +327,42 @@ export class FileComms extends PlatformCommsHandler {
             return;
         }
 
-        fs.writeFile(
+        fs.outputFile(
             path,
             contents,
             <FS_WRITE_OPTIONS> options
         )
             .then(() => resolve(''))
             .catch(reject);
+    }
+
+    static writeJSON(host:Host,
+                 {path, contents, options}: any,
+                 resolve: (message?: any) => any,
+                 reject: (message?: string, syntax?: boolean) => any) {
+
+        path = FileComms.resolvePath(
+            host,
+            path
+        );
+
+        if(!path) {
+            reject('No path provided', true);
+            return;
+        }
+
+        if(!contents) {
+            reject('No JSON contents provided', true);
+            return;
+        }
+
+        fs.outputJSON(
+            path,
+            contents,
+            <WriteJsonOptions> options
+        )
+        .then(() => resolve(''))
+        .catch(reject);
     }
 
     static createFile(host:Host,
