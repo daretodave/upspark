@@ -1,5 +1,4 @@
 import merge from 'webpack-merge';
-import electron from 'webpack-target-electron-renderer';
 import Webpack from 'webpack';
 
 
