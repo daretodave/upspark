@@ -3,10 +3,13 @@ import Webpack from 'webpack';
 
 
 import Helpers from '../../helpers';
-import common from './webpack.common';
 
 let {DefinePlugin, HotModuleReplacementPlugin} = Webpack;
 let config = {};
+
+const reload = require('require-reload')(require);
+
+let common = reload('./webpack.common')['default'];
 
 (function(output) {
 
