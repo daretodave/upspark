@@ -90,11 +90,12 @@ export class PlatformBootstrapper {
                     resolve(true);
                     return;
                 }
+                let latest = path.join(path.dirname(path.resolve(__dirname)), 'node_modules', 'babel-preset-latest');
 
                 Logger.info(`transpiling ${name} | ${data.length} bytes`);
                 let options:any = {};
                 options.presets = [];
-                options.presets.push(["latest", {
+                options.presets.push([latest, {
                     "modules": false
                 }]);
 

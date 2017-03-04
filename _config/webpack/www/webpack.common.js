@@ -75,7 +75,7 @@ config.target = 'electron-renderer';
 
     // Inject app dependencies into the html
     let html = (function(config) {
-        config.template = Helpers.path('src', 'www', 'index.ejs');
+        config.template = Helpers.path('_src', 'www', 'index.ejs');
         config.filename = 'index.html';
         config.chunks   = www;
 
@@ -107,16 +107,16 @@ config.target = 'electron-renderer';
 
 (function(entry) {
 
-    entry['bundle'] = [Helpers.path('src', 'www', 'index.ts')];
-    entry['include/vendors'] = [Helpers.path('src', 'www', 'lib', 'vendors.ts')];
-    entry['include/polyfills'] = [Helpers.path('src', 'www', 'lib', 'polyfills.ts')];
+    entry['bundle'] = [Helpers.path('_src', 'www', 'index.ts')];
+    entry['include/vendors'] = [Helpers.path('_src', 'www', 'lib', 'vendors.ts')];
+    entry['include/polyfills'] = [Helpers.path('_src', 'www', 'lib', 'polyfills.ts')];
 
 })(config.entry = {});
 
 // module resolution
 (function(resolve, alias, extensions, modules) {
 
-    resolve.root = Helpers.path('src');
+    resolve.root = Helpers.path('_src');
 
     extensions.push('');
     extensions.push('.ts');

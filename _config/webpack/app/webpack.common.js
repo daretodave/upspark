@@ -45,7 +45,7 @@ config.target = 'node';
 
 (function(entry) {
 
-    entry.main = Helpers.path('src', 'app', 'main.ts');
+    entry.main = Helpers.path('_src', 'app', 'main.ts');
 
 })(config.entry = {});
 
