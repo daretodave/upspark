@@ -40,6 +40,16 @@ export class RunnerComponent implements OnInit {
                 private commandService: CommandService) {
     }
 
+    robInput(event:any):boolean {
+        event.stopPropagation();
+
+        return false;
+    }
+
+    focusInput() {
+        this.runnerInput.nativeElement.focus();
+    }
+
     update() {
         this.repl = this.command
             && this.command.repl
