@@ -7,8 +7,8 @@
     "build": "./node_modules/.bin/webpack",
     "electron": "electron ./dist/main.js",
     "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+    "package": "rimraf ./out && electron-forge package",
+    "make": "rimraf ./out && electron-forge make"
   },
   "author": {
     "name": "David Rehmat",
@@ -112,8 +112,8 @@
       "electronPackagerConfig": {
         "prune": true,
         "ignore": [
-			"_config",
-			"_src",
+          "_config",
+          "_src",
           ".git",
           ".gitignore",
           ".idea",
@@ -122,7 +122,7 @@
           "tsconfig.json",
           "gulpfile"
         ],
-		"icon": "src/static/icon/bulb.ico"
+        "icon": "_src/static/icon/bulb.ico"
       },
       "electronWinstallerConfig": {
         "name": "Upspark"

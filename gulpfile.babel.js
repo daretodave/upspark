@@ -8,12 +8,12 @@ import {series, src, dest, parallel, watch} from 'gulp';
 const config = {
     webpack : {
         app : {
-            development : require('./config/webpack/app/webpack.development').default,
-            production  : require('./config/webpack/app/webpack.production').default
+            development : require('./_config/webpack/app/webpack.development').default,
+            production  : require('./_config/webpack/app/webpack.production').default
         },
         www : {
-            development : require('./config/webpack/www/webpack.development').default,
-            production  : require('./config/webpack/www/webpack.production').default
+            development : require('./_config/webpack/www/webpack.development').default,
+            production  : require('./_config/webpack/www/webpack.production').default
         }
     },
     tag: colors.white.bgBlue.bold(' Upspark '),
