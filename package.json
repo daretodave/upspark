@@ -1,6 +1,6 @@
 {
   "name": "Upspark",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "dist/main.js",
   "description": "A command runner for your desktop.",
   "scripts": {
@@ -124,12 +124,14 @@
           "gulpfile"
         ],
         "icon": "_src/static/icon/bulb.ico",
+        "iconUrl": "https://s3.amazonaws.com/upspark/icon.png",
         "win32metadata": {
           "CompanyName": "Upspark",
           "FileDescription": "Upspark",
           "OriginalFilename": "Upspark.exe",
           "ProductName": "Upspark",
-          "InternalName": "Upspark"
+          "InternalName": "Upspark",
+          "iconUrl": "https://s3.amazonaws.com/upspark/icon.png"
         }
       },
       "electronWinstallerConfig": {
@@ -142,6 +144,7 @@
         "setupIcon": "_src/static/icon/bulb.ico",
         "description": "Upspark",
         "version": "1.0.0",
+        "iconUrl": "https://s3.amazonaws.com/upspark/icon.png",
         "version-string": {
           "CompanyName": "Upspark",
           "ProductName": "Upspark"
