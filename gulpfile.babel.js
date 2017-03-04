@@ -42,8 +42,8 @@ export const webpackAppForProd = webpack('app', 'production');
 export const webpackWWWForProd = webpack('www', 'production');
 
 export const copyStaticFiles = () =>
-    src('./src/static/**/*', {
-        base: './src/static/'
+    src('./_src/static/**/*', {
+        base: './_src/static/'
     })
         .pipe(dest('./dist/static'));
 export const cleanCopyStaticFiles = () => series(cleanStaticFiles, copyStaticFiles);
@@ -61,8 +61,8 @@ export const relaunch = (callback) => {
 export const redeploy = series(webpackAppForDev, relaunch);
 
 export const observeChanges = () => {
-    watch('./src/app/**/*.ts', redeploy);
-    watch('./src/static/**/*', cleanCopyStaticFiles);
+    watch('./_src/app/**/*.ts', redeploy);
+    watch('./_src/static/**/*', cleanCopyStaticFiles);
 };
 
 export const launch = () => {

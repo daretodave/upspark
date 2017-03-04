@@ -112,6 +112,8 @@
       "electronPackagerConfig": {
         "prune": true,
         "ignore": [
+			"_config",
+			"_src",
           ".git",
           ".gitignore",
           ".idea",
