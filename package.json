@@ -7,8 +7,8 @@
     "build": "./node_modules/.bin/webpack",
     "electron": "electron ./dist/main.js",
     "start": "electron-forge start",
-    "package": "rimraf ./out && electron-forge package",
-    "make": "rimraf ./out && electron-forge make"
+    "package": "rimraf ./out && gulp deploy && electron-forge package",
+    "make": "rimraf ./out && gulp deploy && electron-forge make"
   },
   "author": {
     "name": "David Rehmat",
@@ -110,6 +110,7 @@
         ]
       },
       "electronPackagerConfig": {
+        "appCategoryType": "public.app-category.developer-tools",
         "prune": true,
         "ignore": [
           "_config",
@@ -122,10 +123,29 @@
           "tsconfig.json",
           "gulpfile"
         ],
-        "icon": "_src/static/icon/bulb.ico"
+        "icon": "_src/static/icon/bulb.ico",
+        "win32metadata": {
+          "CompanyName": "Upspark",
+          "FileDescription": "Upspark",
+          "OriginalFilename": "Upspark.exe",
+          "ProductName": "Upspark",
+          "InternalName": "Upspark"
+        }
       },
       "electronWinstallerConfig": {
-        "name": "Upspark"
+        "title": "Upspark",
+        "name": "Upspark",
+        "noMsi": true,
+        "authors": "Upspark",
+        "exe": "Upspark.exe",
+        "ProductName": "Upspark",
+        "setupIcon": "_src/static/icon/bulb.ico",
+        "description": "Upspark",
+        "version": "1.0.0",
+        "version-string": {
+          "CompanyName": "Upspark",
+          "ProductName": "Upspark"
+        }
       },
       "electronInstallerDebian": {},
       "electronInstallerRedhat": {},
