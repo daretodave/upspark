@@ -1,5 +1,8 @@
+import {Logger} from "../model/logger/logger";
 const STRIP_COMMENTS: RegExp = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 const ARGUMENT_NAMES: RegExp = /([^\s,]+)/g;
+const shell = require('electron').shell;
+const fileUrl = require('file-url');
 
 export class Util {
 
@@ -28,6 +31,20 @@ export class Util {
                     name => derived.prototype[name] = base.prototype[name]
                 )
         );
+    }
+
+    public static openFile(path:String):boolean {
+        path = fileUrl(path);
+
+        Logger.info(`Opening file @ ${path}`);
+
+        return shell.openExternal(path, {
+            activate: true
+        }, (err:any) => {
+            if (err) {
+               Logger.error(`Could not open ${path}`, err)
+            }
+        });
     }
 
 }

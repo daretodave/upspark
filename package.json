@@ -74,6 +74,7 @@
     "core-js": "^2.4.1",
     "debug": "^2.3.3",
     "electron-compile": "^6.1.2",
+    "file-url": "^2.0.2",
     "fs-promise": "^2.0.0",
     "gulp": "github:gulpjs/gulp#4.0",
     "gulp-util": "^3.0.7",
@@ -102,7 +103,8 @@
           "squirrel"
         ],
         "darwin": [
-          "dmg", "zip"
+          "dmg",
+          "zip"
         ],
         "linux": [
           "deb",
