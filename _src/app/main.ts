@@ -444,7 +444,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             });
     };
     let openResourceDirectory = () => {
-        Util.openFile((host.resources().root);
+        Util.openFile(host.resources().root);
     };
     let toggleRunner = () => {
         runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
