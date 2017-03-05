@@ -13,7 +13,9 @@ export class Resources extends InternalCommand {
 
         Logger.info(`Launching resources in explorer`);
 
-        shell.openExternal(this.task.host.resources().root, (err:any) => {
+        shell.openExternal(this.task.host.resources().root, {
+            activate: true
+        }, (err:any) => {
             Logger.error(err);
         });
 
