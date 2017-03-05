@@ -138,7 +138,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
                 contents.error
             );
         });
-        
+
         initSplash();
         initAlert();
 

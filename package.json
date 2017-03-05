@@ -102,7 +102,7 @@
           "squirrel"
         ],
         "darwin": [
-          "zip"
+          "dmg"
         ],
         "linux": [
           "deb",
@@ -134,6 +134,9 @@
           "InternalName": "Upspark",
           "iconUrl": "https://s3.amazonaws.com/upspark/icon.png"
         }
+      },
+      "electronInstallerDMG": {
+        "icon": "_src/static/icon/bulb.icns"
       },
       "electronWinstallerConfig": {
         "title": "Upspark",
