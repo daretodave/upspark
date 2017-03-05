@@ -138,14 +138,16 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
                 contents.error
             );
         });
-
-        host.resources()
-
+        
         initSplash();
         initAlert();
 
         let external:string = path.join(app.getPath('appData'), 'upspark');
         let home:string = path.join(app.getPath('home'), '.upspark');
+
+        if(process.platform !== 'win32') {
+            home = external;
+        }
 
         host.setDefaultCWD(home, (cwd:string) => {
             runnerWindow.webContents.send('cwd-update', cwd);
