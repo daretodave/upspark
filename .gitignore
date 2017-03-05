@@ -4,3 +4,4 @@ src/typings
 dist
 npm-debug.log
 out/
+electron-forge
