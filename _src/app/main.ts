@@ -146,7 +146,8 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         let home:string = path.join(app.getPath('home'), '.upspark');
 
         if(process.platform !== 'win32') {
-            home = external;
+            external = app.getPath('userData');
+            home = path.join(app.getPath('userData'), 'platform');
         }
 
         host.setDefaultCWD(home, (cwd:string) => {
