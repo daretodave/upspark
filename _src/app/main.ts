@@ -19,6 +19,7 @@ import {CommandTask} from "./model/command/command-task";
 import {CommandRuntime} from "./model/command/command-runtime";
 import {inspect} from "util";
 import {WindowsBootstrap} from "./bootstrap/windows-bootstrap";
+import {Util} from "./util/util";
 
 const path = require('path');
 const electron = require('electron');
@@ -443,7 +444,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             });
     };
     let openResourceDirectory = () => {
-        electron.shell.openExternal(host.resources().root);
+        Util.openFile((host.resources().root);
     };
     let toggleRunner = () => {
         runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
@@ -483,7 +484,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         });
         options.push({
             'label': 'Log',
-            click: () => electron.shell.openExternal(path.join(host.resources().root, 'upspark.log'))
+            click: () => Util.openFile(path.join(host.resources().root, 'upspark.log'))
         });
         options.push({
             'label': 'Documentation',
@@ -1113,7 +1114,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             alertWindow.hide();
             alertWindow = null;
 
-            electron.shell.openExternal(path.join(host.resources().root, 'upspark.log'));
+            Util.openFile(path.join(host.resources().root, 'upspark.log'));
 
             app.quit();
         });

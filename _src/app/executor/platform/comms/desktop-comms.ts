@@ -1,6 +1,7 @@
 import {PlatformCommsHandler} from "../platform-comms-handler";
 import {Host} from "../../../model/host";
 import * as path from 'path';
+import {Util} from "../../../util/util";
 const {shell, clipboard} = require('electron');
 
 export class DesktopComms extends PlatformCommsHandler {
@@ -170,7 +171,7 @@ export class DesktopComms extends PlatformCommsHandler {
             location = path.join(host.cwd(), location);
         }
 
-        return shell.openExternal(location);
+        return Util.openFile(location);
     }
 
 

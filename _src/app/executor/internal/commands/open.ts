@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import ErrnoException = NodeJS.ErrnoException;
 import {Stats} from "fs";
+import {Util} from "../../../util/util";
 
 const shell = require('electron').shell;
 
@@ -27,7 +28,7 @@ export class Open extends InternalCommand {
                 return;
             }
 
-            shell.openExternal(resolve);
+            Util.openFile(resolve);
 
             this.resolve(`Opened ${resolve}`);
         });

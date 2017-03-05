@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import ErrnoException = NodeJS.ErrnoException;
 import {Stats} from "fs";
+import {Util} from "../../../util/util";
 
 const shell = require('electron').shell;
 
@@ -13,7 +14,7 @@ export class Log extends InternalCommand {
 
         Logger.info(`Launching log in default editor`);
 
-        shell.openExternal(path.join(this.task.host.resources().root, 'upspark.log'));
+        Util.openFile(path.join(this.task.host.resources().root, 'upspark.log'));
 
         return 'Log opened in default editor';
     }
