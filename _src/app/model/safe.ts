@@ -19,7 +19,7 @@ export class Safe {
 
     init(): Promise<boolean> {
         let executor = (resolve: (value?: boolean | PromiseLike<boolean>) => void, reject: (reason?: any) => void) => {
-            fs.mkdir(this.root, 777, (error: NodeJS.ErrnoException) => {
+            fs.mkdir(this.root, (error: NodeJS.ErrnoException) => {
                 if(error != null && error.code !== 'EEXIST') {
                     reject(error);
                     return;
