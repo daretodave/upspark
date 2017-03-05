@@ -102,7 +102,7 @@
           "squirrel"
         ],
         "darwin": [
-          "dmg"
+          "dmg", "zip"
         ],
         "linux": [
           "deb",

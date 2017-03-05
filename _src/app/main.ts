@@ -442,7 +442,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             });
     };
     let openResourceDirectory = () => {
-        electron.shell.openItem(host.resources().root);
+        electron.shell.openExternal(host.resources().root);
     };
     let toggleRunner = () => {
         runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
@@ -482,7 +482,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         });
         options.push({
             'label': 'Log',
-            click: () => electron.shell.openItem(path.join(host.resources().root, 'upspark.log'))
+            click: () => electron.shell.openExternal(path.join(host.resources().root, 'upspark.log'))
         });
         options.push({
             'label': 'Documentation',
@@ -1112,7 +1112,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             alertWindow.hide();
             alertWindow = null;
 
-            electron.shell.openItem(path.join(host.resources().root, 'upspark.log'));
+            electron.shell.openExternal(path.join(host.resources().root, 'upspark.log'));
 
             app.quit();
         });

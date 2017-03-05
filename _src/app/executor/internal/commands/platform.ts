@@ -11,7 +11,7 @@ export class Platform extends InternalCommand {
 
         Logger.info(`Launching platform script in default editor`);
 
-        shell.openItem(this.task.host.platform().script);
+        shell.openExternal(this.task.host.platform().script);
 
         return 'Platform script opened in default editor';
     }

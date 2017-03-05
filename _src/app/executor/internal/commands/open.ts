@@ -27,7 +27,7 @@ export class Open extends InternalCommand {
                 return;
             }
 
-            shell.openItem(resolve);
+            shell.openExternal(resolve);
 
             this.resolve(`Opened ${resolve}`);
         });

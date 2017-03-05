@@ -11,7 +11,7 @@ export class Config extends InternalCommand {
 
         Logger.info(`Launching config in default editor`);
 
-        shell.openItem(path.join(this.task.host.resources().root, 'settings.json'));
+        shell.openExternal(path.join(this.task.host.resources().root, 'settings.json'));
 
         return 'Configuration opened in default editor';
     }

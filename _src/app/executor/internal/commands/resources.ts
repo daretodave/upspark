@@ -13,7 +13,7 @@ export class Resources extends InternalCommand {
 
         Logger.info(`Launching resources in explorer`);
 
-        shell.openItem(this.task.host.resources().root);
+        shell.openExternal(this.task.host.resources().root);
 
         return 'Resource folder opened';
     }

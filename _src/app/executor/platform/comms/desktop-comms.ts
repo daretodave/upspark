@@ -170,7 +170,7 @@ export class DesktopComms extends PlatformCommsHandler {
             location = path.join(host.cwd(), location);
         }
 
-        return shell.openItem(location);
+        return shell.openExternal(location);
     }
 
 

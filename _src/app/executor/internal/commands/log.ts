@@ -13,7 +13,7 @@ export class Log extends InternalCommand {
 
         Logger.info(`Launching log in default editor`);
 
-        shell.openItem(path.join(this.task.host.resources().root, 'upspark.log'));
+        shell.openExternal(path.join(this.task.host.resources().root, 'upspark.log'));
 
         return 'Log opened in default editor';
     }
