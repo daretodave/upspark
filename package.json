@@ -121,7 +121,8 @@
           "LICENSE",
           "README",
           "tsconfig.json",
-          "gulpfile"
+          "gulpfile",
+          "^.*electron-packager.*$"
         ],
         "icon": "_src/static/icon/bulb.ico",
         "iconUrl": "https://s3.amazonaws.com/upspark/icon.png",
