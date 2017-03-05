@@ -446,7 +446,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
     };
     let initTray = () => {
-        tray = new Tray(path.join(__dirname, 'static', 'icon', '512.png'));
+        tray = new Tray(path.join(__dirname, 'static', 'icon', '16.png'));
 
         let options: any = [];
 
