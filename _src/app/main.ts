@@ -20,6 +20,7 @@ import {CommandRuntime} from "./model/command/command-runtime";
 import {inspect} from "util";
 import {WindowsBootstrap} from "./bootstrap/windows-bootstrap";
 import {Util} from "./util/util";
+import {Executor} from "./executor/executor";
 
 const path = require('path');
 const electron = require('electron');
@@ -31,6 +32,8 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
     if (WindowsBootstrap.init(app)) {
         return;
     }
+
+    Executor.getProperENV();
 
     const showRunnerWindow = () => {
         runnerWindow.show();
