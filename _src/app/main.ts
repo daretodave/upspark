@@ -33,8 +33,6 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         return;
     }
 
-    Executor.getProperENV();
-
     const showRunnerWindow = () => {
         runnerWindow.show();
         runnerWindow.focus();
@@ -175,6 +173,8 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         host.resources()
             .load('log')
             .then((log:Log) => {
+
+                Executor.getProperENV();
 
                 Logger
                     .attach(log, 200, () => host.resources().save('log', false))
