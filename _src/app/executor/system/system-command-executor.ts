@@ -57,23 +57,41 @@ export class SystemCommandExecutor implements Executor {
 
         switch(this.runtime) {
             case CommandRuntime.SYSTEM:
+                let systemOptions:any = {};
+                systemOptions['cwd'] = task.host.cwd();
+                systemOptions['shell'] = true;
+
+                if(Object.keys(task.host.getENV()).length) {
+                    systemOptions['env'] = merge(
+                        {},
+                        process.env,
+                        task.host.getENV()
+                    );
+                }
+
                 childProcess = spawn(
                     task.digest.command.content,
-                    task.digest.argument, {
-                        cwd: task.host.cwd(),
-                        env: merge({}, process.env, task.host.getENV()),
-                        shell: true
-                    }
+                    task.digest.argument, systemOptions
                 );
                 break;
             case CommandRuntime.BASH_EXTERNAL:
+                let bashExternalOptions:any = {};
+                bashExternalOptions['cwd'] = task.host.cwd();
+
+                if(Object.keys(task.host.getENV()).length) {
+                    bashExternalOptions['env'] = merge(
+                        {},
+                        process.env,
+                        task.host.getENV()
+                    );
+                }
+
                 childProcess = execFile(
                     task.digest.command.content,
-                    task.digest.argument, {
-                        cwd: task.host.cwd(),
-                        env: merge({}, process.env, task.host.getENV())
-                    }
+                    task.digest.argument,
+                    bashExternalOptions
                 );
+
                 break;
             case CommandRuntime.BASH:
 
@@ -81,11 +99,14 @@ export class SystemCommandExecutor implements Executor {
                 options['cwd'] = task.host.cwd();
                 options['windowsVerbatimArguments'] = true;
                 options['shell'] = true;
-                // options['env'] = merge(
-                //     {},
-                //     process.env,
-                //     task.host.getENV()
-                // );
+
+                if(Object.keys(task.host.getENV()).length) {
+                    options['env'] = merge(
+                        {},
+                        process.env,
+                        task.host.getENV()
+                    );
+                }
 
                 if(!task.digest.argument.length && (task.digest.command.normalized === "node"
                     || task.digest.command.normalized === "python")) {

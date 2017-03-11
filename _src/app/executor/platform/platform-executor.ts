@@ -58,6 +58,14 @@ export class PlatformExecutor implements Executor {
         }
 
         let childProcess: ChildProcess;
+        let childProcessOptions = {};
+
+        childProcessOptions['cwd'] = task.host.cwd();
+
+        if(Object.keys(task.host.getENV()).length) {
+            childProcessOptions['env'] = merge({}, process.env, task.host.getENV());
+        }
+
         this.pool.set(
             task.id,
             childProcess =
@@ -65,10 +73,7 @@ export class PlatformExecutor implements Executor {
                     [task.id, task.digest.command.normalized].concat(
                         task.digest.argument
                     ),
-                    {
-                        cwd: task.host.cwd(),
-                        env: merge({}, process.env, task.host.getENV()),
-                    }
+                    childProcessOptions
                 )
         );
 
