@@ -61,10 +61,7 @@ export class PlatformExecutor implements Executor {
         let childProcessOptions = {};
 
         childProcessOptions['cwd'] = task.host.cwd();
-
-        if(Object.keys(task.host.getENV()).length) {
-            childProcessOptions['env'] = merge({}, process.env, task.host.getENV());
-        }
+        childProcessOptions['env'] = merge({}, process.env, task.host.getENV());
 
         this.pool.set(
             task.id,
