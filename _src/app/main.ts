@@ -174,7 +174,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             .load('log')
             .then((log:Log) => {
 
-                Executor.getProperENV();
+
 
                 Logger
                     .attach(log, 200, () => host.resources().save('log', false))
@@ -196,6 +196,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
 
             })
             .then((values:any[]) => {
+                Executor.getProperENV();
 
                 let promises: Promise<any>[] = [values[0]];
                 let settings: Settings = values[0];

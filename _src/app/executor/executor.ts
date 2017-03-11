@@ -38,21 +38,15 @@ export namespace Executor {
         envToAssign = getEnvFromShell(process.env);
 
         if (envToAssign) {
-            for (let key in process.env) {
-                if (!ENVIRONMENT_VARIABLES_TO_PRESERVE.has(key)) {
-                    Logger.info(`Removing ENV '${key}' | ${process.env[key]}`);
-
-                    delete process.env[key];
-                }
-            }
 
             for (let key in envToAssign) {
-                if (!ENVIRONMENT_VARIABLES_TO_PRESERVE.has(key) || (!process.env[key] && envToAssign[key])) {
-
-                    Logger.info(`Setting ENV '${key}' | ${process.env[key]}`);
-
-                    process.env[key] = envToAssign[key];
+                if(ENVIRONMENT_VARIABLES_TO_PRESERVE.has(key)) {
+                    continue;
                 }
+
+                Logger.info(`Setting ENV '${key}' | ${envToAssign[key]}`);
+                
+                process.env[key] = envToAssign[key];
             }
 
         }
