@@ -17,6 +17,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
 
     private settings: Settings;
     private mockSettings: Settings;
+    private lastHotkeyUpdate: number = -1;
 
     @ViewChild('widthSlider') widthSlider: SliderComponent;
     @ViewChild('heightSlider') heightSlider: SliderComponent;
@@ -108,6 +109,15 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
     }
 
     handleHotkeyInput(event: KeyboardEvent) {
+        let time: number = Date.now();
+
+        if (this.lastHotkeyUpdate === -1
+            || (time - this.lastHotkeyUpdate) >= 2500) {
+            this.removeAllKeycode();
+        }
+
+        this.lastHotkeyUpdate = time;
+
         let isModifier: boolean = false;
 
         event.preventDefault();
@@ -132,8 +142,8 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         }
 
         if (!isModifier) {
-            if(key.length === 1) {
-                if(event.code.length === 1) {
+            if (key.length === 1) {
+                if (event.code.length === 1) {
                     key = event.code;
                 }
                 key = key.toUpperCase();
