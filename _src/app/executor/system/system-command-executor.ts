@@ -81,7 +81,11 @@ export class SystemCommandExecutor implements Executor {
                 options['cwd'] = task.host.cwd();
                 options['windowsVerbatimArguments'] = true;
                 options['shell'] = true;
-                options['env'] = merge({}, process.env, task.host.getENV());
+                // options['env'] = merge(
+                //     {},
+                //     process.env,
+                //     task.host.getENV()
+                // );
 
                 if(!task.digest.argument.length && (task.digest.command.normalized === "node"
                     || task.digest.command.normalized === "python")) {
