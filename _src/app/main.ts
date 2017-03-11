@@ -32,6 +32,11 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         return;
     }
 
+    const showRunnerWindow = () => {
+        runnerWindow.show();
+        runnerWindow.focus();
+    };
+
     let settingsWindow: any;
     let runnerWindow: any;
     let safeWindow: any;
@@ -240,7 +245,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
                     splashWindow.hide();
                     splashWindow = null;
 
-                    runnerWindow.show();
+                    showRunnerWindow();
                 }, 1000);
             })
             .catch((e) => {
@@ -460,7 +465,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         Util.openFile(host.resources().root);
     };
     let toggleRunner = () => {
-        runnerWindow.isVisible() ? runnerWindow.hide() : runnerWindow.show()
+        runnerWindow.isVisible() ? runnerWindow.hide() : showRunnerWindow()
     };
     let initTray = () => {
         tray = new Tray(path.join(__dirname, 'static', 'icon', '16.png'));
@@ -481,7 +486,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         });
         options.push({
             'label': 'Runner',
-            click: () => runnerWindow.show()
+            click: () => showRunnerWindow()
         });
         options.push({
             'label': 'Resources',
@@ -1226,7 +1231,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
     };
 
     app.on('ready', init);
-    app.on('activate', () => runnerWindow.show());
+    app.on('activate', () => showRunnerWindow());
     app.on('before-quit', () => quit = true);
 
     function www(path = '') {
