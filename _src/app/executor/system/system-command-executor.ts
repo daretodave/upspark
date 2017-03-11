@@ -60,14 +60,11 @@ export class SystemCommandExecutor implements Executor {
                 let systemOptions:any = {};
                 systemOptions['cwd'] = task.host.cwd();
                 systemOptions['shell'] = true;
-
-                if(Object.keys(task.host.getENV()).length) {
-                    systemOptions['env'] = merge(
-                        {},
-                        process.env,
-                        task.host.getENV()
-                    );
-                }
+                systemOptions['env'] = merge(
+                    {},
+                    process.env,
+                    task.host.getENV()
+                );
 
                 childProcess = spawn(
                     task.digest.command.content,
@@ -77,14 +74,11 @@ export class SystemCommandExecutor implements Executor {
             case CommandRuntime.BASH_EXTERNAL:
                 let bashExternalOptions:any = {};
                 bashExternalOptions['cwd'] = task.host.cwd();
-
-                if(Object.keys(task.host.getENV()).length) {
-                    bashExternalOptions['env'] = merge(
-                        {},
-                        process.env,
-                        task.host.getENV()
-                    );
-                }
+                bashExternalOptions['env'] = merge(
+                    {},
+                    process.env,
+                    task.host.getENV()
+                );
 
                 childProcess = execFile(
                     task.digest.command.content,
@@ -99,14 +93,11 @@ export class SystemCommandExecutor implements Executor {
                 options['cwd'] = task.host.cwd();
                 options['windowsVerbatimArguments'] = true;
                 options['shell'] = true;
-
-                if(Object.keys(task.host.getENV()).length) {
-                    options['env'] = merge(
-                        {},
-                        process.env,
-                        task.host.getENV()
-                    );
-                }
+                options['env'] = merge(
+                    {},
+                    process.env,
+                    task.host.getENV()
+                );
 
                 if(!task.digest.argument.length && (task.digest.command.normalized === "node"
                     || task.digest.command.normalized === "python")) {
@@ -114,8 +105,8 @@ export class SystemCommandExecutor implements Executor {
                 }
 
                 childProcess = spawn(
-                    task.digest.command.content,
-                    task.digest.argument,
+                    process.env.SHELL,
+                    [task.digest.command.content, ...task.digest.argument],
                     options
                 );
 
@@ -137,13 +128,20 @@ export class SystemCommandExecutor implements Executor {
             task.update({tag: `(${code})`});
 
             if(!task.isCompleted()) {
-                task.complete();
+                task.complete('');
             }
 
             this.pool.delete(task.id);
         });
 
         childProcess.stdout.on('data', (message:any) => {
+            message = (message || '').toString();
+
+            if(!message) {
+                Logger.info(`>command ${task.digest.command.display} broadcasted a NULL through stdout | id = ${task.id}`);
+                return;
+            }
+
             if(task.digest.argument.length === 1
                 && (task.digest.argument[0] === '-i' || task.digest.argument[0] === '--interactive')
                 && task.digest.command.normalized === "node") {
@@ -159,6 +157,13 @@ export class SystemCommandExecutor implements Executor {
             task.out(message, false, true);
         });
         childProcess.stderr.on('data', (message:any) => {
+            message = (message || '').toString();
+
+            if(!message) {
+                Logger.info(`>command ${task.digest.command.display} broadcasted a NULL through stderr | id = ${task.id}`);
+                return;
+            }
+
             if(task.digest.argument.length === 1
                 && (task.digest.argument[0] === '-i' || task.digest.argument[0] === '--interactive')
                 && task.digest.command.normalized === "node") {
