@@ -1,41 +1,102 @@
-
 <div class="row">
 
     <div class="hotkey-select col-md-6">
-        <p class="lead">HOTKEY | <small class="reset-action" (click)="triggerResetHotkey()">reset</small></p>
+        <p class="lead">HOTKEY |
+            <small class="reset-action" (click)="triggerResetHotkey()">reset</small>
+        </p>
+        <div class="row">
+            <div class="col-xs-6">
 
-        <div class="input-group">
-            <div class="input-group-btn">
-                <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                    {{settings.hotkeyModifier}}&nbsp;
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" >
-                    <li><a role="button" (click)="setHotkeyModifier('--')">--</a></li>
-                    <li><a role="button" (click)="setHotkeyModifier('Control')">Control</a></li>
-                    <li><a role="button" (click)="setHotkeyModifier('Command')">Command</a></li>
-                </ul>
+
+                <div class="checkbox"><label>
+                    <input type="checkbox" (ngModelChange)="onHotkeyIsCommand($event)"
+                           [ngModel]="settings.isHotkeyCommand">
+                    Command
+                </label></div>
+
+                <div class="checkbox"><label>
+                    <input type="checkbox" (ngModelChange)="onHotkeyIsControl($event)"
+                           [ngModel]="settings.isHotkeyControl">
+                    Control
+                </label></div>
+
+                <div class="checkbox"><label>
+                    <input type="checkbox" (ngModelChange)="onHotkeyIsShift($event)" [ngModel]="settings.isHotkeyShift">
+                    Shift
+                </label></div>
+
+                <div class="checkbox"><label>
+                    <input type="checkbox" (ngModelChange)="onHotkeyIsAlt($event)" [ngModel]="settings.isHotkeyAlt">
+                    Alt
+                </label></div>
+
             </div>
-            <input type="text" class="form-control hotkey-input" [(ngModel)]="settings.hotkey" (keydown)="handleHotkeyInput($event)">
-        </div>
 
-        <hr class="hidden-md hidden-lg">
+            <div class="col-xs-6">
+
+                <div class="checkbox"><label>
+                    <input type="checkbox" (ngModelChange)="onHotkeyIsSuper($event)" [ngModel]="settings.isHotkeySuper">
+                    Super
+                </label>
+                </div>
+                <div class="checkbox"><label>
+                    <input type="checkbox" (ngModelChange)="onHotkeyIsAltGr($event)" [ngModel]="settings.isHotkeyAltGr">
+                    AltGr
+                </label></div>
+
+                <div class="checkbox"><label>
+                    <input type="checkbox" (ngModelChange)="onHotkeyIsOption($event)"
+                           [ngModel]="settings.isHotkeyOption">
+                    Option
+                </label></div>
+
+            </div>
+
+        </div>
+        <div class="row push-down">
+            <div class="col-xs-12">
+
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" (click)="removeKeycode()">
+                            <span class="glyphicon glyphicon-minus"></span>
+                        </button>
+                    </div>
+
+                    <input type="text" class="form-control hotkey-input" [ngModel]="settings.keycode"
+                           (keydown)="handleHotkeyInput($event)">
+
+                    <div class="input-group-btn">
+                        <button class="btn btn-default" type="button" (click)="removeAllKeycode()">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
     </div>
 
-    <div class="screen-select col-md-6" >
-        <p class="lead">DISPLAY | <small class="reset-action" (click)="triggerResetDisplay()">reset</small></p>
+    <hr class="hidden-md hidden-lg">
+
+    <div class="col-md-6">
+        <p class="lead">DISPLAY |
+            <small class="reset-action" (click)="triggerResetDisplay()">reset</small>
+        </p>
 
         <div class="row">
             <div class="col-xs-12">
                 <div class="checkbox">
                     <label>
-                        <input type="checkbox" (ngModelChange)="onAlwaysOnTopUpdate($event)" [ngModel]="settings.alwaysOnTop"> Always on top
+                        <input type="checkbox" (ngModelChange)="onAlwaysOnTopUpdate($event)"
+                               [ngModel]="settings.alwaysOnTop"> Always on top
                     </label>
                 </div>
             </div>
         </div>
 
-        <div class="row" *ngIf="settings.screens.length > 1">
+        <div class="row screen-select push-down" *ngIf="settings.screens.length > 1">
             <div *ngFor="let screen of settings.screens" class="col-xs-6">
                 <div class="screen-option" [class.active]="screen.selected" (click)="onScreenUpdate(screen.index)">
                     {{screen.index}}
@@ -49,20 +110,32 @@
 <hr>
 
 <div class="metrics-container">
-    <p class="lead">METRICS | <small class="reset-action" (click)="triggerResetMetrics()">reset</small></p>
+    <p class="lead">METRICS |
+        <small class="reset-action" (click)="triggerResetMetrics()">reset</small>
+    </p>
     <div class="row">
         <div class="col-sm-6">
             <span class="settings-label">Screen X</span>
             <div class="metrics-slider-horizontal">
-                <div class="metrics-slider-input"><input (input)="onXInput($event.target.value)" [(ngModel)]="mockSettings.x" type="text" class="form-control"></div>
-                <div class="metrics-slider-tool"><up-slider #xSlider [value]="settings.x" (onPositionChange)="onXUpdate($event)" (onPositionFinalChange)="onXUpdateFinal($event)"></up-slider></div>
+                <div class="metrics-slider-input"><input (input)="onXInput($event.target.value)"
+                                                         [(ngModel)]="mockSettings.x" type="text" class="form-control">
+                </div>
+                <div class="metrics-slider-tool">
+                    <up-slider #xSlider [value]="settings.x" (onPositionChange)="onXUpdate($event)"
+                               (onPositionFinalChange)="onXUpdateFinal($event)"></up-slider>
+                </div>
             </div>
         </div>
         <div class="col-sm-6">
             <span class="settings-label">Screen Y</span>
             <div class="metrics-slider-horizontal">
-                <div class="metrics-slider-input"><input (input)="onYInput($event.target.value)" [(ngModel)]="mockSettings.y" type="text" class="form-control"></div>
-                <div class="metrics-slider-tool"><up-slider #ySlider [value]="settings.y" (onPositionChange)="onYUpdate($event)" (onPositionFinalChange)="onYUpdateFinal($event)"></up-slider></div>
+                <div class="metrics-slider-input"><input (input)="onYInput($event.target.value)"
+                                                         [(ngModel)]="mockSettings.y" type="text" class="form-control">
+                </div>
+                <div class="metrics-slider-tool">
+                    <up-slider #ySlider [value]="settings.y" (onPositionChange)="onYUpdate($event)"
+                               (onPositionFinalChange)="onYUpdateFinal($event)"></up-slider>
+                </div>
             </div>
         </div>
     </div>
@@ -78,29 +151,57 @@
         <div class="col-sm-6">
             <span class="settings-label">Width</span>
             <div class="metrics-slider-horizontal">
-                <div class="metrics-slider-input"><input (input)="onWidthInput($event.target.value)" [(ngModel)]="mockSettings.width" type="text" class="form-control"></div>
-                <div class="metrics-slider-tool"><up-slider #widthSlider [value]="settings.width" (onPositionChange)="onWidthUpdate($event)" (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider></div>
+                <div class="metrics-slider-input"><input (input)="onWidthInput($event.target.value)"
+                                                         [(ngModel)]="mockSettings.width" type="text"
+                                                         class="form-control"></div>
+                <div class="metrics-slider-tool">
+                    <up-slider #widthSlider [value]="settings.width" (onPositionChange)="onWidthUpdate($event)"
+                               (onPositionFinalChange)="onWidthUpdateFinal($event)"></up-slider>
+                </div>
             </div>
             <span class="settings-label">Height</span>
             <div class="metrics-slider-horizontal">
-                <div class="metrics-slider-input"><input (input)="onHeightInput($event.target.value)" [(ngModel)]="mockSettings.height" type="text" class="form-control"></div>
-                <div class="metrics-slider-tool"><up-slider #heightSlider [value]="settings.height" (onPositionChange)="onHeightUpdate($event)" (onPositionFinalChange)="onHeightUpdateFinal($event)"></up-slider></div>
+                <div class="metrics-slider-input"><input (input)="onHeightInput($event.target.value)"
+                                                         [(ngModel)]="mockSettings.height" type="text"
+                                                         class="form-control"></div>
+                <div class="metrics-slider-tool">
+                    <up-slider #heightSlider [value]="settings.height" (onPositionChange)="onHeightUpdate($event)"
+                               (onPositionFinalChange)="onHeightUpdateFinal($event)"></up-slider>
+                </div>
             </div>
             <span class="settings-label">Offset X</span>
             <div class="metrics-slider-horizontal">
-                <div class="metrics-slider-input"><input (input)="onOffsetXInput($event.target.value)" [(ngModel)]="mockSettings.offsetX" type="text" class="form-control"></div>
-                <div class="metrics-slider-tool"><up-slider #offsetXSlider [lower]="-1" [value]="settings.offsetX" (onPositionChange)="onOffsetXUpdate($event)" (onPositionFinalChange)="onOffsetXUpdateFinal($event)"></up-slider></div>
+                <div class="metrics-slider-input"><input (input)="onOffsetXInput($event.target.value)"
+                                                         [(ngModel)]="mockSettings.offsetX" type="text"
+                                                         class="form-control"></div>
+                <div class="metrics-slider-tool">
+                    <up-slider #offsetXSlider [lower]="-1" [value]="settings.offsetX"
+                               (onPositionChange)="onOffsetXUpdate($event)"
+                               (onPositionFinalChange)="onOffsetXUpdateFinal($event)"></up-slider>
+                </div>
             </div>
             <span class="settings-label">Offset Y</span>
             <div class="metrics-slider-horizontal">
-                <div class="metrics-slider-input"><input (input)="onOffsetYInput($event.target.value)" [(ngModel)]="mockSettings.offsetY" type="text" class="form-control"></div>
-                <div class="metrics-slider-tool"><up-slider #offsetYSlider [lower]="-1" [value]="settings.offsetY" (onPositionChange)="onOffsetYUpdate($event)" (onPositionFinalChange)="onOffsetYUpdateFinal($event)"></up-slider></div>
+                <div class="metrics-slider-input"><input (input)="onOffsetYInput($event.target.value)"
+                                                         [(ngModel)]="mockSettings.offsetY" type="text"
+                                                         class="form-control"></div>
+                <div class="metrics-slider-tool">
+                    <up-slider #offsetYSlider [lower]="-1" [value]="settings.offsetY"
+                               (onPositionChange)="onOffsetYUpdate($event)"
+                               (onPositionFinalChange)="onOffsetYUpdateFinal($event)"></up-slider>
+                </div>
             </div>
 
             <span class="settings-label">Rotation</span>
             <div class="metrics-slider-horizontal">
-                <div class="metrics-slider-input"><input (input)="onRotationInput($event.target.value)" [(ngModel)]="mockSettings.rotation" type="text" class="form-control"></div>
-                <div class="metrics-slider-tool"><up-slider #rotationSlider [upper]="360" [value]="settings.rotation" (onPositionChange)="onRotationUpdate($event)" (onPositionFinalChange)="onRotationUpdateFinal($event)"></up-slider></div>
+                <div class="metrics-slider-input"><input (input)="onRotationInput($event.target.value)"
+                                                         [(ngModel)]="mockSettings.rotation" type="text"
+                                                         class="form-control"></div>
+                <div class="metrics-slider-tool">
+                    <up-slider #rotationSlider [upper]="360" [value]="settings.rotation"
+                               (onPositionChange)="onRotationUpdate($event)"
+                               (onPositionFinalChange)="onRotationUpdateFinal($event)"></up-slider>
+                </div>
             </div>
         </div>
 

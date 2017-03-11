@@ -15,8 +15,8 @@ require('./settings-general.component.scss');
 export class SettingsGeneralComponent implements OnInit, AfterViewInit {
 
 
-    private settings:Settings;
-    private mockSettings:Settings;
+    private settings: Settings;
+    private mockSettings: Settings;
 
     @ViewChild('widthSlider') widthSlider: SliderComponent;
     @ViewChild('heightSlider') heightSlider: SliderComponent;
@@ -27,7 +27,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
     @ViewChild('rotationSlider') rotationSlider: SliderComponent;
     @ViewChild('demoRunner') demoRunner: ElementRef;
 
-    constructor(private settingsService:SettingsService, private zone:NgZone, private renderer: Renderer) {
+    constructor(private settingsService: SettingsService, private zone: NgZone, private renderer: Renderer) {
         this.settings = new Settings();
         this.mockSettings = new Settings();
     }
@@ -82,25 +82,69 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         });
     }
 
-    setHotkeyModifier(modifier:string) {
-        this.settings.hotkeyModifier = modifier;
+    removeKeycode() {
+        if (this.settings.keycodes.length) {
+            this.settings.keycodes.splice(this.settings.keycodes.length - 1);
+        }
+    }
+
+    removeAllKeycode() {
+        if (this.settings.keycodes.length) {
+            this.settings.keycodes.splice(0, this.settings.keycodes.length);
+        }
+
+        this.settings.isHotkeyShift = false;
+        this.settings.isHotkeyCommand = false;
+        this.settings.isHotkeyControl = false;
+        this.settings.isHotkeyAlt = false;
+        this.settings.isHotkeyOption = false;
+        this.settings.isHotkeyAltGr = false;
+        this.settings.isHotkeySuper = false;
+
+    }
+
+    sendHotkeyUpdate() {
         this.settingsService.setSetting('hotkey', this.settings.getHotkey(), true);
     }
 
-    handleHotkeyInput(event:KeyboardEvent) {
+    handleHotkeyInput(event: KeyboardEvent) {
+        let isModifier: boolean = false;
+
         event.preventDefault();
-        if(!event.key || event.key.toUpperCase() === "CONTROL" || event.key.toUpperCase() === "COMMAND") {
-            return;
+
+        let key: string = event.key;
+
+        if (event.key === "Meta") {
+
+            if (process.platform !== "win32") {
+                this.settings.isHotkeyCommand = isModifier = true;
+            } else {
+                this.settings.isHotkeySuper = isModifier = true;
+            }
+        } else if (event.key === "Shift") {
+            this.settings.isHotkeyShift = isModifier = true;
+        } else if (event.key === "Control") {
+            this.settings.isHotkeyControl = isModifier = true;
+        } else if (event.key === "Alt") {
+            this.settings.isHotkeyAlt = isModifier = true;
+        } else if (event.key === "Equal") {
+            key = "Plus";
         }
 
-        this.settings.hotkey = event.key;
-        if(event.ctrlKey) {
-            this.settings.hotkeyModifier = 'Control';
-        } else if(event.metaKey) {
-            this.settings.hotkeyModifier = 'Command';
-        }
-        this.settingsService.setSetting('hotkey', this.settings.getHotkey(), true);
+        if (!isModifier) {
+            if(key.length === 1) {
+                if(event.code.length === 1) {
+                    key = event.code;
+                }
+                key = key.toUpperCase();
+            }
+            if (this.settings.keycodes.indexOf(key) === -1) {
+                this.settings.keycodes.push(key);
+            }
 
+        }
+
+        this.sendHotkeyUpdate();
     }
 
     resetMetrics() {
@@ -118,9 +162,11 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
     triggerResetHotkey() {
         ipcRenderer.send('settings-hotkey-reset');
     }
+
     triggerResetMetrics() {
         ipcRenderer.send('settings-metrics-reset');
     }
+
     triggerResetDisplay() {
         ipcRenderer.send('settings-display-reset');
     }
@@ -133,22 +179,66 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         this.renderer.setElementStyle(this.demoRunner.nativeElement, 'height', `${this.settings.height * 100}%`);
     }
 
-    getSafeMetric(value:any): number {
-        if(typeof value === 'string') {
+    getSafeMetric(value: any): number {
+        if (typeof value === 'string') {
             value = +value;
         }
         return +value.toFixed(2);
     }
 
-    onAlwaysOnTopUpdate(alwaysOnTop:boolean) {
+    onAlwaysOnTopUpdate(alwaysOnTop: boolean) {
         this.settings.alwaysOnTop = alwaysOnTop;
 
         this.settingsService.setSetting('alwaysOnTop', alwaysOnTop, true);
     }
 
-    onScreenUpdate(screenIdx:number) {
-        this.settings.screens.forEach((screen:SettingsScreen) => {
-           screen.selected = screen.index === screenIdx;
+    onHotkeyIsCommand(isHotkeyCommand: boolean) {
+        this.settings.isHotkeyCommand = isHotkeyCommand;
+
+        this.sendHotkeyUpdate();
+    }
+
+    onHotkeyIsControl(isHotkeyControl: boolean) {
+        this.settings.isHotkeyControl = isHotkeyControl;
+
+        this.sendHotkeyUpdate();
+    }
+
+    onHotkeyIsAlt(isHotkeyAlt: boolean) {
+        this.settings.isHotkeyAlt = isHotkeyAlt;
+
+        this.sendHotkeyUpdate();
+    }
+
+
+    onHotkeyIsAltGr(isHotkeyAltGr: boolean) {
+        this.settings.isHotkeyAltGr = isHotkeyAltGr;
+
+        this.sendHotkeyUpdate();
+    }
+
+
+    onHotkeyIsShift(isHotkeyShift: boolean) {
+        this.settings.isHotkeyShift = isHotkeyShift;
+
+        this.sendHotkeyUpdate();
+    }
+
+    onHotkeyIsSuper(isHotkeySuper: boolean) {
+        this.settings.isHotkeySuper = isHotkeySuper;
+
+        this.sendHotkeyUpdate();
+    }
+
+    onHotkeyIsOption(isHotkeyOption: boolean) {
+        this.settings.isHotkeyOption = isHotkeyOption;
+
+        this.sendHotkeyUpdate();
+    }
+
+    onScreenUpdate(screenIdx: number) {
+        this.settings.screens.forEach((screen: SettingsScreen) => {
+            screen.selected = screen.index === screenIdx;
         });
         this.settings.screen = screenIdx;
 
@@ -156,28 +246,28 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
 
     }
 
-    static getNumber(value:any, lower:number, upper:number):number {
-        if(isNaN(value) || !isFinite(value)) {
+    static getNumber(value: any, lower: number, upper: number): number {
+        if (isNaN(value) || !isFinite(value)) {
             return undefined;
         }
 
-        let num:number = +value;
-        if(num < lower || num > upper) {
+        let num: number = +value;
+        if (num < lower || num > upper) {
             return;
         }
 
         return num;
     }
 
-    onSliderInput(onUpdate:(num:number) => void, slider:SliderComponent, lowerRange:number = 0, upperRange:number = 1) {
-        let self:SettingsGeneralComponent = this;
+    onSliderInput(onUpdate: (num: number) => void, slider: SliderComponent, lowerRange: number = 0, upperRange: number = 1) {
+        let self: SettingsGeneralComponent = this;
 
-        return (value:any) => {
-            if(!value) {
+        return (value: any) => {
+            if (!value) {
                 return;
             }
-            let num:number = SettingsGeneralComponent.getNumber(value, lowerRange, upperRange);
-            if(num === undefined) {
+            let num: number = SettingsGeneralComponent.getNumber(value, lowerRange, upperRange);
+            if (num === undefined) {
                 return;
             }
             onUpdate.call(self, value);
@@ -185,9 +275,9 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         };
     }
 
-    onMetricUpdate(setting:string, save:boolean = false, metric:string = setting) {
-        let self:SettingsGeneralComponent = this;
-        return (value:number) => {
+    onMetricUpdate(setting: string, save: boolean = false, metric: string = setting) {
+        let self: SettingsGeneralComponent = this;
+        return (value: number) => {
             self.settingsService.setSetting(setting, value, save);
             self.mockSettings[metric] = self.getSafeMetric(value);
             self.settings[metric] = value;
@@ -195,33 +285,33 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         };
     }
 
-    private onWidthInput:(value:any) => void;
-    private onWidthUpdate:(value:number) => void;
-    private onWidthUpdateFinal:(value:number) => void;
+    private onWidthInput: (value: any) => void;
+    private onWidthUpdate: (value: number) => void;
+    private onWidthUpdateFinal: (value: number) => void;
 
-    private onHeightInput:(value:any) => void;
-    private onHeightUpdate:(value:number) => void;
-    private onHeightUpdateFinal:(value:number) => void;
+    private onHeightInput: (value: any) => void;
+    private onHeightUpdate: (value: number) => void;
+    private onHeightUpdateFinal: (value: number) => void;
 
-    private onXInput:(value:any) => void;
-    private onXUpdate:(value:number) => void;
-    private onXUpdateFinal:(value:number) => void;
+    private onXInput: (value: any) => void;
+    private onXUpdate: (value: number) => void;
+    private onXUpdateFinal: (value: number) => void;
 
-    private onYInput:(value:any) => void;
-    private onYUpdate:(value:number) => void;
-    private onYUpdateFinal:(value:number) => void;
+    private onYInput: (value: any) => void;
+    private onYUpdate: (value: number) => void;
+    private onYUpdateFinal: (value: number) => void;
 
-    private onOffsetXInput:(value:any) => void;
-    private onOffsetXUpdate:(value:number) => void;
-    private onOffsetXUpdateFinal:(value:number) => void;
+    private onOffsetXInput: (value: any) => void;
+    private onOffsetXUpdate: (value: number) => void;
+    private onOffsetXUpdateFinal: (value: number) => void;
 
-    private onOffsetYInput:(value:any) => void;
-    private onOffsetYUpdate:(value:number) => void;
-    private onOffsetYUpdateFinal:(value:number) => void;
+    private onOffsetYInput: (value: any) => void;
+    private onOffsetYUpdate: (value: number) => void;
+    private onOffsetYUpdateFinal: (value: number) => void;
 
-    private onRotationInput:(value:any) => void;
-    private onRotationUpdate:(value:number) => void;
-    private onRotationUpdateFinal:(value:number) => void;
+    private onRotationInput: (value: any) => void;
+    private onRotationUpdate: (value: number) => void;
+    private onRotationUpdateFinal: (value: number) => void;
 
     ngAfterViewInit() {
 

@@ -287,6 +287,13 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         return [Math.round(nx), Math.round(ny)];
     };
 
+    let reconfigureHotkey = (hotkey:string) => {
+        globalShortcut.unregisterAll();
+
+        if(hotkey)
+            globalShortcut.register(hotkey, toggleRunner);
+    };
+
     let adhereSettings = (log:boolean = true):Promise<any> => {
         if(log) {
             Logger.start('configure', true)
@@ -432,6 +439,8 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             if(log) {
                 Logger.info(`setting runner hotkey to ${settings.hotkey.toUpperCase()}`);
             }
+
+            if(settings.hotkey)
             globalShortcut.register(settings.hotkey, toggleRunner);
         })
             .then(() =>  {
@@ -893,7 +902,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             console.log('Settings:reset-hotkey');
 
             let settings:Settings = host.resources().syncGet<Settings>('settings');
-            settings.hotkey = 'Control+`';
+            settings.hotkey = 'CommandOrControl+`';
 
             adhereSettings().then(() => {
                 host.resources().save('settings');
@@ -1045,7 +1054,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
                         Themes.setTheme(target, value, css);
                         console.log(target, value);
                     }
-                    return adhereSettings(save);
+                    return setting === 'hotkey' ? reconfigureHotkey(value) : adhereSettings(save);
                 })
                 .then(() => {
                     return save ? <Promise<any>>host.resources().save('settings') : null;

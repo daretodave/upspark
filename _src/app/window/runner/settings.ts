@@ -35,7 +35,7 @@ export class Settings implements ResourceModel {
 
         this.rotation = 0;
 
-        this.hotkey = 'Control+`';
+        this.hotkey = 'CommandOrControl+`';
 
     }
 
