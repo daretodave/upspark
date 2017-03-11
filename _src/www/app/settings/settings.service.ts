@@ -24,6 +24,7 @@ export class SettingsService {
         settings.offsetY = this.getSetting<number>('offset-y');
         settings.screen = this.getSetting<number>('screen');
         settings.rotation = this.getSetting<number>('rotation');
+        settings.alwaysOnTop = this.getSetting<boolean>('alwaysOnTop');
         settings.resourceLocation = this.getSetting<string>('resource-dir');
 
         this.setHotkey(settings);

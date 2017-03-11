@@ -69,6 +69,7 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
         ipcRenderer.on('settings-display-load', () => {
             this.zone.run(() => {
                 this.settings.screen = this.settingsService.getSetting<number>('screen');
+                this.settings.alwaysOnTop = this.settingsService.getSetting<boolean>('alwaysOnTop');
                 this.settingsService.setScreens(this.settings);
             });
         });
@@ -137,6 +138,12 @@ export class SettingsGeneralComponent implements OnInit, AfterViewInit {
             value = +value;
         }
         return +value.toFixed(2);
+    }
+
+    onAlwaysOnTopUpdate(alwaysOnTop:boolean) {
+        this.settings.alwaysOnTop = alwaysOnTop;
+
+        this.settingsService.setSetting('alwaysOnTop', alwaysOnTop, true);
     }
 
     onScreenUpdate(screenIdx:number) {

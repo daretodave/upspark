@@ -9,6 +9,7 @@ export class Settings implements ResourceModel {
     public hotkey:string;
     public rotation:number;
     public theme:UpTheme;
+    public alwaysOnTop:boolean;
 
     constructor() {
     }
@@ -29,6 +30,8 @@ export class Settings implements ResourceModel {
         this.theme = new UpTheme();
         this.theme.global = '';
         this.theme.runner = '';
+
+        this.alwaysOnTop = false;
 
         this.rotation = 0;
 

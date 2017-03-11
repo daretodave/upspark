@@ -12,6 +12,7 @@ export class Settings {
     rotation:number;
     screens:SettingsScreen[];
     resourceLocation:string;
+    alwaysOnTop:boolean;
 
     getHotkey(): string {
         if(!this.hotkey) {

@@ -73,6 +73,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
 
             promises.push(settings.theme.global ? Themes.load('global', settings.theme.global) : null);
             promises.push(settings.theme.runner ? Themes.load('runner', settings.theme.runner) : null);
+
             return Promise.all(promises).then(([globalTheme, runnerTheme]) => {
                 if (globalTheme !== null) {
                     Themes.setTheme('global', settings.theme.global, globalTheme);
@@ -335,6 +336,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             if(log) {
                 Logger.start(`metrics`);
             }
+
             let settings:Settings = values[0];
             let runnerStyle:string = values[1].content;
             let globalStyle:string = values[2].content;
@@ -354,6 +356,8 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
 
             x += width * settings.location.offsetX;
             y += height * settings.location.offsetY;
+
+            runnerWindow.setAlwaysOnTop(settings.alwaysOnTop);
 
             if(settings.rotation !== 0 && settings.rotation !== 360) {
                 let cx:number = width/2 + x;
@@ -822,7 +826,6 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
 
         settingsWindow.loadURL(www('settings'));
 
-
         host.attachSettingsWindow(settingsWindow);
 
         if (process.env.ENV !== 'development') {
@@ -875,6 +878,7 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
 
             let settings:Settings = host.resources().syncGet<Settings>('settings');
             settings.location.screen = 0;
+            settings.alwaysOnTop = false;
 
             adhereSettings().then(() => {
                 host.resources().save('settings');
@@ -911,6 +915,9 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
             let settings:Settings = host.resources().syncGet<Settings>('settings');
 
             switch(args) {
+                case 'alwaysOnTop':
+                    resolve = settings.alwaysOnTop;
+                    break;
                 case 'resource-dir':
                     resolve = host.resources().root;
                     break;
@@ -988,6 +995,9 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
                 .then((settings:Settings) => {
 
                     switch(setting) {
+                        case 'alwaysOnTop':
+                            settings.alwaysOnTop = value;
+                            break;
                         case 'width':
                             settings.size.width = value;
                             break;
@@ -1135,7 +1145,6 @@ const {app, BrowserWindow, Tray, Menu, globalShortcut, shell, ipcMain, dialog} =
         options.maximizable = false;
         options.minimizable = false;
         options.transparent = true;
-        options.alwaysOnTop = true;
         options.skipTaskbar = true;
         options.enableLargerThanScreen = true;
         options.title = 'Upspark - Runner';

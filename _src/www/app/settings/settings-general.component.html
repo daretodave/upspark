@@ -11,9 +11,9 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" >
-                    <li><a (click)="setHotkeyModifier('--')">--</a></li>
-                    <li><a (click)="setHotkeyModifier('Control')">Control</a></li>
-                    <li><a (click)="setHotkeyModifier('Command')">Command</a></li>
+                    <li><a role="button" (click)="setHotkeyModifier('--')">--</a></li>
+                    <li><a role="button" (click)="setHotkeyModifier('Control')">Control</a></li>
+                    <li><a role="button" (click)="setHotkeyModifier('Command')">Command</a></li>
                 </ul>
             </div>
             <input type="text" class="form-control hotkey-input" [(ngModel)]="settings.hotkey" (keydown)="handleHotkeyInput($event)">
@@ -22,10 +22,20 @@
         <hr class="hidden-md hidden-lg">
     </div>
 
-    <div class="screen-select col-md-6" *ngIf="settings.screens.length > 1">
+    <div class="screen-select col-md-6" >
         <p class="lead">DISPLAY | <small class="reset-action" (click)="triggerResetDisplay()">reset</small></p>
 
         <div class="row">
+            <div class="col-xs-12">
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" (ngModelChange)="onAlwaysOnTopUpdate($event)" [ngModel]="settings.alwaysOnTop"> Always on top
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" *ngIf="settings.screens.length > 1">
             <div *ngFor="let screen of settings.screens" class="col-xs-6">
                 <div class="screen-option" [class.active]="screen.selected" (click)="onScreenUpdate(screen.index)">
                     {{screen.index}}
