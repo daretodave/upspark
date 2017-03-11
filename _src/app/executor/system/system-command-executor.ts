@@ -105,8 +105,8 @@ export class SystemCommandExecutor implements Executor {
                 }
 
                 childProcess = spawn(
-                    process.env.SHELL,
-                    [task.digest.command.content, ...task.digest.argument],
+                    task.digest.command.content,
+                    task.digest.argument,
                     options
                 );
 

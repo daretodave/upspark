@@ -45,7 +45,7 @@ export namespace Executor {
                 }
 
                 Logger.info(`Setting ENV '${key}' | ${envToAssign[key]}`);
-                
+
                 process.env[key] = envToAssign[key];
             }
 
