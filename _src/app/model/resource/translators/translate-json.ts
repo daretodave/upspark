@@ -20,3 +20,17 @@ export class JSONTranslator implements ResourceTranslator {
     }
 
 }
+
+export class Something {
+
+    constructor(public x:number, public y:number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    move() {
+        this.x += 20;
+        this.y += 20;
+    }
+
+}

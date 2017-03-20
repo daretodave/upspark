@@ -84,6 +84,8 @@ upspark.util.resolve = function (id, entity, parameters, callback, errCallback, 
     try {
         depth = depth ? depth + 1 : 0;
 
+        let isBackground = false;
+
         if (upspark.util.isFunction(entity)) {
 
             entity = entity.apply({
@@ -91,6 +93,14 @@ upspark.util.resolve = function (id, entity, parameters, callback, errCallback, 
                 depth: depth,
                 start: upspark.init,
                 id: id,
+
+                background: function(toggle) {
+                    if(arguments.length === 0) {
+                        isBackground = true;
+                    } else {
+                        isBackground = !!toggle;
+                    }
+                },
 
                 abort: function (message, nonError) {
                     if (arguments.length > 0) {
@@ -154,7 +164,7 @@ upspark.util.resolve = function (id, entity, parameters, callback, errCallback, 
             }, parameters);
 
 
-            if (depth === 0 && typeof entity === 'undefined') {
+            if (depth === 0 && typeof entity === 'undefined' && isBackground) {
                 //user is handling their own process
                 return;
             }

@@ -7,7 +7,7 @@ export class Command implements CommandLike {
 
     static STORAGE_KEY:string = 'commands';
     static STORAGE_LIMIT:number = 200;
-
+    
     constructor(public id: string,
                 public intent: CommandIntent,
                 public tag: string = '',
