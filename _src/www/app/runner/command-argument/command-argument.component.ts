@@ -17,7 +17,9 @@ export class CommandArgumentComponent implements OnInit {
     }
 
     ngOnInit() {
-        //this.focus();
+        if(this.argument.focus) {
+            this.focus();
+        }
         //this.resize();
     }
 

@@ -256,7 +256,11 @@ export class RunnerComponent implements OnInit {
                 return false;
             }
 
-            this.intent.arguments.push(new CommandArgument());
+            const arg = new CommandArgument();
+            arg.focus = true;
+
+            this.intent.arguments.push(arg);
+
             return false;
         }
 

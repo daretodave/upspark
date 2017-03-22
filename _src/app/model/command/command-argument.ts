@@ -13,4 +13,6 @@ export class CommandArgument {
     title:string = '';
     content:any = '';
 
+    focus:boolean = false;
+
 }
